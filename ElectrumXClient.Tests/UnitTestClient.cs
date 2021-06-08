@@ -17,8 +17,8 @@ namespace Tests
             var config = new ConfigurationBuilder()
                  .AddJsonFile("client-secrets.json")
                  .Build();
-            var host = "electrum.blockstream.info";
-            var port = 50002;
+            var host = "telectrum.xrhodium.org";
+            var port = 51002;
             var useSSL = false;
 
             using (Client client = new Client(host, port, useSSL)) { }
