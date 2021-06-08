@@ -52,6 +52,7 @@ namespace ElectrumMobileXRC.PageModels
         public string StopPrice { get; set; }
 
         public ICommand OpenResultCommand { get; set; }
+        public ICommand OpenResultXCommand { get; set; }
 
         public MainPageModel()
         {
@@ -109,6 +110,11 @@ namespace ElectrumMobileXRC.PageModels
 
                     await CoreMethods.PushPageModel<ResultPageModel>(model);
                 }
+            });
+
+            OpenResultXCommand = new Command(async () =>
+            {
+                await CoreMethods.PushPageModel<CreatePageModel>();
             });
         }
     }

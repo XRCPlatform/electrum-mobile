@@ -13,43 +13,28 @@
             <ScrollView Grid.Row="0" VerticalOptions="FillAndExpand">
                 <StackLayout VerticalOptions="FillAndExpand" Padding="24,34,24,24" Spacing="0">
                     <StackLayout VerticalOptions="StartAndExpand">
-                        <Label x:Name="WelcomeLabel" Text="Electrum Mobile" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" />
+                        <Label x:Name="WalletNameLabel" Text="Electrum Mobile" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" />
                         <StackLayout Orientation="Horizontal" Margin="0,8,0,0">
                             <ff:CachedImage x:Name="Logo" Source="logo.png" VerticalOptions="CenterAndExpand" />
                             <Label x:Name="ElectrumMobileXRCLabel" Margin="10,0,0,0" Text="xRhodium" FontSize="41" FontFamily="{StaticResource font_heavy}" TextColor="#ffffff" />
                         </StackLayout>
+                        <StackLayout Orientation="Horizontal" Margin="0,40,0,0">
+                            <Label HorizontalOptions="Center" VerticalOptions="Center" Text="Now you are able to load or create a new wallet. Generate your new seed or write your old one." FontSize="16" FontFamily="{StaticResource font_heavy}" TextColor="#ffffff" />
+                        </StackLayout>
 
-                        <!-- Place new controls here -->
-                        <!--  <Label x:Name="IntroLabel" Margin="0,24,0,16" FontSize="15" FontFamily="{StaticResource font_book}" TextColor="#ffffff" Text="Electrum Mobile xRhodium wallet for iOS. Secure, easy and trusted by the Bitcoin community since 2011" /> -->
-                        <controls:RoundedContentView x:Name="Card" Margin="0,24,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
-                            <StackLayout Padding="24" Spacing="8">
-                                <StackLayout Orientation="Horizontal">
-                                    <Label VerticalOptions="Center" Text="LAST UPDATE" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
-                                    <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding LastDateUpdate}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
-                                </StackLayout>
-                                <StackLayout Orientation="Horizontal">
-                                    <Label VerticalOptions="Center" Text="UNCONFIRMED" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
-                                    <Label VerticalOptions="Center" Text="{Binding Balance, StringFormat='{0:0.########;;0.########} XRC'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
-                                </StackLayout>
-                                <BoxView Margin="0,16" HeightRequest="1" BackgroundColor="#DDDDDD" />
-                                <Label HorizontalOptions="Center" VerticalOptions="Center" Text="{Binding BalanceUnconfirmed, StringFormat='BALANCE: {0:0.########;;0.########} XRC'}" FontSize="16" FontFamily="{StaticResource font_heavy}" TextColor="{StaticResource dark_blue}" />
+                        <Label x:Name="SeedLabel" Text="Your wallet seed" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
+                        <controls:RoundedContentView x:Name="Seed" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
+                            <StackLayout Padding="24" Spacing="2">
+                                <Editor Keyboard="Text" Text="{Binding Seed}" IsTextPredictionEnabled="false" IsSpellCheckEnabled="false" x:Name="SeedEditor" AutoSize="TextChanges" Placeholder="" PlaceholderColor="Olive" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_blue}"/>
+
                             </StackLayout>
                         </controls:RoundedContentView>
 
-                        <Label x:Name="HistoryLabel" Text="Transaction history" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
-                        <controls:RoundedContentView x:Name="History" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
+                        <Label x:Name="PassphraseLabel" Text="Your passphrase" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
+                        <controls:RoundedContentView x:Name="Passphrase" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
                             <StackLayout Padding="24" Spacing="2">
-                                <StackLayout  x:Name="HistoryList" BindableLayout.ItemsSource="{Binding TransactionHistory}">
-                                    <BindableLayout.ItemTemplate>
-                                        <DataTemplate>
-                                            <StackLayout Orientation="Horizontal" Padding="0,10">
-                                                <Label VerticalOptions="Center" Text="{Binding CreationDate}" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
-                                                <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding Balance, StringFormat='{0:0.########;-0.########;0.########} XRC'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
-                                            </StackLayout>
-                                        </DataTemplate>
-                                    </BindableLayout.ItemTemplate>
-                                </StackLayout>
-                               
+                                <Editor Keyboard="Text" Text="{Binding Passphrase}" IsTextPredictionEnabled="false" IsSpellCheckEnabled="false" x:Name="PassphraseEditor" AutoSize="TextChanges" Placeholder="" PlaceholderColor="Olive" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_blue}"/>
+
                             </StackLayout>
                         </controls:RoundedContentView>
                     </StackLayout>
@@ -63,8 +48,8 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                <Button x:Name="CalculateButton" Grid.Column="0" Command="{Binding OpenResultCommand}" VerticalOptions="EndAndExpand" Text="SEND" Margin="0,5,5,5" />
-                <Button x:Name="CalculateButtonxx" Grid.Column="1" Command="{Binding OpenResultCommand}" VerticalOptions="EndAndExpand" Text="RECEIVE" Margin="5,5,0,5" />
+                <Button x:Name="GenerateButton" Grid.Column="0" Command="{Binding GenerateButtonCommand}" VerticalOptions="EndAndExpand" Text="GENERATE" Margin="0,5,5,5" />
+                <Button x:Name="LoadButton" IsEnabled="False" Grid.Column="1" Command="{Binding LoadButtonCommand}" VerticalOptions="EndAndExpand" Text="LOAD WALLET" Margin="5,5,0,5" />
             </Grid>
         </Grid>
     </Grid>

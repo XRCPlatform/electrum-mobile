@@ -1,6 +1,7 @@
 ﻿using FreshMvvm;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.Windows.Input;
 using Xamarin.Forms;
@@ -9,30 +10,25 @@ namespace ElectrumMobileXRC.PageModels
 {
     public class CreatePageModel : FreshBasePageModel
     {
-        public ICommand CreateWalletCommand { get; set; }
+        public ICommand GenerateButtonCommand { get; set; }
+        public ICommand LoadButtonCommand { get; set; }
+
+        public string Seed { get; set; }
+
+        public string Passphrase { get; set; }
+
         public CreatePageModel()
         {
-            CreateWalletCommand = new Command(async () =>
+            Seed = string.Empty;
+
+            GenerateButtonCommand = new Command(async () =>
             {
-                double riskPerc, capSize, entryPrice, stopPrice, targetPrice;
+                Seed = "shop swap budget toilet riot swift loud mom grow venue census resemble squeeze champion ankle retire virus tooth huge oxygen section shove lab annual";
+            });
 
-                if (double.TryParse(RiskPercentage, out riskPerc) &&
-                    double.TryParse(CapitalSize, out capSize) &&
-                    double.TryParse(EntryPrice, out entryPrice) &&
-                    double.TryParse(StopPrice, out stopPrice) &&
-                    double.TryParse(TargetPrice, out targetPrice))
-                {
-                    var model = new InputModel
-                    {
-                        RiskPercentage = riskPerc,
-                        CapitalSize = capSize,
-                        EntryPrice = entryPrice,
-                        StopPrice = stopPrice,
-                        TargetPrice = targetPrice
-                    };
-
-                    await CoreMethods.PushPageModel<ResultPageModel>(model);
-                }
+            LoadButtonCommand = new Command(async () =>
+            {
+                await CoreMethods.PushPageModel<MainPageModel>();
             });
         }
     }
