@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using ElectrumMobileXRC.Controls;
 using Xamarin.Forms;
 using Xamarin.Essentials;
 using FFImageLoading.Forms;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using ElectrumMobileXRC.Controls;
 
 namespace ElectrumMobileXRC.Pages
 {
@@ -33,10 +33,8 @@ namespace ElectrumMobileXRC.Pages
         {
             base.OnAppearing();
 
-            
             if (!_initialized)
             {
-
 
                 _initialized = true;
             }

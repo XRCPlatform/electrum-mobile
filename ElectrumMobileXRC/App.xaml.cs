@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using ElectrumMobileXRC.PageModels;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;

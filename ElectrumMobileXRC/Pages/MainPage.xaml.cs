@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
-using ElectrumMobileXRC.Controls;
 using Xamarin.Forms;
 using Xamarin.Essentials;
 using FFImageLoading.Forms;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using ElectrumMobileXRC.Services;
+using ElectrumMobileXRC.Models;
+using Newtonsoft.Json;
+using ElectrumMobileXRC.Controls;
 
 namespace ElectrumMobileXRC.Pages
 {
@@ -19,7 +22,7 @@ namespace ElectrumMobileXRC.Pages
         private bool _initialized = false;
         private bool _starsAdded = false;
         private List<VisualElement> _stars = new List<VisualElement>();
-
+  
         public MainPage()
         {
             InitializeComponent();
@@ -33,7 +36,6 @@ namespace ElectrumMobileXRC.Pages
         {
             base.OnAppearing();
 
-            
             if (!_initialized)
             {
 
@@ -44,9 +46,6 @@ namespace ElectrumMobileXRC.Pages
                      Card.TranslateTo(_formsWidth, 0, 0, null)
                 );
 
-                //PositionStars();
-                // RotateStars();
-
                 await Task.WhenAll(
                     WalletNameLabel.TranslateTo(0, 0, 400, Easing.CubicInOut),
                     ElectrumMobileXRCLabel.TranslateTo(0, 0, 450, Easing.CubicInOut),
@@ -55,46 +54,20 @@ namespace ElectrumMobileXRC.Pages
                 );
 
                 _initialized = true;
+
+
+                var stest = new TxDbService();
+                var sclass = new TxModel();
+                sclass.Hash = "xxxx";
+                var id = await stest.AddCoffee(sclass);
+
+                Console.WriteLine(id);
+                var ssss = await stest.GetAll();
+
+                var exp = JsonConvert.SerializeObject(ssss);
+
+                Console.WriteLine(exp);
             }
-        }
-
-        private void PositionStars()
-        {
-            if (!_starsAdded)
-            {
-                var random = new Random();
-
-
-                for (int j = 0; j < 5; j++)
-                {
-                    var starField = new Grid();
-
-                    for (int i = 0; i < 20; i++)
-                    {
-                        var size = random.Next(3, 7);
-                        var star = new CachedImage() { Source = "star.png", Opacity = 0.3, HeightRequest = size, WidthRequest = size, HorizontalOptions = LayoutOptions.Start, VerticalOptions = LayoutOptions.Start, TranslationX = random.Next(0, _formsWidth), TranslationY = random.Next(0, _formsHeight) };
-                        starField.Children.Add(star);
-                    }
-
-                    _stars.Add(starField);
-
-                    MainGrid.Children.Insert(0, starField);
-                }
-            }
-        }
-
-        private async Task RotateStars()
-        {
-            var rotateTasks = new List<Task>();
-            var random = new Random();
-
-            foreach (var star in _stars)
-            {
-                var rate = random.Next(240000, 300000);
-                rotateTasks.Add(RotateElement(star, (uint)rate, new CancellationToken()));
-            }
-
-            await Task.WhenAll(rotateTasks);
         }
     }
 }

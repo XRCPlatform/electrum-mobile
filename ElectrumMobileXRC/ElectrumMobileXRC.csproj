@@ -10,6 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.7.335" />
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012" />
     <PackageReference Include="LiveXAML" Version="2.1.50" />
     <PackageReference Include="FreshMvvm" Version="2.2.4" />
@@ -19,7 +21,6 @@
     <PackageReference Include="PropertyChanged.Fody" Version="2.6.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Controls\" />
     <Folder Include="Pages\" />
   </ItemGroup>
 </Project>
