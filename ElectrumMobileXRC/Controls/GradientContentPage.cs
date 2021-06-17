@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using FFImageLoading.Forms;
-using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace ElectrumMobileXRC.Controls

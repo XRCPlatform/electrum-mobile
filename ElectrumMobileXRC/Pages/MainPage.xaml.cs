@@ -2,10 +2,7 @@
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Essentials;
-using FFImageLoading.Forms;
 using System.Collections.Generic;
-using System.Threading;
-using System.Linq;
 using ElectrumMobileXRC.Services;
 using ElectrumMobileXRC.Models;
 using Newtonsoft.Json;
@@ -67,6 +64,27 @@ namespace ElectrumMobileXRC.Pages
                 var exp = JsonConvert.SerializeObject(ssss);
 
                 Console.WriteLine(exp);
+
+                try
+                {
+                    await SecureStorage.SetAsync("oauth_token", "secret-oauth-token-value");
+                }
+                catch (Exception ex)
+                {
+                    // Possible that device doesn't support secure storage on device.
+                }
+
+
+                try
+                {
+                    var oauthToken = await SecureStorage.GetAsync("oauth_token");
+                }
+                catch (Exception ex)
+                {
+                    // Possible that device doesn't support secure storage on device.
+                }
+
+                SecureStorage.Remove("oauth_token");
             }
         }
     }

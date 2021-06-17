@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Xamarin.Forms;
 using Xamarin.Essentials;
-using FFImageLoading.Forms;
 using System.Collections.Generic;
-using System.Threading;
-using System.Linq;
 using ElectrumMobileXRC.Controls;
 
 namespace ElectrumMobileXRC.Pages

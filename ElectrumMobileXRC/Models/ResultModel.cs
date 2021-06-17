@@ -1,5 +1,4 @@
-﻿using System;
-namespace ElectrumMobileXRC.Models
+﻿namespace ElectrumMobileXRC.Models
 {
     public class ResultModel
     {

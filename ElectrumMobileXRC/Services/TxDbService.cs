@@ -18,7 +18,6 @@ namespace ElectrumMobileXRC.Services
             if (db != null)
                 return;
 
-            // Get an absolute path to the database file
             var databasePath = Path.Combine(FileSystem.AppDataDirectory, "MyData.db");
 
             db = new SQLiteAsyncConnection(databasePath);

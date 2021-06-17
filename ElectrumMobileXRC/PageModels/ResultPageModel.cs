@@ -1,7 +1,5 @@
-﻿using System;
-using FreshMvvm;
+﻿using FreshMvvm;
 using ElectrumMobileXRC.Models;
-using Xamarin.Forms;
 
 namespace ElectrumMobileXRC.PageModels
 {

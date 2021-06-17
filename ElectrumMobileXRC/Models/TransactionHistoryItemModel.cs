@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ElectrumMobileXRC.Models
+﻿namespace ElectrumMobileXRC.Models
 {
     public class TransactionHistoryItemModel
     {
