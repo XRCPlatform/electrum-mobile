@@ -17,23 +17,25 @@ namespace ElectrumMobileXRC
         {
             InitializeComponent();
 
-            MainPage = new FreshMvvm.FreshNavigationContainer(FreshMvvm.FreshPageModelResolver.ResolvePageModel<MainPageModel>())
-            {
-                BarBackgroundColor = Color.FromHex("#301536"),
-                BarTextColor = Color.White
-            };
+            MainPage = FreshPageModelResolver.ResolvePageModel<LoadingPageModel>();
 
             _configDb = new ConfigDbService();
         }
 
         protected override async void OnStart()
         {
-            var createPage = FreshPageModelResolver.ResolvePageModel<CreatePageModel>(null);
-
             var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
             if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)))
             {
-                App.Current.MainPage = createPage;
+                Current.MainPage = FreshPageModelResolver.ResolvePageModel<CreatePageModel>();
+            } 
+            else
+            {
+                Current.MainPage = new FreshNavigationContainer(FreshPageModelResolver.ResolvePageModel<MainPageModel>())
+                {
+                    BarBackgroundColor = Color.FromHex("#000000"),
+                    BarTextColor = Color.White
+                };
             }
         }
 

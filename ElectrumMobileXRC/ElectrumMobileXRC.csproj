@@ -21,9 +21,23 @@
     <PackageReference Include="PropertyChanged.Fody" Version="2.6.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Pages\" />
+    <ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
+    <EmbeddedResource Update="Pages\LoadingPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Pages\LoginPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Pages\ProfilePage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Pages\ReceivePage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Pages\SendPage.xaml">
+      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>
