@@ -1,4 +1,5 @@
 ﻿using FreshMvvm;
+using NBitcoin;
 using System.Windows.Input;
 using Xamarin.Forms;
 
@@ -7,7 +8,7 @@ namespace ElectrumMobileXRC.PageModels
     public class CreatePageModel : FreshBasePageModel
     {
         public ICommand GenerateButtonCommand { get; set; }
-        public ICommand LoadButtonCommand { get; set; }
+        public ICommand CreateButtonCommand { get; set; }
 
         public string Seed { get; set; }
 
@@ -19,10 +20,12 @@ namespace ElectrumMobileXRC.PageModels
 
             GenerateButtonCommand = new Command(async () =>
             {
-                Seed = "shop swap budget toilet riot swift loud mom grow venue census resemble squeeze champion ankle retire virus tooth huge oxygen section shove lab annual";
+                Mnemonic mnemonic = new Mnemonic(Wordlist.English, WordCount.Twelve);
+
+                Seed = mnemonic.ToString();
             });
 
-            LoadButtonCommand = new Command(async () =>
+            CreateButtonCommand = new Command(async () =>
             {
                 await CoreMethods.PushPageModel<MainPageModel>();
             });

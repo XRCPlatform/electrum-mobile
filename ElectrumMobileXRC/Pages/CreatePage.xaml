@@ -49,7 +49,7 @@
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
                 <Button x:Name="GenerateButton" Grid.Column="0" Command="{Binding GenerateButtonCommand}" VerticalOptions="EndAndExpand" Text="GENERATE" Margin="0,5,5,5" />
-                <Button x:Name="LoadButton" IsEnabled="False" Grid.Column="1" Command="{Binding LoadButtonCommand}" VerticalOptions="EndAndExpand" Text="LOAD WALLET" Margin="5,5,0,5" />
+                <Button x:Name="CreateButton" IsEnabled="False" Grid.Column="1" Command="{Binding CreateButtonCommand}" VerticalOptions="EndAndExpand" Text="LOAD WALLET" Margin="5,5,0,5" />
             </Grid>
         </Grid>
     </Grid>

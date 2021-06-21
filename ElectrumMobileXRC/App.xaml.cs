@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using ElectrumMobileXRC.PageModels;
+using ElectrumMobileXRC.Services;
+using FreshMvvm;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -9,6 +11,8 @@ namespace ElectrumMobileXRC
 {
     public partial class App : Application
     {
+        private ConfigDbService _configDb;
+
         public App()
         {
             InitializeComponent();
@@ -18,11 +22,19 @@ namespace ElectrumMobileXRC
                 BarBackgroundColor = Color.FromHex("#301536"),
                 BarTextColor = Color.White
             };
+
+            _configDb = new ConfigDbService();
         }
 
-        protected override void OnStart()
+        protected override async void OnStart()
         {
-            // Handle when your app starts
+            var createPage = FreshPageModelResolver.ResolvePageModel<CreatePageModel>(null);
+
+            var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
+            if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)))
+            {
+                App.Current.MainPage = createPage;
+            }
         }
 
         protected override void OnSleep()

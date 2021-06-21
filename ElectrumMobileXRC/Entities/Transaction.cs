@@ -1,8 +1,8 @@
 ﻿using SQLite;
 
-namespace ElectrumMobileXRC.Models
+namespace ElectrumMobileXRC.Entities
 {
-    public class TxModel
+    public class Transaction
     {
         [PrimaryKey, AutoIncrement]
         public int Id { get; set; }

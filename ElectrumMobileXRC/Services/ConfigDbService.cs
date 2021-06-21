@@ -7,7 +7,7 @@ using Xamarin.Essentials;
 
 namespace ElectrumMobileXRC.Services
 {
-    public class TxDbService : ISQLiteService<Transaction>
+    public class ConfigDbService : ISQLiteService<Configuration>
     {
         SQLiteAsyncConnection db;
 
@@ -20,10 +20,10 @@ namespace ElectrumMobileXRC.Services
 
             db = new SQLiteAsyncConnection(databasePath);
 
-            await db.CreateTableAsync<Transaction>();
+            await db.CreateTableAsync<Configuration>();
         }
 
-        public async Task<int> Add(Transaction value)
+        public async Task<int> Add(Configuration value)
         {
             await Init();
 
@@ -34,21 +34,31 @@ namespace ElectrumMobileXRC.Services
             return id;
         }
 
-        public async Task<Transaction> Get(int id)
+        public async Task<Configuration> Get(int id)
         {
             await Init();
 
-            var data = await db.Table<Transaction>()
+            var data = await db.Table<Configuration>()
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             return data;
         }
 
-        public async Task<IEnumerable<Transaction>> GetAll()
+        public async Task<Configuration> Get(string code)
         {
             await Init();
 
-            var data = await db.Table<Transaction>().ToListAsync();
+            var data = await db.Table<Configuration>()
+                .FirstOrDefaultAsync(c => c.Code == code);
+
+            return data;
+        }
+
+        public async Task<IEnumerable<Configuration>> GetAll()
+        {
+            await Init();
+
+            var data = await db.Table<Configuration>().ToListAsync();
 
             return data;
         }
@@ -57,7 +67,7 @@ namespace ElectrumMobileXRC.Services
         {
             await Init();
 
-            await db.DeleteAsync<Transaction>(id);
+            await db.DeleteAsync<Configuration>(id);
         }
     }
 }

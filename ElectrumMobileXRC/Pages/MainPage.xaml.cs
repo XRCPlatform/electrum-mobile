@@ -17,9 +17,9 @@ namespace ElectrumMobileXRC.Pages
         private readonly int _formsHeight;
 
         private bool _initialized = false;
-        private bool _starsAdded = false;
-        private List<VisualElement> _stars = new List<VisualElement>();
   
+        private ConfigDbService _configDb;
+
         public MainPage()
         {
             InitializeComponent();
@@ -27,6 +27,8 @@ namespace ElectrumMobileXRC.Pages
             _metrics = DeviceDisplay.ScreenMetrics;
             _formsWidth = Convert.ToInt32(_metrics.Width / _metrics.Density);
             _formsHeight = Convert.ToInt32(_metrics.Height / _metrics.Density);
+
+            _configDb = new ConfigDbService();
         }
 
         protected override async void OnAppearing()
@@ -35,13 +37,18 @@ namespace ElectrumMobileXRC.Pages
 
             if (!_initialized)
             {
-
                 await Task.WhenAll(
                     WalletNameLabel.TranslateTo(_formsWidth, 0, 0, null),
                     ElectrumMobileXRCLabel.TranslateTo(_formsWidth, 0, 0, null),
                     CalculateButton.TranslateTo(0, _formsHeight, 0, null),
                      Card.TranslateTo(_formsWidth, 0, 0, null)
                 );
+
+                //var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
+                //if ((walletInit != null) && (!string.IsNullOrEmpty(walletInit.Value)))
+                //{
+                //    await CoreMethods.PushPageModel<ResultPageModel>(model);
+                //}
 
                 await Task.WhenAll(
                     WalletNameLabel.TranslateTo(0, 0, 400, Easing.CubicInOut),
@@ -53,38 +60,38 @@ namespace ElectrumMobileXRC.Pages
                 _initialized = true;
 
 
-                var stest = new TxDbService();
-                var sclass = new TxModel();
-                sclass.Hash = "xxxx";
-                var id = await stest.AddCoffee(sclass);
+                //var stest = new TxDbService();
+                //var sclass = new TxModel();
+                //sclass.Hash = "xxxx";
+                //var id = await stest.AddCoffee(sclass);
 
-                Console.WriteLine(id);
-                var ssss = await stest.GetAll();
+                //Console.WriteLine(id);
+                //var ssss = await stest.GetAll();
 
-                var exp = JsonConvert.SerializeObject(ssss);
+                //var exp = JsonConvert.SerializeObject(ssss);
 
-                Console.WriteLine(exp);
+                //Console.WriteLine(exp);
 
-                try
-                {
-                    await SecureStorage.SetAsync("oauth_token", "secret-oauth-token-value");
-                }
-                catch (Exception ex)
-                {
-                    // Possible that device doesn't support secure storage on device.
-                }
+                //try
+                //{
+                //    await SecureStorage.SetAsync("oauth_token", "secret-oauth-token-value");
+                //}
+                //catch (Exception ex)
+                //{
+                //    // Possible that device doesn't support secure storage on device.
+                //}
 
 
-                try
-                {
-                    var oauthToken = await SecureStorage.GetAsync("oauth_token");
-                }
-                catch (Exception ex)
-                {
-                    // Possible that device doesn't support secure storage on device.
-                }
+                //try
+                //{
+                //    var oauthToken = await SecureStorage.GetAsync("oauth_token");
+                //}
+                //catch (Exception ex)
+                //{
+                //    // Possible that device doesn't support secure storage on device.
+                //}
 
-                SecureStorage.Remove("oauth_token");
+                //SecureStorage.Remove("oauth_token");
             }
         }
     }
