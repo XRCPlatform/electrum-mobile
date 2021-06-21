@@ -24,6 +24,7 @@ namespace ElectrumMobileXRC.Pages
             {
                 _initialized = true;
             }
+
         }
     }
 }

@@ -6,7 +6,7 @@ namespace ElectrumMobileXRC.PageModels
     {
         public LoadingPageModel()
         {
-
+            
         }
     }
 }

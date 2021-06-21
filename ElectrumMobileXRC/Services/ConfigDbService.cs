@@ -23,6 +23,19 @@ namespace ElectrumMobileXRC.Services
             await db.CreateTableAsync<Configuration>();
         }
 
+        public async Task<int> Add(string code, string data)
+        {
+            await Init();
+
+            var cfg = new Configuration();
+            cfg.Code = code;
+            cfg.Value = data;
+
+            var id = await db.InsertAsync(cfg);
+
+            return id;
+        }
+
         public async Task<int> Add(Configuration value)
         {
             await Init();
