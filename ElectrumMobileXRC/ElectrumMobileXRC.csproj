@@ -10,6 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Pages\SynchronizationPage.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Pages\SynchronizationPage.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="sqlite-net-pcl" Version="1.7.335" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
@@ -24,6 +32,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ElectrumMobileXRC.Resources\ElectrumMobileXRC.Resources.csproj" />
     <ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
+    <ProjectReference Include="..\WalletProvider\WalletProvider.csproj" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Pages\LoadingPage.xaml">

@@ -61,6 +61,15 @@ namespace ElectrumMobileXRC.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Seed contains unsupported values. Please to generate random seed with button..
+        /// </summary>
+        public static string Error_FieldContainsUnsupported {
+            get {
+                return ResourceManager.GetString("Error_FieldContainsUnsupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The field {0} is required..
         /// </summary>
         public static string Error_FieldRequired {

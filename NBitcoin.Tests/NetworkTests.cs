@@ -17,16 +17,16 @@ namespace NBitcoin.Tests
             Network bitcoinMain = Network.Main;
             Network bitcoinTestnet = Network.TestNet;
             Network bitcoinRegtest = Network.RegTest;
-            Network BRhodiumMain = Network.BRhodiumMain;
-            Network BRhodiumTestnet = Network.BRhodiumTest;
-            Network BRhodiumRegtest = Network.BRhodiumRegTest;
+            Network XRCMain = Network.XRCMain;
+            Network XRCTestnet = Network.XRCTest;
+            Network XRCRegtest = Network.XRCRegTest;
 
-            Assert.Equal(Network.GetNetwork("BRhodiummain"), BRhodiumMain);
-            Assert.Equal(Network.GetNetwork("BRhodiumMain"), BRhodiumMain);
-            Assert.Equal(Network.GetNetwork("BRhodiumTest"), BRhodiumTestnet);
-            Assert.Equal(Network.GetNetwork("BRhodiumtest"), BRhodiumTestnet);
-            Assert.Equal(Network.GetNetwork("BRhodiumRegTest"), BRhodiumRegtest);
-            Assert.Equal(Network.GetNetwork("BRhodiumregtest"), BRhodiumRegtest);
+            Assert.Equal(Network.GetNetwork("XRCmain"), XRCMain);
+            Assert.Equal(Network.GetNetwork("XRCMain"), XRCMain);
+            Assert.Equal(Network.GetNetwork("XRCTest"), XRCTestnet);
+            Assert.Equal(Network.GetNetwork("XRCtest"), XRCTestnet);
+            Assert.Equal(Network.GetNetwork("XRCRegTest"), XRCRegtest);
+            Assert.Equal(Network.GetNetwork("XRCregtest"), XRCRegtest);
             Assert.Null(Network.GetNetwork("invalid"));
         }
 
@@ -46,7 +46,7 @@ namespace NBitcoin.Tests
             Network main = Network.Main;
             Network main2 = Network.Register(main, "main2");
 
-            Assert.Equal(Network.GetNetwork("BRhodiumMain"), Network.GetNetwork("main2"));
+            Assert.Equal(Network.GetNetwork("XRCMain"), Network.GetNetwork("main2"));
         }
     }
 }

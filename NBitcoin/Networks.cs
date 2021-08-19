@@ -11,9 +11,9 @@ namespace NBitcoin
     public enum CoinType
     {
         /// <summary>
-        /// BRhodium
+        /// XRC
         /// </summary>
-        BRhodium = 10291,
+        XRC = 10291,
 
         /// <summary>
         /// Testnet (all coins)
@@ -31,39 +31,39 @@ namespace NBitcoin
         /// <summary> Bitcoin maximal value for the calculated time offset. If the value is over this limit, the time syncing feature will be switched off. </summary>
         public const int BitcoinMaxTimeOffsetSeconds = 70 * 60;
 
-        /// <summary> BRhodium maximal value for the calculated time offset. If the value is over this limit, the time syncing feature will be switched off. </summary>
-        public const int BRhodiumMaxTimeOffsetSeconds = 25 * 60;
+        /// <summary> XRC maximal value for the calculated time offset. If the value is over this limit, the time syncing feature will be switched off. </summary>
+        public const int XRCMaxTimeOffsetSeconds = 25 * 60;
 
         /// <summary> Bitcoin default value for the maximum tip age in seconds to consider the node in initial block download (24 hours). </summary>
         public const int BitcoinDefaultMaxTipAgeInSeconds = 24 * 60 * 60;
 
-        /// <summary> BRhodium default value for the maximum tip age in seconds to consider the node in initial block download (2 hours). </summary>
-        public const int BRhodiumDefaultMaxTipAgeInSeconds = 2 * 60 * 60;
+        /// <summary> XRC default value for the maximum tip age in seconds to consider the node in initial block download (2 hours). </summary>
+        public const int XRCDefaultMaxTipAgeInSeconds = 2 * 60 * 60;
 
-        /// <summary> The name of the root folder containing the different BRhodium blockchains (BRhodiumMain, BRhodiumTest, BRhodiumRegTest). </summary>
-        public const string BRhodiumRootFolderName = "BRhodium";
+        /// <summary> The name of the root folder containing the different XRC blockchains (XRCMain, XRCTest, XRCRegTest). </summary>
+        public const string XRCRootFolderName = "XRC";
 
-        /// <summary> The default name used for the BRhodium configuration file. </summary>
-        public const string BRhodiumDefaultConfigFilename = "BRhodium.conf";
+        /// <summary> The default name used for the XRC configuration file. </summary>
+        public const string XRCDefaultConfigFilename = "xrc.conf";
 
         /// <summary>
         /// Default name for base network
         /// </summary>
-        public const string BRhodiumBaseName = "BRhodiumMain";
+        public const string XRCBaseName = "XRCMain";
 
-        public static Network Main => Network.GetNetwork(BRhodiumBaseName) ?? InitBRhodiumMain();
+        public static Network Main => Network.GetNetwork(XRCBaseName) ?? InitXRCMain();
 
-        public static Network TestNet => Network.GetNetwork("BRhodiumTest") ?? InitBRhodiumTest();
+        public static Network TestNet => Network.GetNetwork("XRCTest") ?? InitXRCTest();
 
-        public static Network RegTest => Network.GetNetwork("BRhodiumRegTest") ?? InitBRhodiumRegTest();
+        public static Network RegTest => Network.GetNetwork("XRCRegTest") ?? InitXRCRegTest();
 
-        public static Network BRhodiumMain => Network.GetNetwork(BRhodiumBaseName) ?? InitBRhodiumMain();
+        public static Network XRCMain(bool isElectrum = false) => Network.GetNetwork(XRCBaseName) ?? InitXRCMain(isElectrum);
 
-        public static Network BRhodiumTest => Network.GetNetwork("BRhodiumTest") ?? InitBRhodiumTest();
+        public static Network XRCTest(bool isElectrum = false) => Network.GetNetwork("XRCTest") ?? InitXRCTest(isElectrum);
 
-        public static Network BRhodiumRegTest => Network.GetNetwork("BRhodiumRegTest") ?? InitBRhodiumRegTest();
+        public static Network XRCRegTest => Network.GetNetwork("XRCRegTest") ?? InitXRCRegTest();
 
-        private static Network InitBRhodiumMain()
+        private static Network InitXRCMain(bool isElectrum = false)
         {
             var messageStart = new byte[4];
             messageStart[0] = 0x33;
@@ -74,13 +74,13 @@ namespace NBitcoin
 
             Network network = new Network
             {
-                Name = "BRhodiumMain",
-                RootFolderName = BRhodiumRootFolderName,
-                DefaultConfigFilename = BRhodiumDefaultConfigFilename,
+                Name = "XRCMain",
+                RootFolderName = XRCRootFolderName,
+                DefaultConfigFilename = XRCDefaultConfigFilename,
                 Magic = magic,
                 DefaultPort = 37270,
                 RPCPort = 19660,
-                MaxTimeOffsetSeconds = BRhodiumMaxTimeOffsetSeconds,
+                MaxTimeOffsetSeconds = XRCMaxTimeOffsetSeconds,
                 MaxTipAge = 604800, //one week
                 MinTxFee = 1000,
                 FallbackFee = 20000,
@@ -105,7 +105,7 @@ namespace NBitcoin
             network.Consensus.PowNoRetargeting = false;
             network.Consensus.RuleChangeActivationThreshold = 1916; // 95% of 2016
             network.Consensus.MinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing
-            network.Consensus.CoinType = (int)CoinType.BRhodium;
+            network.Consensus.CoinType = (int)CoinType.XRC;
             network.Consensus.DefaultAssumeValid = null; // turn off assumevalid for regtest.
             network.Consensus.ConsensusFactory = new ConsensusFactory() { Consensus = network.Consensus};
 
@@ -118,7 +118,7 @@ namespace NBitcoin
             network.Checkpoints.Add(110000, new CheckpointInfo(new uint256("d1d1282681f20223a281393528e6c624539e60177ecb42ab4512555974ac7775")));
 
             var pubKeyMain = "04ffff0f1e01041a52656c6561736520746865204b72616b656e212121205a657573";
-            Block genesis = CreateBRhodiumGenesisBlock(network.Consensus.ConsensusFactory, 1512043200, 0, network.Consensus.PowLimit.ToCompact(), 45, network, pubKeyMain);
+            Block genesis = CreateXRCGenesisBlock(network.Consensus.ConsensusFactory, 1512043200, 0, network.Consensus.PowLimit.ToCompact(), 45, network, pubKeyMain);
             network.genesis = genesis;
             network.Consensus.HashGenesisBlock = genesis.GetHash(network);
 
@@ -134,6 +134,12 @@ namespace NBitcoin
             network.Base58Prefixes[(int)Base58Type.STEALTH_ADDRESS] = new byte[] { 0x2a };
             network.Base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 23 };
             network.Base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
+
+            if (isElectrum)
+            {
+                network.Base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x88), (0xb2), (0x1e) };
+                network.Base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x88), (0xad), (0xe4) };
+            }
 
             var encoder = new Bech32Encoder("rh");
             network.Bech32Encoders[(int)Bech32Type.WITNESS_PUBKEY_ADDRESS] = encoder;
@@ -151,7 +157,7 @@ namespace NBitcoin
             return network;
         }
 
-        private static Network InitBRhodiumTest()
+        private static Network InitXRCTest(bool isElectrum = false)
         {
             var messageStart = new byte[4];
             messageStart[0] = 0x39;
@@ -162,13 +168,13 @@ namespace NBitcoin
 
             Network network = new Network
             {
-                Name = "BRhodiumTest",
-                RootFolderName = BRhodiumRootFolderName,
-                DefaultConfigFilename = BRhodiumDefaultConfigFilename,
+                Name = "XRCTest",
+                RootFolderName = XRCRootFolderName,
+                DefaultConfigFilename = XRCDefaultConfigFilename,
                 Magic = magic,
                 DefaultPort = 16665,
                 RPCPort = 16661,
-                MaxTimeOffsetSeconds = BRhodiumMaxTimeOffsetSeconds,
+                MaxTimeOffsetSeconds = XRCMaxTimeOffsetSeconds,
                 MaxTipAge = 604800, //one week
                 MinTxFee = 10000,
                 FallbackFee = 60000,
@@ -196,7 +202,7 @@ namespace NBitcoin
             network.Consensus.ConsensusFactory = new ConsensusFactory() { Consensus = network.Consensus };
 
             var prodTEST = "04ffff0f1e01041a52656c6561736520746865204b72616b656e212121205a657573";
-            Block genesis = CreateBRhodiumGenesisBlock(network.Consensus.ConsensusFactory, 1527811200, 0, network.Consensus.PowLimit.ToCompact(), 45, network, prodTEST);
+            Block genesis = CreateXRCGenesisBlock(network.Consensus.ConsensusFactory, 1527811200, 0, network.Consensus.PowLimit.ToCompact(), 45, network, prodTEST);
             genesis.Header.Bits = network.Consensus.PowLimit;
             network.genesis = genesis;
             network.Consensus.HashGenesisBlock = genesis.GetHash(network);
@@ -214,6 +220,12 @@ namespace NBitcoin
             network.Base58Prefixes[(int)Base58Type.ASSET_ID] = new byte[] { 23 };
             network.Base58Prefixes[(int)Base58Type.COLORED_ADDRESS] = new byte[] { 0x13 };
 
+            if (isElectrum)
+            {
+                network.Base58Prefixes[(int)Base58Type.EXT_PUBLIC_KEY] = new byte[] { (0x04), (0x35), (0x87), (0xCF) };
+                network.Base58Prefixes[(int)Base58Type.EXT_SECRET_KEY] = new byte[] { (0x04), (0x35), (0x83), (0x94) };
+            }
+
             var encoder = new Bech32Encoder("th");
             network.Bech32Encoders[(int)Bech32Type.WITNESS_PUBKEY_ADDRESS] = encoder;
             network.Bech32Encoders[(int)Bech32Type.WITNESS_SCRIPT_ADDRESS] = encoder;
@@ -223,7 +235,7 @@ namespace NBitcoin
             return network;
         }
 
-        private static Network InitBRhodiumRegTest()
+        private static Network InitXRCRegTest()
         {
             var messageStart = new byte[4];
             messageStart[0] = 0x34;
@@ -234,14 +246,14 @@ namespace NBitcoin
 
             Network network = new Network
             {
-                Name = "BRhodiumRegTest",
-                RootFolderName = BRhodiumRootFolderName,
-                DefaultConfigFilename = BRhodiumDefaultConfigFilename,
+                Name = "XRCRegTest",
+                RootFolderName = XRCRootFolderName,
+                DefaultConfigFilename = XRCDefaultConfigFilename,
                 Magic = magic,
                 DefaultPort = 16665,
                 RPCPort = 16661,
-                MaxTimeOffsetSeconds = BRhodiumMaxTimeOffsetSeconds,
-                MaxTipAge = BRhodiumDefaultMaxTipAgeInSeconds
+                MaxTimeOffsetSeconds = XRCMaxTimeOffsetSeconds,
+                MaxTipAge = XRCDefaultMaxTipAgeInSeconds
             };
 
             network.Consensus.SubsidyHalvingInterval = 210000;
@@ -264,7 +276,7 @@ namespace NBitcoin
             network.Consensus.DefaultAssumeValid = null; // turn off assumevalid for regtest.
             network.Consensus.ConsensusFactory = new ConsensusFactory() { Consensus = network.Consensus };
 
-            Block genesis = CreateBRhodiumGenesisBlock(network.Consensus.ConsensusFactory, 1527811200, 0, network.Consensus.PowLimit.ToCompact(), 45, network);
+            Block genesis = CreateXRCGenesisBlock(network.Consensus.ConsensusFactory, 1527811200, 0, network.Consensus.PowLimit.ToCompact(), 45, network);
             genesis.Header.Bits = network.Consensus.PowLimit;
             network.genesis = genesis;
             network.Consensus.HashGenesisBlock = genesis.GetHash(network);
@@ -291,13 +303,13 @@ namespace NBitcoin
             return network;
         }
 
-        private static Block CreateBRhodiumGenesisBlock(ConsensusFactory consensusFactory, uint nTime, uint nNonce, uint nBits, int nVersion, Network network, string hexNew = null)
+        private static Block CreateXRCGenesisBlock(ConsensusFactory consensusFactory, uint nTime, uint nNonce, uint nBits, int nVersion, Network network, string hexNew = null)
         {
             string message = "Release the Kraken!!! Zeus";
-            return CreateBRhodiumGenesisBlock(consensusFactory, message, nTime, nNonce, nBits, nVersion, network, hexNew);
+            return CreateXRCGenesisBlock(consensusFactory, message, nTime, nNonce, nBits, nVersion, network, hexNew);
         }
 
-        private static Block CreateBRhodiumGenesisBlock(ConsensusFactory consensusFactory, string message, uint nTime, uint nNonce, uint nBits, int nVersion, Network network, string pubKeyHexNew = null)
+        private static Block CreateXRCGenesisBlock(ConsensusFactory consensusFactory, string message, uint nTime, uint nNonce, uint nBits, int nVersion, Network network, string pubKeyHexNew = null)
         {
             //nTime = 1512043200 => Thursday, November 30, 2017 12:00:00 PM (born XRC)
             //nTime = 1527811200 => Friday, Jun 1, 2017 12:00:00 PM (born TestXRC)

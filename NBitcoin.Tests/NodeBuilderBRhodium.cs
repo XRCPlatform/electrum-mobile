@@ -226,7 +226,7 @@ namespace NBitcoin.Tests
             //return new RPCClient(creds, new Uri("http://127.0.0.1:" + ports[1].ToString() + "/"), Network.RegTest);
             // currently only use mainnet
             // credentials should be set in advance
-            return new RPCClient(new NetworkCredential("rpcuser", "rpcpassword"), new Uri("http://127.0.0.1:" + Network.BRhodiumMain.RPCPort + "/"), Network.BRhodiumMain);
+            return new RPCClient(new NetworkCredential("rpcuser", "rpcpassword"), new Uri("http://127.0.0.1:" + Network.XRCMain.RPCPort + "/"), Network.XRCMain);
         }
 
         public RestClient CreateRESTClient()

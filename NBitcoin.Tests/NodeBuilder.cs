@@ -321,7 +321,7 @@ namespace NBitcoin.Tests
         public RPCClient CreateRPCClient()
         {
             var port = Network.RegTest.RPCPort;
-            return new RPCClient(GetRPCAuth(), new Uri("http://127.0.0.1:" + port.ToString() + "/"), Network.BRhodiumRegTest);
+            return new RPCClient(GetRPCAuth(), new Uri("http://127.0.0.1:" + port.ToString() + "/"), Network.XRCRegTest);
         }
 
         public RestClient CreateRESTClient()

@@ -2,6 +2,7 @@
 using ElectrumMobileXRC.Services;
 using FreshMvvm;
 using NBitcoin;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Windows.Input;
 using Xamarin.Forms;
@@ -25,6 +26,9 @@ namespace ElectrumMobileXRC.PageModels
         [Required]
         public string Password { get; set; }
 
+        [Required]
+        public int Type { get; set; }
+
         private ConfigDbService _configDb;
 
         public CreatePageModel()
@@ -42,14 +46,25 @@ namespace ElectrumMobileXRC.PageModels
             CreateButtonCommand = new Command(async (object data) =>
             {
                 HideErrorLabels();
-                if (IsFormValid())
-                {
-                    await CoreMethods.PushPageModel<MainPageModel>();
-                } 
-                else
-                {
-                    await CoreMethods.DisplayAlert("Please to fill all fields.", "", "Ok");
-                }
+
+                var objActivityLayout = CurrentPage.FindByName<StackLayout>("ActivityLayout");
+                objActivityLayout.IsVisible = true;
+                var objSelectionLayout = CurrentPage.FindByName<StackLayout>("SelectionLayout");
+                objSelectionLayout.IsVisible = false;
+                var objGenerateButton = CurrentPage.FindByName<Button>("GenerateButton");
+                objGenerateButton.IsEnabled = false;
+                var objCreateButton = CurrentPage.FindByName<Button>("CreateButton");
+                objCreateButton.IsEnabled = false;
+
+                //if (IsFormValid())
+                //{
+
+                    // await CoreMethods.PushPageModel<MainPageModel>();
+                //} 
+                //else
+                //{
+                //    await CoreMethods.DisplayAlert("Please to fill all fields.", "", "Ok");
+                //}
             });
         }
 
@@ -91,6 +106,27 @@ namespace ElectrumMobileXRC.PageModels
                 objUserNameError.Text = string.Format(SharedResource.Error_FieldRequired, "Seed");
                 objUserNameError.IsVisible = true;
                 isValid = false;
+            } 
+            else
+            {
+                try
+                {
+                    Mnemonic mnemonic = new Mnemonic(Seed, null);
+                }
+                catch (NotSupportedException e)
+                {
+                    var objUserNameError = CurrentPage.FindByName<Label>("SeedError");
+                    objUserNameError.Text = string.Format(SharedResource.Error_FieldContainsUnsupported, "Seed");
+                    objUserNameError.IsVisible = true;
+                    isValid = false;
+                }
+                catch (Exception e)
+                {
+                    var objUserNameError = CurrentPage.FindByName<Label>("SeedError");
+                    objUserNameError.Text = string.Format(e.Message, "Seed");
+                    objUserNameError.IsVisible = true;
+                    isValid = false;
+                }
             }
 
             if (string.IsNullOrEmpty(Passphrase))
