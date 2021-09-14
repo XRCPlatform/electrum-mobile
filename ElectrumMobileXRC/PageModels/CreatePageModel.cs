@@ -31,6 +31,14 @@ namespace ElectrumMobileXRC.PageModels
 
         private ConfigDbService _configDb;
 
+        private enum WalletImportType
+        {
+            NewWallet = 0,
+            ImportElectrumRhodium = 1,
+            ImportOldWebWallet = 2,
+            ImportOldWebWalletBase64 = 3
+        }
+
         public CreatePageModel()
         {
             Seed = string.Empty;
@@ -56,15 +64,47 @@ namespace ElectrumMobileXRC.PageModels
                 var objCreateButton = CurrentPage.FindByName<Button>("CreateButton");
                 objCreateButton.IsEnabled = false;
 
-                //if (IsFormValid())
-                //{
+                var wallet = new WalletProvider.WalletManager();
 
-                    // await CoreMethods.PushPageModel<MainPageModel>();
-                //} 
-                //else
-                //{
-                //    await CoreMethods.DisplayAlert("Please to fill all fields.", "", "Ok");
-                //}
+                if (IsFormValid())
+                {
+                    switch ((WalletImportType)Type)
+                    {
+                        case WalletImportType.ImportElectrumRhodium:
+                           
+                            IsFormElectrumSeedValid();
+                            wallet.ImportElectrumWallet(Password, UserName, Seed, Passphrase);
+
+                            break;
+                        
+                        case WalletImportType.ImportOldWebWallet:
+                        
+                            IsFormSeedValid();
+                            IsFormPassphaseValid();
+                            wallet.ImportWallet(Password, UserName, Seed, Passphrase);
+
+                            break;
+                        
+                        case WalletImportType.ImportOldWebWalletBase64:
+                         
+                            IsFormSeedValid();
+                            IsFormPassphaseValid(); 
+                            wallet.ImportWebWalletBase64(Password, UserName, Seed, 1539810400, Passphrase);
+
+                            break;
+
+                        default: //WalletImportType.NewWallet
+                            
+                            IsFormSeedValid();
+                            IsFormPassphaseValid();
+                            
+                            break;
+                    }
+                }
+                else
+                {
+                    await CoreMethods.DisplayAlert("Please to fill all fields.", "", "Ok");
+                }
             });
         }
 
@@ -106,28 +146,66 @@ namespace ElectrumMobileXRC.PageModels
                 objUserNameError.Text = string.Format(SharedResource.Error_FieldRequired, "Seed");
                 objUserNameError.IsVisible = true;
                 isValid = false;
-            } 
-            else
-            {
-                try
-                {
-                    Mnemonic mnemonic = new Mnemonic(Seed, null);
-                }
-                catch (NotSupportedException e)
-                {
-                    var objUserNameError = CurrentPage.FindByName<Label>("SeedError");
-                    objUserNameError.Text = string.Format(SharedResource.Error_FieldContainsUnsupported, "Seed");
-                    objUserNameError.IsVisible = true;
-                    isValid = false;
-                }
-                catch (Exception e)
-                {
-                    var objUserNameError = CurrentPage.FindByName<Label>("SeedError");
-                    objUserNameError.Text = string.Format(e.Message, "Seed");
-                    objUserNameError.IsVisible = true;
-                    isValid = false;
-                }
             }
+
+            return isValid;
+        }
+
+        private bool IsFormSeedValid()
+        {
+            var isValid = true;
+
+            try
+            {
+                Mnemonic mnemonic = new Mnemonic(Seed, null);
+            }
+            catch (NotSupportedException e)
+            {
+                var objUserNameError = CurrentPage.FindByName<Label>("SeedError");
+                objUserNameError.Text = string.Format(SharedResource.Error_FieldContainsUnsupported, "Seed");
+                objUserNameError.IsVisible = true;
+                isValid = false;
+            }
+            catch (Exception e)
+            {
+                var objUserNameError = CurrentPage.FindByName<Label>("SeedError");
+                objUserNameError.Text = string.Format(e.Message, "Seed");
+                objUserNameError.IsVisible = true;
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        private bool IsFormElectrumSeedValid()
+        {
+            var isValid = true;
+
+            try
+            {
+                MnemonicElectrum mnemonic = new MnemonicElectrum(Seed, null);
+            }
+            catch (NotSupportedException e)
+            {
+                var objUserNameError = CurrentPage.FindByName<Label>("SeedError");
+                objUserNameError.Text = string.Format(SharedResource.Error_FieldContainsUnsupported, "Seed");
+                objUserNameError.IsVisible = true;
+                isValid = false;
+            }
+            catch (Exception e)
+            {
+                var objUserNameError = CurrentPage.FindByName<Label>("SeedError");
+                objUserNameError.Text = string.Format(e.Message, "Seed");
+                objUserNameError.IsVisible = true;
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        private bool IsFormPassphaseValid()
+        {
+            var isValid = true;
 
             if (string.IsNullOrEmpty(Passphrase))
             {

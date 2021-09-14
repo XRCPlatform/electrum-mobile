@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using WalletProvider.Entities;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 namespace WalletProvider
 {
@@ -78,20 +80,23 @@ namespace WalletProvider
             return mnemonic;
         }
 
-        public Mnemonic ImportWebWalletBase64(string password, string name, string mnemonicList, DateTime creationTime, string passphrase = null)
+        public Mnemonic ImportWebWalletBase64(string password, string name, string mnemonicList, long creationTime, string passphrase = null)
         {
             // For now the passphrase is set to be the password by default.
             if (passphrase == null)
                 passphrase = password;
 
-            var date = DateTimeOffset.FromUnixTimeSeconds(1539810380).DateTime;
-            if (creationTime > date) passphrase = Convert.ToBase64String(Encoding.UTF8.GetBytes(passphrase));
-
+            var creationTimeDate = DateTimeOffset.FromUnixTimeSeconds(creationTime).DateTime;
+            var breakDate = DateTimeOffset.FromUnixTimeSeconds(1539810380).DateTime;
+            if (creationTimeDate > breakDate) passphrase = Convert.ToBase64String(Encoding.UTF8.GetBytes(passphrase));
+            
             return ImportWallet(password, name, mnemonicList, passphrase);
         }
 
         public Mnemonic ImportWallet(string password, string name, string mnemonicList, string passphrase = null)
         {
+            var walletMetadata = new WalletMetadata();
+
             var network = Network.XRCTest(false);
 
             Mnemonic mnemonic = new Mnemonic(mnemonicList);
@@ -119,6 +124,14 @@ namespace WalletProvider
             }
 
             return mnemonic;
+        }
+
+        private byte[] SerializeWallet(object wallet)
+        {
+            MemoryStream memorystream = new MemoryStream();
+            BinaryFormatter bf = new BinaryFormatter();
+            bf.Serialize(memorystream, wallet);
+            return memorystream.ToArray();
         }
     }
 }
