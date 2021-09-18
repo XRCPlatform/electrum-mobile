@@ -75,36 +75,52 @@ namespace ElectrumMobileXRC.PageModels
                     {
                         case WalletImportType.ImportElectrumRhodium:
 
-                            IsFormElectrumSeedValid();
-                            walletMetadata = walletManager.ImportElectrumWallet(Password, UserName, Seed, Passphrase);
-
+                            if (IsFormElectrumSeedValid())
+                            {
+                                walletMetadata = walletManager.ImportElectrumWallet(Password, UserName, Seed, Passphrase);
+                            }
                             break;
 
                         case WalletImportType.ImportOldWebWallet:
 
-                            IsFormSeedValid();
-                            IsFormPassphaseValid();
-                            walletMetadata = walletManager.ImportWallet(Password, UserName, Seed, Passphrase);
-
+                            if (IsFormSeedValid() &&
+                                IsFormPassphaseValid()) {
+                                walletMetadata = walletManager.ImportWallet(Password, UserName, Seed, Passphrase);
+                            }
                             break;
 
                         case WalletImportType.ImportOldWebWalletBase64:
 
-                            IsFormSeedValid();
-                            IsFormPassphaseValid();
-                            walletMetadata = walletManager.ImportWebWalletBase64(Password, UserName, Seed, 1539810400, Passphrase);
-
+                            if (IsFormSeedValid() &&
+                                IsFormPassphaseValid())
+                            {
+                                walletMetadata = walletManager.ImportWebWalletBase64(Password, UserName, Seed, 1539810400, Passphrase);
+                            }
                             break;
 
                         default: //WalletImportType.NewWallet
 
-                            IsFormSeedValid();
-                            IsFormPassphaseValid();
+                            if (IsFormSeedValid() &&
+                                IsFormPassphaseValid())
+                            {
+                                walletMetadata = walletManager.CreateElectrumWallet(Password, UserName, Seed, Passphrase);
 
-                            walletMetadata = walletManager.CreateElectrumWallet(Password, UserName, Seed, Passphrase);
-                            
-                            await App.Current.MainPage.DisplayPromptAsync("Please to save your new seed.", walletMetadata.Seed);
+                                await App.Current.MainPage.DisplayPromptAsync("Seed", "Please to save your new seed to some safe location.", initialValue: walletMetadata.Seed);
+                            }
+
                             break;
+                    }
+
+                    if (walletManager.ValidateWalletMetadata(walletMetadata))
+                    {
+                        await _configDb.Add(DbConfiguration.CFG_WALLETINIT, DbConfiguration.CFG_TRUE);
+
+
+                        await CoreMethods.PushPageModel<MainPageModel>();
+                    } 
+                    else
+                    {
+                        await CoreMethods.DisplayAlert("Please to try it again.", "", "Ok");
                     }
                 }
                 else

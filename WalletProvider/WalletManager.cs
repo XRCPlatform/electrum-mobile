@@ -28,7 +28,6 @@ namespace WalletProvider
             dateTimeProvider = DateTimeProvider.Default;
         }
 
-
         public WalletMetadata CreateElectrumWallet(string password, string name, string mnemonicList, string passphrase = null)
         {
             return ImportElectrumWallet(password, name, mnemonicList, passphrase);
@@ -54,7 +53,7 @@ namespace WalletProvider
             BitcoinPubKeyAddress address = pubkey.GetAddress(network);
 
             ////END-TESTONLY private key
-            
+
             // Create a wallet file.
             string encryptedSeed = extendedKey.PrivateKey.GetEncryptedBitcoinSecret(password, network).ToWif();
             Wallet wallet = new Wallet
@@ -73,7 +72,7 @@ namespace WalletProvider
                 HdAccount account = wallet.AddNewElectrumAccount(password, (CoinType)network.Consensus.CoinType, dateTimeProvider.GetTimeOffset());
                 IEnumerable<HdAddress> newReceivingAddresses = account.CreateAddresses(network, UNUSEDADDRESSESBUFFER);
                 IEnumerable<HdAddress> newChangeAddresses = account.CreateAddresses(network, UNUSEDADDRESSESBUFFER, true);
-              
+
                 walletMetadata.Account = account;
                 walletMetadata.ReceivingAddresses = newReceivingAddresses.ToList();
                 walletMetadata.ChangeAddresses = newChangeAddresses.ToList();
@@ -94,7 +93,7 @@ namespace WalletProvider
             var creationTimeDate = DateTimeOffset.FromUnixTimeSeconds(creationTime).DateTime;
             var breakDate = DateTimeOffset.FromUnixTimeSeconds(1539810380).DateTime;
             if (creationTimeDate > breakDate) passphrase = Convert.ToBase64String(Encoding.UTF8.GetBytes(passphrase));
-            
+
             return ImportWallet(password, name, mnemonicList, passphrase);
         }
 
@@ -135,6 +134,33 @@ namespace WalletProvider
             walletMetadata.Seed = mnemonic.ToString();
 
             return walletMetadata;
+        }
+
+        public bool ValidateWalletMetadata(WalletMetadata walletMetadata)
+        {
+            var isValid = true;
+
+            if (string.IsNullOrEmpty(walletMetadata.Seed))
+            {
+                isValid = false;
+            }
+
+            if (walletMetadata.Wallet == null)
+            {
+                isValid = false;
+            }
+
+            if ((walletMetadata.ChangeAddresses == null) || (walletMetadata.ChangeAddresses.Count == 0))
+            {
+                isValid = false;
+            }
+
+            if ((walletMetadata.ReceivingAddresses == null) || (walletMetadata.ReceivingAddresses.Count == 0))
+            {
+                isValid = false;
+            }
+
+            return isValid;
         }
 
         private byte[] SerializeWallet(object wallet)
