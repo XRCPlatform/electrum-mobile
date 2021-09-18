@@ -115,7 +115,7 @@ namespace ElectrumMobileXRC.PageModels
                     {
                         await _configDb.Add(DbConfiguration.CFG_WALLETINIT, DbConfiguration.CFG_TRUE);
 
-                        var serializedWallet = walletManager.SerializeWalletMetadata(walletMetadata);
+                        var serializedWallet = walletManager.SerializeWalletMetadata(walletMetadata, Password);
                         var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet);
 
                         await _configDb.Add(DbConfiguration.CFG_WALLETMETADATA, serializedWallet);

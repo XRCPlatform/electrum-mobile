@@ -7,6 +7,7 @@ using WalletProvider.Entities;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using Newtonsoft.Json;
+using WalletProvider.Utils;
 
 namespace WalletProvider
 {
@@ -203,12 +204,13 @@ namespace WalletProvider
             return listOfObjects;
         }
 
-        public string SerializeWalletMetadata(WalletMetadata walletMetadata)
+        public string SerializeWalletMetadata(WalletMetadata walletMetadata, string password)
         {
             var walletSerialized = new WalletMetadataSerialized();
+            var cryptography = new InMemoryCryptography();
 
             walletSerialized.Account = SerializeObject(walletMetadata.Account);
-            walletSerialized.Seed = walletMetadata.Seed;
+            walletSerialized.Seed = cryptography.Encrypt(walletMetadata.Seed, password);
             walletSerialized.Wallet = SerializeObject(walletMetadata.Wallet);
             walletSerialized.ReceivingAddresses = SerializeListOfObjects(walletMetadata.ReceivingAddresses);
             walletSerialized.ChangeAddresses = SerializeListOfObjects(walletMetadata.ChangeAddresses);
