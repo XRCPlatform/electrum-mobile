@@ -2,12 +2,12 @@
 
 namespace ElectrumMobileXRC.Pages
 {
-    public partial class ProfilePage : GradientContentPage
+    public partial class AddressesPage : GradientContentPage
     {
 
         private bool _initialized = false;
 
-        public ProfilePage()
+        public AddressesPage()
         {
             InitializeComponent();
         }

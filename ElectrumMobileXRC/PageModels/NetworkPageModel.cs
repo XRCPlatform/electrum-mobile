@@ -2,9 +2,9 @@
 
 namespace ElectrumMobileXRC.PageModels
 {
-    public class ProfilePageModel : FreshBasePageModel
+    public class NetworkPageModel : FreshBasePageModel
     {
-        public ProfilePageModel()
+        public NetworkPageModel()
         {
 
         }

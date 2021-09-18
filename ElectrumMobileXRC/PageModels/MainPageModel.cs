@@ -124,13 +124,13 @@ namespace ElectrumMobileXRC.PageModels
                 switch (actionSheet)
                 {
                     case "Addresses":
+                        await CoreMethods.PushPageModel<AddressesPageModel>();
 
-           
                         break;
 
                     case "Network":
+                        await CoreMethods.PushPageModel<NetworkPageModel>();
 
-          
                         break;
                 }
             });
