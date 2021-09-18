@@ -115,11 +115,20 @@ namespace ElectrumMobileXRC.PageModels
                     {
                         await _configDb.Add(DbConfiguration.CFG_WALLETINIT, DbConfiguration.CFG_TRUE);
 
+                        var serializedWallet = walletManager.SerializeWalletMetadata(walletMetadata);
+                        var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet);
+
+                        await _configDb.Add(DbConfiguration.CFG_WALLETMETADATA, serializedWallet);
 
                         await CoreMethods.PushPageModel<MainPageModel>();
                     } 
                     else
                     {
+                        objActivityLayout.IsVisible = false;
+                        objSelectionLayout.IsVisible = true;
+                        objGenerateButton.IsEnabled = true;
+                        objCreateButton.IsEnabled = true;
+
                         await CoreMethods.DisplayAlert("Please to try it again.", "", "Ok");
                     }
                 }

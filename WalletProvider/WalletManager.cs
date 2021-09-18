@@ -6,6 +6,7 @@ using System.Text;
 using WalletProvider.Entities;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace WalletProvider
 {
@@ -163,12 +164,70 @@ namespace WalletProvider
             return isValid;
         }
 
-        private byte[] SerializeWallet(object wallet)
+        private byte[] SerializeObject(object value)
         {
             MemoryStream memorystream = new MemoryStream();
             BinaryFormatter bf = new BinaryFormatter();
-            bf.Serialize(memorystream, wallet);
+            bf.Serialize(memorystream, value);
             return memorystream.ToArray();
+        }
+
+        private T DeseralizeObject<T>(byte[] value)
+        {
+            MemoryStream memorystream = new MemoryStream(value);
+            BinaryFormatter bf = new BinaryFormatter();
+            return (T)bf.Deserialize(memorystream);
+        }
+
+        private List<byte[]> SerializeListOfObjects(List<HdAddress> value)
+        {
+            var listOfObjects = new List<byte[]>();
+
+            foreach (var item in value)
+            {
+                listOfObjects.Add(SerializeObject(item));
+            }
+
+            return listOfObjects;
+        }
+
+        private List<T> DeserializeListOfObjects<T>(List<byte[]> value)
+        {
+            var listOfObjects = new List<T>();
+
+            foreach (var item in value)
+            {
+                listOfObjects.Add(DeseralizeObject<T>(item));
+            }
+
+            return listOfObjects;
+        }
+
+        public string SerializeWalletMetadata(WalletMetadata walletMetadata)
+        {
+            var walletSerialized = new WalletMetadataSerialized();
+
+            walletSerialized.Account = SerializeObject(walletMetadata.Account);
+            walletSerialized.Seed = walletMetadata.Seed;
+            walletSerialized.Wallet = SerializeObject(walletMetadata.Wallet);
+            walletSerialized.ReceivingAddresses = SerializeListOfObjects(walletMetadata.ReceivingAddresses);
+            walletSerialized.ChangeAddresses = SerializeListOfObjects(walletMetadata.ChangeAddresses);
+
+            return JsonConvert.SerializeObject(walletSerialized);
+        }
+
+        public WalletMetadata DeserializeWalletMetadata(string jsonWalletMetadata)
+        {
+            var walletMetadata = new WalletMetadata();
+            var walletSerialized = JsonConvert.DeserializeObject<WalletMetadataSerialized>(jsonWalletMetadata);
+
+            walletMetadata.Seed = walletSerialized.Seed;
+            walletMetadata.Account = DeseralizeObject<HdAccount>(walletSerialized.Account);
+            walletMetadata.Wallet = DeseralizeObject<Wallet>(walletSerialized.Wallet);
+            walletMetadata.ReceivingAddresses = DeserializeListOfObjects<HdAddress>(walletSerialized.ReceivingAddresses);
+            walletMetadata.ChangeAddresses = DeserializeListOfObjects<HdAddress>(walletSerialized.ChangeAddresses);
+
+            return walletMetadata;
         }
     }
 }
