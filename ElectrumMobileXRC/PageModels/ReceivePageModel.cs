@@ -1,6 +1,5 @@
 ﻿using FreshMvvm;
 using Xamarin.Forms;
-using ElectrumMobileXRC.Controls;
 using QRCoder;
 using System.IO;
 
