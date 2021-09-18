@@ -20,5 +20,10 @@ namespace WalletProvider.Entities
         /// Change addresses
         /// </summary>
         public List<HdAddress> ChangeAddresses { get; set; }
+
+        /// <summary>
+        /// Wallet base data
+        /// </summary>
+        public Wallet Wallet { get; set; }
     }
 }

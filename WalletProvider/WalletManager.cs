@@ -11,23 +11,14 @@ namespace WalletProvider
 {
     public class WalletManager
     {
-        // <summary>As per RPC method definition this should be the max allowable expiry duration.</summary>
-        private const int MaxWalletUnlockDurationInSeconds = 60 * 60 * 5;
-
         /// <summary>Size of the buffer of unused addresses maintained in an account. </summary>
-        private const int UnusedAddressesBuffer = 20;
-
-        /// <summary>Quantity of accounts created in a wallet file when a wallet is restored.</summary>
-        private const int WalletRecoveryAccountsCount = 1;
+        private const int UNUSEDADDRESSESBUFFER = 20;
 
         /// <summary>Quantity of accounts created in a wallet file when a wallet is created.</summary>
-        private const int WalletCreationAccountsCount = 1;
-
-        /// <summary>Timer for saving wallet files to the file system.</summary>
-        private const int WalletSavetimeIntervalInMinutes = 5;
+        private const int WALLETCREATIONACCOUNTSCOUNT = 1;
 
         /// <summary>Default account name </summary>
-        private const string DefaultAccount = "account 0";
+        private const string DEFAULTACCOUNT = "account 0";
 
         /// <summary>Provider of time functions.</summary>
         private readonly IDateTimeProvider dateTimeProvider;
@@ -37,8 +28,15 @@ namespace WalletProvider
             dateTimeProvider = DateTimeProvider.Default;
         }
 
-        public MnemonicElectrum ImportElectrumWallet(string password, string name, string mnemonicList, string passphrase = null)
+
+        public WalletMetadata CreateElectrumWallet(string password, string name, string mnemonicList, string passphrase = null)
         {
+            return ImportElectrumWallet(password, name, mnemonicList, passphrase);
+        }
+
+        public WalletMetadata ImportElectrumWallet(string password, string name, string mnemonicList, string passphrase = null)
+        {
+            var walletMetadata = new WalletMetadata();
             var network = Network.XRCTest(true);
 
             // Generate the root seed used to generate keys from a mnemonic picked at random
@@ -70,17 +68,23 @@ namespace WalletProvider
             };
 
             // Generate multiple accounts and addresses from the get-go.
-            for (int i = 0; i < WalletCreationAccountsCount; i++)
+            for (int i = 0; i < WALLETCREATIONACCOUNTSCOUNT; i++)
             {
                 HdAccount account = wallet.AddNewElectrumAccount(password, (CoinType)network.Consensus.CoinType, dateTimeProvider.GetTimeOffset());
-                IEnumerable<HdAddress> newReceivingAddresses = account.CreateAddresses(network, UnusedAddressesBuffer);
-                IEnumerable<HdAddress> newChangeAddresses = account.CreateAddresses(network, UnusedAddressesBuffer, true);
+                IEnumerable<HdAddress> newReceivingAddresses = account.CreateAddresses(network, UNUSEDADDRESSESBUFFER);
+                IEnumerable<HdAddress> newChangeAddresses = account.CreateAddresses(network, UNUSEDADDRESSESBUFFER, true);
+              
+                walletMetadata.Account = account;
+                walletMetadata.ReceivingAddresses = newReceivingAddresses.ToList();
+                walletMetadata.ChangeAddresses = newChangeAddresses.ToList();
             }
 
-            return mnemonic;
+            walletMetadata.Wallet = wallet;
+
+            return walletMetadata;
         }
 
-        public Mnemonic ImportWebWalletBase64(string password, string name, string mnemonicList, long creationTime, string passphrase = null)
+        public WalletMetadata ImportWebWalletBase64(string password, string name, string mnemonicList, long creationTime, string passphrase = null)
         {
             // For now the passphrase is set to be the password by default.
             if (passphrase == null)
@@ -93,10 +97,9 @@ namespace WalletProvider
             return ImportWallet(password, name, mnemonicList, passphrase);
         }
 
-        public Mnemonic ImportWallet(string password, string name, string mnemonicList, string passphrase = null)
+        public WalletMetadata ImportWallet(string password, string name, string mnemonicList, string passphrase = null)
         {
             var walletMetadata = new WalletMetadata();
-
             var network = Network.XRCTest(false);
 
             Mnemonic mnemonic = new Mnemonic(mnemonicList);
@@ -116,14 +119,20 @@ namespace WalletProvider
             };
 
             // Generate multiple accounts and addresses from the get-go.
-            for (int i = 0; i < WalletCreationAccountsCount; i++)
+            for (int i = 0; i < WALLETCREATIONACCOUNTSCOUNT; i++)
             {
                 HdAccount account = wallet.AddNewAccount(password, (CoinType)network.Consensus.CoinType, dateTimeProvider.GetTimeOffset());
-                IEnumerable<HdAddress> newReceivingAddresses = account.CreateAddresses(network, UnusedAddressesBuffer);
-                IEnumerable<HdAddress> newChangeAddresses = account.CreateAddresses(network, UnusedAddressesBuffer, true);
+                IEnumerable<HdAddress> newReceivingAddresses = account.CreateAddresses(network, UNUSEDADDRESSESBUFFER);
+                IEnumerable<HdAddress> newChangeAddresses = account.CreateAddresses(network, UNUSEDADDRESSESBUFFER, true);
+
+                walletMetadata.Account = account;
+                walletMetadata.ReceivingAddresses = newReceivingAddresses.ToList();
+                walletMetadata.ChangeAddresses = newChangeAddresses.ToList();
             }
 
-            return mnemonic;
+            walletMetadata.Wallet = wallet;
+
+            return walletMetadata;
         }
 
         private byte[] SerializeWallet(object wallet)

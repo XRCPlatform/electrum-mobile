@@ -5,6 +5,8 @@ using NBitcoin;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Windows.Input;
+using WalletProvider;
+using WalletProvider.Entities;
 using Xamarin.Forms;
 
 namespace ElectrumMobileXRC.PageModels
@@ -47,7 +49,7 @@ namespace ElectrumMobileXRC.PageModels
 
             GenerateButtonCommand = new Command(async () =>
             {
-                Mnemonic mnemonic = new Mnemonic(Wordlist.English, WordCount.Twelve);
+                var mnemonic = new MnemonicElectrum(Wordlist.English, WordCount.Twelve);
                 Seed = mnemonic.ToString();
             });
 
@@ -64,16 +66,18 @@ namespace ElectrumMobileXRC.PageModels
                 var objCreateButton = CurrentPage.FindByName<Button>("CreateButton");
                 objCreateButton.IsEnabled = false;
 
-                var wallet = new WalletProvider.WalletManager();
+                var walletManager = new WalletManager();
 
                 if (IsFormValid())
                 {
+                    var walletMetadata = new WalletMetadata();
+
                     switch ((WalletImportType)Type)
                     {
                         case WalletImportType.ImportElectrumRhodium:
                            
                             IsFormElectrumSeedValid();
-                            wallet.ImportElectrumWallet(Password, UserName, Seed, Passphrase);
+                            walletMetadata = walletManager.ImportElectrumWallet(Password, UserName, Seed, Passphrase);
 
                             break;
                         
@@ -81,15 +85,15 @@ namespace ElectrumMobileXRC.PageModels
                         
                             IsFormSeedValid();
                             IsFormPassphaseValid();
-                            wallet.ImportWallet(Password, UserName, Seed, Passphrase);
+                            walletMetadata = walletManager.ImportWallet(Password, UserName, Seed, Passphrase);
 
                             break;
                         
                         case WalletImportType.ImportOldWebWalletBase64:
                          
                             IsFormSeedValid();
-                            IsFormPassphaseValid(); 
-                            wallet.ImportWebWalletBase64(Password, UserName, Seed, 1539810400, Passphrase);
+                            IsFormPassphaseValid();
+                            walletMetadata = walletManager.ImportWebWalletBase64(Password, UserName, Seed, 1539810400, Passphrase);
 
                             break;
 
@@ -97,7 +101,10 @@ namespace ElectrumMobileXRC.PageModels
                             
                             IsFormSeedValid();
                             IsFormPassphaseValid();
-                            
+
+                            walletManager.CreateElectrumWallet(Password, UserName, Passphrase, Seed);
+                            // await CoreMethods.PushPageModel<MainPageModel>();
+
                             break;
                     }
                 }
