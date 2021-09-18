@@ -23,15 +23,17 @@ namespace ElectrumMobileXRC
 
         protected override async void OnStart()
         {
-            var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
-            if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)) || walletInit.Value != DbConfiguration.CFG_TRUE)
-            {
-                Current.MainPage = new FreshNavigationContainer(FreshPageModelResolver.ResolvePageModel<CreatePageModel>());
-            } 
-            else
-            {
-                Current.MainPage = new FreshNavigationContainer(FreshPageModelResolver.ResolvePageModel<LoginPageModel>());
-            }
+            Current.MainPage = new FreshNavigationContainer(FreshPageModelResolver.ResolvePageModel<MainPageModel>());
+
+            //var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
+            //if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)) || walletInit.Value != DbConfiguration.CFG_TRUE)
+            //{
+            //    Current.MainPage = new FreshNavigationContainer(FreshPageModelResolver.ResolvePageModel<CreatePageModel>());
+            //} 
+            //else
+            //{
+            //    Current.MainPage = new FreshNavigationContainer(FreshPageModelResolver.ResolvePageModel<LoginPageModel>());
+            //}
         }
 
         protected override void OnSleep()

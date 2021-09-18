@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <controls:GradientContentPage NavigationPage.HasNavigationBar="false" NavigationPage.BackButtonTitle="" StartColor="{StaticResource dark_purple}" EndColor="{StaticResource dark_blue}" xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:ElectrumMobileXRC" x:Class="ElectrumMobileXRC.Pages.ReceivePage" xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core" 
-    ios:Page.UseSafeArea="true" xmlns:controls="clr-namespace:ElectrumMobileXRC.Controls" xmlns:ff="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms">
+    ios:Page.UseSafeArea="true" xmlns:controls="clr-namespace:ElectrumMobileXRC.Controls" 
+    xmlns:ff="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms">
     <Grid x:Name="MainGrid">
         <Grid VerticalOptions="FillAndExpand" Padding="0">
             <Grid.ColumnDefinitions>
@@ -20,7 +21,8 @@
                         </StackLayout>
                         <StackLayout Orientation="Horizontal" Margin="0,40,0,0">
 
-                        </StackLayout>
+                            <Image Source="{Binding QrCodeImage}" />
+                      </StackLayout>
                     </StackLayout>
                 </StackLayout>
             </ScrollView>

@@ -50,8 +50,9 @@ namespace ElectrumMobileXRC.PageModels
         public string EntryPrice { get; set; }
         public string StopPrice { get; set; }
 
-        public ICommand OpenResultCommand { get; set; }
-        public ICommand OpenResultXCommand { get; set; }
+        public ICommand SendButtonCommand { get; set; }
+        public ICommand ReceiveButtonCommand { get; set; }
+        public ICommand MenuButtonCommand { get; set; }
 
         public MainPageModel()
         {
@@ -88,7 +89,7 @@ namespace ElectrumMobileXRC.PageModels
             Test2.Add("xsxsx");
             Test2.Add("xxxsxsx");
 
-            OpenResultCommand = new Command(async () =>
+            SendButtonCommand = new Command(async () =>
             {
                 double riskPerc, capSize, entryPrice, stopPrice, targetPrice;
 
@@ -111,9 +112,27 @@ namespace ElectrumMobileXRC.PageModels
                 }
             });
 
-            OpenResultXCommand = new Command(async () =>
+            ReceiveButtonCommand = new Command(async () =>
             {
-                await CoreMethods.PushPageModel<CreatePageModel>();
+                await CoreMethods.PushPageModel<ReceivePageModel>();
+            });
+
+            MenuButtonCommand = new Command(async () =>
+            {
+                var actionSheet = await CoreMethods.DisplayActionSheet("Electrum Mobile XRC", "Back", null, "Addresses", "Network" );
+
+                switch (actionSheet)
+                {
+                    case "Addresses":
+
+           
+                        break;
+
+                    case "Network":
+
+          
+                        break;
+                }
             });
         }
     }

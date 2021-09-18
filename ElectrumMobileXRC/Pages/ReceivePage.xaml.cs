@@ -1,4 +1,7 @@
 ﻿using ElectrumMobileXRC.Controls;
+using QRCoder;
+using System.IO;
+using Xamarin.Forms;
 
 namespace ElectrumMobileXRC.Pages
 {

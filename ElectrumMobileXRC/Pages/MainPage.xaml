@@ -57,14 +57,16 @@
             </ScrollView>
             <Grid VerticalOptions="Start" Grid.Row="1" Padding="24,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="2*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                <Button x:Name="CalculateButton" Grid.Column="0" Command="{Binding OpenResultCommand}" VerticalOptions="EndAndExpand" Text="SEND" Margin="0,5,5,5" />
-                <Button x:Name="CalculateButtonxx" Grid.Column="1" Command="{Binding OpenResultXCommand}" VerticalOptions="EndAndExpand" Text="RECEIVE" Margin="5,5,0,5" />
+                <Button x:Name="SendButton" Grid.Column="0" Command="{Binding SendButtonCommand}" VerticalOptions="EndAndExpand" Text="SEND" Margin="0,5,5,5" />
+                <Button x:Name="ReceiveButton" Grid.Column="1" Command="{Binding ReceiveButtonCommand}" VerticalOptions="EndAndExpand" Text="RECEIVE" Margin="5,5,5,5" />
+                <Button x:Name="MenuButton" Grid.Column="2" Command="{Binding MenuButtonCommand}" VerticalOptions="EndAndExpand" Text="☰" Margin="5,5,0,5" />
             </Grid>
         </Grid>
     </Grid>
