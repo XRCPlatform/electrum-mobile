@@ -8,7 +8,7 @@ namespace ElectrumMobileXRC.Pages
 {
     public partial class CreatePage : GradientContentPage
     {
-        private readonly ScreenMetrics _metrics;
+        private readonly DisplayInfo _metrics;
         private readonly int _formsWidth;
         private readonly int _formsHeight;
 
@@ -20,7 +20,7 @@ namespace ElectrumMobileXRC.Pages
         {
             InitializeComponent();
 
-            _metrics = DeviceDisplay.ScreenMetrics;
+            _metrics = DeviceDisplay.MainDisplayInfo;
             _formsWidth = Convert.ToInt32(_metrics.Width / _metrics.Density);
             _formsHeight = Convert.ToInt32(_metrics.Height / _metrics.Density);
         }

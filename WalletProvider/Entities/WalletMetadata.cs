@@ -25,5 +25,10 @@ namespace WalletProvider.Entities
         /// Wallet base data
         /// </summary>
         public Wallet Wallet { get; set; }
+
+        /// <summary>
+        /// Wallet seed
+        /// </summary>
+        public string Seed { get; set; }
     }
 }

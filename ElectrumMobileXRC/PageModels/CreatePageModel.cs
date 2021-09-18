@@ -66,31 +66,30 @@ namespace ElectrumMobileXRC.PageModels
                 var objCreateButton = CurrentPage.FindByName<Button>("CreateButton");
                 objCreateButton.IsEnabled = false;
 
-                var walletManager = new WalletManager();
-
                 if (IsFormValid())
                 {
                     var walletMetadata = new WalletMetadata();
+                    var walletManager = new WalletManager();
 
                     switch ((WalletImportType)Type)
                     {
                         case WalletImportType.ImportElectrumRhodium:
-                           
+
                             IsFormElectrumSeedValid();
                             walletMetadata = walletManager.ImportElectrumWallet(Password, UserName, Seed, Passphrase);
 
                             break;
-                        
+
                         case WalletImportType.ImportOldWebWallet:
-                        
+
                             IsFormSeedValid();
                             IsFormPassphaseValid();
                             walletMetadata = walletManager.ImportWallet(Password, UserName, Seed, Passphrase);
 
                             break;
-                        
+
                         case WalletImportType.ImportOldWebWalletBase64:
-                         
+
                             IsFormSeedValid();
                             IsFormPassphaseValid();
                             walletMetadata = walletManager.ImportWebWalletBase64(Password, UserName, Seed, 1539810400, Passphrase);
@@ -98,15 +97,13 @@ namespace ElectrumMobileXRC.PageModels
                             break;
 
                         default: //WalletImportType.NewWallet
-                            
+
                             IsFormSeedValid();
                             IsFormPassphaseValid();
 
-                            var xx = Type;
-
-                            walletManager.CreateElectrumWallet(Password, UserName, Seed, Passphrase);
-                            // await CoreMethods.PushPageModel<MainPageModel>();
-
+                            walletMetadata = walletManager.CreateElectrumWallet(Password, UserName, Seed, Passphrase);
+                            
+                            await App.Current.MainPage.DisplayPromptAsync("Please to save your new seed.", walletMetadata.Seed);
                             break;
                     }
                 }

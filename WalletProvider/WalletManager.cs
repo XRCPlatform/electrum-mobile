@@ -80,6 +80,7 @@ namespace WalletProvider
             }
 
             walletMetadata.Wallet = wallet;
+            walletMetadata.Seed = mnemonic.ToString();
 
             return walletMetadata;
         }
@@ -131,6 +132,7 @@ namespace WalletProvider
             }
 
             walletMetadata.Wallet = wallet;
+            walletMetadata.Seed = mnemonic.ToString();
 
             return walletMetadata;
         }
