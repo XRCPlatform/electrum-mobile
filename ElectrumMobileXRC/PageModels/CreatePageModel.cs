@@ -102,7 +102,9 @@ namespace ElectrumMobileXRC.PageModels
                             IsFormSeedValid();
                             IsFormPassphaseValid();
 
-                            walletManager.CreateElectrumWallet(Password, UserName, Passphrase, Seed);
+                            var xx = Type;
+
+                            walletManager.CreateElectrumWallet(Password, UserName, Seed, Passphrase);
                             // await CoreMethods.PushPageModel<MainPageModel>();
 
                             break;
