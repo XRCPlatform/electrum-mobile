@@ -47,7 +47,7 @@ namespace ElectrumMobileXRC.PageModels
 
             MenuButtonCommand = new Command(async () =>
             {
-                var actionSheet = await CoreMethods.DisplayActionSheet("Electrum Mobile XRC", "Back", null, "Addresses", "Network");
+                var actionSheet = await CoreMethods.DisplayActionSheet("Electrum Mobile XRC", "Hide", null, "Addresses", "Network");
 
                 switch (actionSheet)
                 {

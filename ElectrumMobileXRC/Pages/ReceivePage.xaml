@@ -19,10 +19,19 @@
                             <ff:CachedImage x:Name="Logo" Source="logo.png" VerticalOptions="CenterAndExpand" />
                             <Label x:Name="ElectrumMobileXRCLabel" Margin="10,0,0,0" Text="xRhodium" FontSize="41" FontFamily="{StaticResource font_heavy}" TextColor="#ffffff" />
                         </StackLayout>
-                        <StackLayout Margin="0,10,0,0" HorizontalOptions="StartAndExpand">
-                            <Label x:Name="ReceiveLabel" Text="Receive" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,20,20,10" />
-                            <Image Source="{Binding QrCodeImage}" />
-                      </StackLayout>
+
+                        <Label x:Name="ReceiveLabel" Text="Receive Address" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,20,20,10" />
+                        <controls:RoundedContentView x:Name="QRCode" Margin="0,5,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
+                            <StackLayout Padding="10">
+                                <Image Source="{Binding QrCodeImage}" />
+                                <StackLayout HorizontalOptions="Center">
+                                    <Label VerticalOptions="Center" Text="{Binding Address}" HorizontalOptions="StartAndExpand" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
+                                </StackLayout>
+                                <StackLayout HorizontalOptions="Center" >
+                                   <Button x:Name="CopyButton" CommandParameter="{Binding Address}" Command="{Binding CopyButtonCommand}" Text="COPY" />
+                                </StackLayout>
+                            </StackLayout>
+                        </controls:RoundedContentView>
                     </StackLayout>
                 </StackLayout>
             </ScrollView>

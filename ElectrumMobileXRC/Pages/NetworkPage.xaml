@@ -26,12 +26,14 @@
             </ScrollView>
             <Grid VerticalOptions="Start" Grid.Row="1" Padding="40,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="8*" />
+                    <ColumnDefinition Width="2*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-
+                <Button x:Name="BackButton" Grid.Column="0" Command="{Binding BackButtonCommand}" VerticalOptions="EndAndExpand" Text="BACK" Margin="5,5,5,5" />
+                <Button x:Name="MenuButton" Grid.Column="1" Command="{Binding MenuButtonCommand}" VerticalOptions="EndAndExpand" Text="☰" Margin="5,5,0,5" />
             </Grid>
         </Grid>
     </Grid>
