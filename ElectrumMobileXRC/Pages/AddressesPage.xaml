@@ -1,6 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<controls:GradientContentPage NavigationPage.HasNavigationBar="false" NavigationPage.BackButtonTitle="" StartColor="{StaticResource dark_purple}" EndColor="{StaticResource dark_blue}" xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:ElectrumMobileXRC" x:Class="ElectrumMobileXRC.Pages.AddressesPage" xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core" 
-    ios:Page.UseSafeArea="true" xmlns:controls="clr-namespace:ElectrumMobileXRC.Controls" xmlns:ff="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms">
+<controls:GradientContentPage NavigationPage.HasNavigationBar="false" NavigationPage.BackButtonTitle="" StartColor="{StaticResource dark_purple}" EndColor="{StaticResource dark_blue}" 
+                              xmlns="http://xamarin.com/schemas/2014/forms" 
+                              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+                              xmlns:local="clr-namespace:ElectrumMobileXRC" 
+                              x:Class="ElectrumMobileXRC.Pages.AddressesPage" 
+                              xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core" 
+                              ios:Page.UseSafeArea="true"
+                              xmlns:controls="clr-namespace:ElectrumMobileXRC.Controls" 
+                              xmlns:ff="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms" >
     <Grid x:Name="MainGrid">
         <Grid VerticalOptions="FillAndExpand" Padding="0">
             <Grid.ColumnDefinitions>
@@ -18,20 +25,41 @@
                             <ff:CachedImage x:Name="Logo" Source="logo.png" VerticalOptions="CenterAndExpand" />
                             <Label x:Name="ElectrumMobileXRCLabel" Margin="10,0,0,0" Text="xRhodium" FontSize="41" FontFamily="{StaticResource font_heavy}" TextColor="#ffffff" />
                         </StackLayout>
-                        <StackLayout Orientation="Horizontal" Margin="0,40,0,0">
+                        
+                        <Label x:Name="AddressesLabel" Text="Addresses" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
+                        <controls:RoundedContentView x:Name="Addresses" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
+                            <StackLayout Padding="24" Spacing="2">
+                                <StackLayout  x:Name="AddressesList" BindableLayout.ItemsSource="{Binding Addresses}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackLayout Padding="0,2">
+                                                <StackLayout>
+                                                    <Label VerticalOptions="Center" Text="{Binding Address}" HorizontalOptions="StartAndExpand" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
+                                                </StackLayout>
+                                                <StackLayout Orientation="Horizontal" >
+                                                    <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding Balance, StringFormat='{0:0.########;-0.########;0.########} XRC'}" HorizontalOptions="StartAndExpand" FontSize="12" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                                    <Button x:Name="CopyButton" CommandParameter="{Binding Address}" Command="{Binding BindingContext.CopyButtonCommand, Source={x:Reference AddressesList}}" Text="COPY" />
+                                                </StackLayout>
+                                            </StackLayout>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </StackLayout>
 
-                        </StackLayout>
+                            </StackLayout>
+                        </controls:RoundedContentView>
                     </StackLayout>
                 </StackLayout>
             </ScrollView>
             <Grid VerticalOptions="Start" Grid.Row="1" Padding="40,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="8*" />
+                    <ColumnDefinition Width="2*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-
+                <Button x:Name="BackButton" Grid.Column="0" Command="{Binding BackButtonCommand}" VerticalOptions="EndAndExpand" Text="BACK" Margin="5,5,5,5" />
+                <Button x:Name="MenuButton" Grid.Column="1" Command="{Binding MenuButtonCommand}" VerticalOptions="EndAndExpand" Text="☰" Margin="5,5,0,5" />
             </Grid>
         </Grid>
     </Grid>
