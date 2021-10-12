@@ -5,21 +5,36 @@ using FreshMvvm;
 using ElectrumMobileXRC.Models;
 using Xamarin.Forms;
 using Xamarin.Essentials;
+using ElectrumMobileXRC.Services;
+using WalletProvider;
 
 namespace ElectrumMobileXRC.PageModels
 {
     public class AddressesPageModel : FreshBasePageModel
     {
-        private ObservableCollection<AddressItemModel> _addresses = new ObservableCollection<AddressItemModel>();
-        public ObservableCollection<AddressItemModel> Addresses
+        private ObservableCollection<AddressItemModel> _receivingAddresses = new ObservableCollection<AddressItemModel>();
+        public ObservableCollection<AddressItemModel> ReceivingAddresses
         {
             get
             {
-                return _addresses;
+                return _receivingAddresses;
             }
             set
             {
-                _addresses = value;
+                _receivingAddresses = value;
+            }
+        }
+
+        private ObservableCollection<AddressItemModel> _changeAddresses = new ObservableCollection<AddressItemModel>();
+        public ObservableCollection<AddressItemModel> ChangeAddresses
+        {
+            get
+            {
+                return _changeAddresses;
+            }
+            set
+            {
+                _changeAddresses = value;
             }
         }
 
@@ -27,18 +42,11 @@ namespace ElectrumMobileXRC.PageModels
         public ICommand MenuButtonCommand { get; set; }
         public ICommand CopyButtonCommand { get; set; }
 
+        private ConfigDbService _configDb;
+
         public AddressesPageModel()
         {
-            var addItem = new AddressItemModel();
-            addItem.Balance = 2;
-            addItem.Address = "TX7WVvmDtvMrx293ksM8io9Y15hdZUPPTq";
-            Addresses.Add(addItem);
-
-            addItem = new AddressItemModel();
-            addItem.Balance = 200.00001;
-            addItem.Address = "TGu88zPeBZ3A6E5ESvQPkiX5Hyn5oJhUtG";
-            Addresses.Add(addItem);
-
+            _configDb = new ConfigDbService();
 
             BackButtonCommand = new Command(async () =>
             {
@@ -73,6 +81,50 @@ namespace ElectrumMobileXRC.PageModels
                     await CoreMethods.DisplayAlert("Success", string.Format("Your copied address is ({0})", (string)value), "OK");
                 }
             });
+
+            LoadWallet();
+        }
+
+        private async void LoadWallet()
+        {
+            var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
+
+            if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)) || walletInit.Value != DbConfiguration.CFG_TRUE)
+            {
+                var walletManager = new WalletManager();
+
+                var serializedWallet = await _configDb.Get(DbConfiguration.CFG_WALLETMETADATA);
+                if ((serializedWallet != null) && (!string.IsNullOrEmpty(serializedWallet.Value)))
+                {
+                    var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet.Value);
+
+                    foreach (var address in deserializedWallet.ReceivingAddresses)
+                    {
+                        var addItem = new AddressItemModel();
+                        addItem.Balance = 2;
+                        addItem.Address = address.Address;
+                        addItem.TxCount = address.Transactions.Count;
+                        ReceivingAddresses.Add(addItem);
+                    }
+
+                    foreach (var address in deserializedWallet.ChangeAddresses)
+                    {
+                        var addItem = new AddressItemModel();
+                        addItem.Balance = 2;
+                        addItem.Address = address.Address;
+                        addItem.TxCount = address.Transactions.Count;
+                        ChangeAddresses.Add(addItem);
+                    }
+                }
+                else
+                {
+                    await CoreMethods.PushPageModel<CreatePageModel>();
+                }
+            }
+            else
+            {
+                await CoreMethods.PushPageModel<CreatePageModel>();
+            }
         }
     }
 }

@@ -9,6 +9,7 @@ namespace ElectrumMobileXRC.PageModels
     public class LoginPageModel : FreshBasePageModel
     {
         public ICommand LoginButtonCommand { get; set; }
+        public ICommand ForgotPasswordButtonCommand { get; set; }
 
         [Required]
         public string UserName { get; set; }
@@ -29,6 +30,11 @@ namespace ElectrumMobileXRC.PageModels
                 {
                     await CoreMethods.DisplayAlert("Please to fill all fields.", "", "Ok");
                 }
+            });
+
+            ForgotPasswordButtonCommand = new Command(async () =>
+            {
+                await CoreMethods.DisplayAlert("Your XRC are stored on blockchain. You can recreate your wallet if you have your seed, password and passphase after reinstallation of this application.", "", "Ok");
             });
         }
 

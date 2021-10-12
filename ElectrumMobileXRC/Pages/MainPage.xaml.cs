@@ -46,12 +46,6 @@ namespace ElectrumMobileXRC.Pages
                      Card.TranslateTo(_formsWidth, 0, 0, null)
                 );
 
-                //var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
-                //if ((walletInit != null) && (!string.IsNullOrEmpty(walletInit.Value)))
-                //{
-                //    await CoreMethods.PushPageModel<ResultPageModel>(model);
-                //}
-
                 await Task.WhenAll(
                     WalletNameLabel.TranslateTo(0, 0, 400, Easing.CubicInOut),
                     ElectrumMobileXRCLabel.TranslateTo(0, 0, 450, Easing.CubicInOut),
@@ -62,40 +56,6 @@ namespace ElectrumMobileXRC.Pages
                 );
 
                 _initialized = true;
-
-
-                //var stest = new TxDbService();
-                //var sclass = new TxModel();
-                //sclass.Hash = "xxxx";
-                //var id = await stest.AddCoffee(sclass);
-
-                //Console.WriteLine(id);
-                //var ssss = await stest.GetAll();
-
-                //var exp = JsonConvert.SerializeObject(ssss);
-
-                //Console.WriteLine(exp);
-
-                //try
-                //{
-                //    await SecureStorage.SetAsync("oauth_token", "secret-oauth-token-value");
-                //}
-                //catch (Exception ex)
-                //{
-                //    // Possible that device doesn't support secure storage on device.
-                //}
-
-
-                //try
-                //{
-                //    var oauthToken = await SecureStorage.GetAsync("oauth_token");
-                //}
-                //catch (Exception ex)
-                //{
-                //    // Possible that device doesn't support secure storage on device.
-                //}
-
-                //SecureStorage.Remove("oauth_token");
             }
         }
     }

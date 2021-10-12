@@ -36,9 +36,10 @@ namespace ElectrumMobileXRC.PageModels
         private enum WalletImportType
         {
             NewWallet = 0,
-            ImportElectrumRhodium = 1,
-            ImportOldWebWallet = 2,
-            ImportOldWebWalletBase64 = 3
+            RecoverWallet = 1,
+            ImportElectrumRhodium = 2,
+            ImportOldWebWallet = 3,
+            ImportOldWebWalletBase64 = 4
         }
 
         public CreatePageModel()
@@ -98,7 +99,7 @@ namespace ElectrumMobileXRC.PageModels
                             }
                             break;
 
-                        default: //WalletImportType.NewWallet
+                        default: //NewWallet Or RecoverWallet
 
                             if (IsFormSeedValid() &&
                                 IsFormPassphaseValid())
@@ -113,15 +114,18 @@ namespace ElectrumMobileXRC.PageModels
 
                     if (walletManager.ValidateWalletMetadata(walletMetadata))
                     {
-                        await _configDb.Add(DbConfiguration.CFG_WALLETINIT, DbConfiguration.CFG_TRUE);
-
-                        var serializedWallet = walletManager.SerializeWalletMetadata(walletMetadata, Password);
-                        var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet);
-
-                        await _configDb.Add(DbConfiguration.CFG_WALLETMETADATA, serializedWallet);
-
-                        await CoreMethods.PushPageModel<MainPageModel>();
-                    } 
+                        await _configDb.Add(DbConfiguration.CFG_WALLETINIT, DbConfiguration.CFG_TRUE)
+                        .ContinueWith(resultInit =>
+                        {
+                            var serializedWallet = walletManager.SerializeWalletMetadata(walletMetadata, Password);
+                            _configDb.Add(DbConfiguration.CFG_WALLETMETADATA, serializedWallet)
+                            .ContinueWith(resultMetaData =>
+                                {
+                                    CoreMethods.PushPageModel<MainPageModel>();
+                                }
+                            );
+                        });
+                    }
                     else
                     {
                         objActivityLayout.IsVisible = false;

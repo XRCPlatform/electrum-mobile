@@ -35,6 +35,7 @@
                                         <Picker.ItemsSource >
                                             <x:Array Type="{x:Type x:String}">
                                                 <x:String>New Wallet</x:String>
+                                                <x:String>Recover Wallet</x:String>
                                                 <x:String>Import Electrum Rhodium Wallet</x:String>
                                                 <x:String>Import Old WebWallet</x:String>
                                                 <x:String>Import Old WebWallet Base64</x:String>
@@ -89,7 +90,7 @@
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
                 <Button x:Name="GenerateButton" Grid.Column="0" Command="{Binding GenerateButtonCommand}" VerticalOptions="EndAndExpand" Text="GENERATE SEED" Margin="0,5,5,5" />
-                <Button x:Name="CreateButton" IsEnabled="False" Grid.Column="1" Command="{Binding CreateButtonCommand}" VerticalOptions="EndAndExpand" Text="CREATE WALLET" Margin="5,5,0,5" />
+                <Button x:Name="CreateButton" Grid.Column="1" Command="{Binding CreateButtonCommand}" VerticalOptions="EndAndExpand" Text="CREATE WALLET" Margin="5,5,0,5" />
             </Grid>
         </Grid>
     </Grid>

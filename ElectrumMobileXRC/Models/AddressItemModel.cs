@@ -8,5 +8,6 @@ namespace ElectrumMobileXRC.Models
     {
         public string Address { get; set; }
         public double Balance { get; set; }
+        public int TxCount { get; set; }
     }
 }

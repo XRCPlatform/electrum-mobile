@@ -4,6 +4,9 @@ using System.Windows.Input;
 using FreshMvvm;
 using ElectrumMobileXRC.Models;
 using Xamarin.Forms;
+using ElectrumMobileXRC.Services;
+using WalletProvider.Entities;
+using WalletProvider;
 
 namespace ElectrumMobileXRC.PageModels
 {
@@ -54,62 +57,15 @@ namespace ElectrumMobileXRC.PageModels
         public ICommand ReceiveButtonCommand { get; set; }
         public ICommand MenuButtonCommand { get; set; }
 
+        private ConfigDbService _configDb;
+
         public MainPageModel()
         {
-            var RiskPercentage = "2";
-            var CapitalSize = "0.2";
-            LastDateUpdate = string.Format("{0} {1}", 
-                DateTime.Now.ToShortDateString(),
-                DateTime.Now.ToShortTimeString());
-            Balance = 2;
-            BalanceUnconfirmed = 0.00000001;
-
-            var historyItem = new TransactionHistoryItemModel();
-            historyItem.Balance = 2;
-            historyItem.CreationDate = string.Format("{0} {1}",
-                DateTime.Now.ToShortDateString(),
-                DateTime.Now.ToShortTimeString());
-            TransactionHistory.Add(historyItem);
-
-
-            historyItem = new TransactionHistoryItemModel();
-            historyItem.Balance = -200;
-            historyItem.CreationDate = string.Format("{0} {1}",
-                DateTime.Now.ToShortDateString(),
-                DateTime.Now.ToShortTimeString());
-            TransactionHistory.Add(historyItem);
-            
-            historyItem = new TransactionHistoryItemModel();
-            historyItem.Balance = 200;
-            historyItem.CreationDate = string.Format("{0} {1}",
-                DateTime.Now.ToShortDateString(),
-                DateTime.Now.ToShortTimeString());
-            TransactionHistory.Add(historyItem);
-
-            Test2.Add("xsxsx");
-            Test2.Add("xxxsxsx");
+            _configDb = new ConfigDbService();
 
             SendButtonCommand = new Command(async () =>
             {
-                double riskPerc, capSize, entryPrice, stopPrice, targetPrice;
-
-                if (double.TryParse(RiskPercentage, out riskPerc) &&
-                    double.TryParse(CapitalSize, out capSize) &&
-                    double.TryParse(EntryPrice, out entryPrice) &&
-                    double.TryParse(StopPrice, out stopPrice) &&
-                    double.TryParse(TargetPrice, out targetPrice))
-                {
-                    var model = new InputModel
-                    {
-                        RiskPercentage = riskPerc,
-                        CapitalSize = capSize,
-                        EntryPrice = entryPrice,
-                        StopPrice = stopPrice,
-                        TargetPrice = targetPrice
-                    };
-
-                    await CoreMethods.PushPageModel<ResultPageModel>(model);
-                }
+                await CoreMethods.PushPageModel<SendPageModel>();
             });
 
             ReceiveButtonCommand = new Command(async () =>
@@ -134,6 +90,63 @@ namespace ElectrumMobileXRC.PageModels
                         break;
                 }
             });
+
+            LoadWallet();
+        }
+
+        private async void LoadWallet()
+        {
+            var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
+            
+            if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)) || walletInit.Value != DbConfiguration.CFG_TRUE)
+            {
+                var walletManager = new WalletManager();
+
+                var serializedWallet = await _configDb.Get(DbConfiguration.CFG_WALLETMETADATA);
+                if ((serializedWallet != null) && (!string.IsNullOrEmpty(serializedWallet.Value)))
+                {
+                    var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet.Value);
+                } 
+                else
+                {
+                    await CoreMethods.PushPageModel<CreatePageModel>();
+                }
+            }
+            else
+            {
+                await CoreMethods.PushPageModel<CreatePageModel>();
+            }
+
+            LastDateUpdate = string.Format("{0} {1}",
+                DateTime.Now.ToShortDateString(),
+                DateTime.Now.ToShortTimeString());
+            Balance = 2;
+            BalanceUnconfirmed = 0.00000001;
+
+            var historyItem = new TransactionHistoryItemModel();
+            historyItem.Balance = 2;
+            historyItem.CreationDate = string.Format("{0} {1}",
+                DateTime.Now.ToShortDateString(),
+                DateTime.Now.ToShortTimeString());
+            TransactionHistory.Add(historyItem);
+
+
+            historyItem = new TransactionHistoryItemModel();
+            historyItem.Balance = -200;
+            historyItem.CreationDate = string.Format("{0} {1}",
+                DateTime.Now.ToShortDateString(),
+                DateTime.Now.ToShortTimeString());
+            TransactionHistory.Add(historyItem);
+
+            historyItem = new TransactionHistoryItemModel();
+            historyItem.Balance = 200;
+            historyItem.CreationDate = string.Format("{0} {1}",
+                DateTime.Now.ToShortDateString(),
+                DateTime.Now.ToShortTimeString());
+            TransactionHistory.Add(historyItem);
+
+            Test2.Add("xsxsx");
+            Test2.Add("xxxsxsx");
         }
     }
 }

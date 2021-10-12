@@ -1,8 +1,4 @@
-﻿using System;
-using Xamarin.Forms;
-using Xamarin.Essentials;
-using System.Collections.Generic;
-using ElectrumMobileXRC.Controls;
+﻿using ElectrumMobileXRC.Controls;
 
 namespace ElectrumMobileXRC.Pages
 {

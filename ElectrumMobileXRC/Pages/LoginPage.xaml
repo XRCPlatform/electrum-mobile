@@ -42,13 +42,14 @@
             </ScrollView>
             <Grid VerticalOptions="Start" Grid.Row="1" Padding="40,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="6*" />
+                    <ColumnDefinition Width="4*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                <Button x:Name="LoginButton" IsEnabled="False" Grid.Column="1" Command="{Binding LoginButtonCommand}" VerticalOptions="EndAndExpand" Text="LOG IN" Margin="5,5,0,5" />
-
+                <Button x:Name="ForgotPasswordButton" Grid.Column="0" Command="{Binding ForgotPasswordButtonCommand}" VerticalOptions="EndAndExpand" Text="LOST PASSWORD" Margin="0,5,5,5" />
+                <Button x:Name="LoginButton" Grid.Column="1" Command="{Binding LoginButtonCommand}" VerticalOptions="EndAndExpand" Text="LOG IN" Margin="5,5,0,5" />
             </Grid>
         </Grid>
     </Grid>

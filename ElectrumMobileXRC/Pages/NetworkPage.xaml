@@ -18,9 +18,24 @@
                             <ff:CachedImage x:Name="Logo" Source="logo.png" VerticalOptions="CenterAndExpand" />
                             <Label x:Name="ElectrumMobileXRCLabel" Margin="10,0,0,0" Text="xRhodium" FontSize="41" FontFamily="{StaticResource font_heavy}" TextColor="#ffffff" />
                         </StackLayout>
-                        <StackLayout Orientation="Horizontal" Margin="0,40,0,0">
-
-                        </StackLayout>
+                        
+                        <Label x:Name="NetworkLabel" Text="Network Information" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,20,20,10" />
+                        <controls:RoundedContentView x:Name="Network" Margin="0,5,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
+                            <StackLayout Padding="24" Spacing="8">
+                                <StackLayout Orientation="Horizontal">
+                                    <Label VerticalOptions="Center" Text="SERVER" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
+                                    <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding LastDateUpdate}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                </StackLayout>
+                                <StackLayout Orientation="Horizontal">
+                                    <Label VerticalOptions="Center" Text="CONNECTION" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
+                                    <Label VerticalOptions="Center" Text="{Binding Balance, StringFormat='{0:0.########;;0.########} XRC'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                </StackLayout>
+                                <StackLayout Orientation="Horizontal">
+                                    <Label VerticalOptions="Center" Text="LAST BLOCK" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
+                                    <Label VerticalOptions="Center" Text="{Binding Balance, StringFormat='{0:0.########;;0.########} XRC'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                </StackLayout>
+                            </StackLayout>
+                        </controls:RoundedContentView>
                     </StackLayout>
                 </StackLayout>
             </ScrollView>
