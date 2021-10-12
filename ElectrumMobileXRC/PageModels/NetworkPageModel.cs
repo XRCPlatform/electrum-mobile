@@ -8,7 +8,7 @@ using Xamarin.Essentials;
 
 namespace ElectrumMobileXRC.PageModels
 {
-    public class NetworkPageModel : FreshBasePageModel
+    public class NetworkPageModel : BasePageModel
     {
         public ICommand BackButtonCommand { get; set; }
         public ICommand MenuButtonCommand { get; set; }

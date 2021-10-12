@@ -11,7 +11,7 @@ using Xamarin.Forms;
 
 namespace ElectrumMobileXRC.PageModels
 {
-    public class CreatePageModel : FreshBasePageModel
+    public class CreatePageModel : BasePageModel
     {
         public ICommand GenerateButtonCommand { get; set; }
         public ICommand CreateButtonCommand { get; set; }
@@ -114,17 +114,14 @@ namespace ElectrumMobileXRC.PageModels
 
                     if (walletManager.ValidateWalletMetadata(walletMetadata))
                     {
-                        await _configDb.Add(DbConfiguration.CFG_WALLETINIT, DbConfiguration.CFG_TRUE)
-                        .ContinueWith(resultInit =>
-                        {
-                            var serializedWallet = walletManager.SerializeWalletMetadata(walletMetadata, Password);
-                            _configDb.Add(DbConfiguration.CFG_WALLETMETADATA, serializedWallet)
-                            .ContinueWith(resultMetaData =>
-                                {
-                                    CoreMethods.PushPageModel<MainPageModel>();
-                                }
-                            );
-                        });
+                        SetValidUser(UserName);
+
+                        await _configDb.Add(DbConfiguration.CFG_WALLETINIT, DbConfiguration.CFG_TRUE);
+                        
+                        var serializedWallet = walletManager.SerializeWalletMetadata(walletMetadata, UserName, Password);
+                        await _configDb.Add(DbConfiguration.CFG_WALLETMETADATA, serializedWallet);
+
+                        await CoreMethods.PushPageModel<MainPageModel>();
                     }
                     else
                     {

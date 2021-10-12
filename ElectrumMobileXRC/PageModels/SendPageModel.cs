@@ -2,7 +2,7 @@
 
 namespace ElectrumMobileXRC.PageModels
 {
-    public class SendPageModel : FreshBasePageModel
+    public class SendPageModel : BasePageModel
     {
         public SendPageModel()
         {

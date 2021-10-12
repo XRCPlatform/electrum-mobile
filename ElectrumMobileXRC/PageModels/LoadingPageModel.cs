@@ -2,7 +2,7 @@
 
 namespace ElectrumMobileXRC.PageModels
 {
-    public class LoadingPageModel : FreshBasePageModel
+    public class LoadingPageModel : BasePageModel
     {
         public LoadingPageModel()
         {

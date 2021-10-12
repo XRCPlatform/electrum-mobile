@@ -3,7 +3,7 @@ using ElectrumMobileXRC.Models;
 
 namespace ElectrumMobileXRC.PageModels
 {
-    public class ResultPageModel : FreshBasePageModel
+    public class ResultPageModel : BasePageModel
     {
         private InputModel _input;
 

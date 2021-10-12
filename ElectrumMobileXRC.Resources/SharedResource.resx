@@ -123,4 +123,7 @@
   <data name="Error_FieldRequired" xml:space="preserve">
     <value>The field {0} is required.</value>
   </data>
+  <data name="Error_WrongLogin" xml:space="preserve">
+    <value>Your login data are wrong. Please to try it again.</value>
+  </data>
 </root>

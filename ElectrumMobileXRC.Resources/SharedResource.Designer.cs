@@ -77,5 +77,14 @@ namespace ElectrumMobileXRC.Resources {
                 return ResourceManager.GetString("Error_FieldRequired", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Your login data are wrong. Please to try it again..
+        /// </summary>
+        public static string Error_WrongLogin {
+            get {
+                return ResourceManager.GetString("Error_WrongLogin", resourceCulture);
+            }
+        }
     }
 }

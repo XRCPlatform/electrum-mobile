@@ -17,8 +17,6 @@ namespace ElectrumMobileXRC.Pages
         private readonly int _formsHeight;
 
         private bool _initialized = false;
-  
-        private ConfigDbService _configDb;
 
         public MainPage()
         {
@@ -27,8 +25,6 @@ namespace ElectrumMobileXRC.Pages
             _metrics = DeviceDisplay.MainDisplayInfo;
             _formsWidth = Convert.ToInt32(_metrics.Width / _metrics.Density);
             _formsHeight = Convert.ToInt32(_metrics.Height / _metrics.Density);
-
-            _configDb = new ConfigDbService();
         }
 
         protected override async void OnAppearing()

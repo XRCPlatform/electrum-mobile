@@ -204,7 +204,7 @@ namespace WalletProvider
             return listOfObjects;
         }
 
-        public string SerializeWalletMetadata(WalletMetadata walletMetadata, string password)
+        public string SerializeWalletMetadata(WalletMetadata walletMetadata, string userName, string password)
         {
             var walletSerialized = new WalletMetadataSerialized();
             var cryptography = new InMemoryCryptography();
@@ -214,6 +214,8 @@ namespace WalletProvider
             walletSerialized.Wallet = SerializeObject(walletMetadata.Wallet);
             walletSerialized.ReceivingAddresses = SerializeListOfObjects(walletMetadata.ReceivingAddresses);
             walletSerialized.ChangeAddresses = SerializeListOfObjects(walletMetadata.ChangeAddresses);
+            walletSerialized.UserName = userName;
+            walletSerialized.PasswordEncrypted = cryptography.Encrypt(password, password);
 
             return JsonConvert.SerializeObject(walletSerialized);
         }
@@ -228,8 +230,25 @@ namespace WalletProvider
             walletMetadata.Wallet = DeseralizeObject<Wallet>(walletSerialized.Wallet);
             walletMetadata.ReceivingAddresses = DeserializeListOfObjects<HdAddress>(walletSerialized.ReceivingAddresses);
             walletMetadata.ChangeAddresses = DeserializeListOfObjects<HdAddress>(walletSerialized.ChangeAddresses);
+            walletMetadata.UserName = walletSerialized.UserName;
+            walletMetadata.PasswordEncrypted = walletSerialized.PasswordEncrypted;
 
             return walletMetadata;
+        }
+
+        public bool IsPasswordUserValid(WalletMetadata walletMetadata, string userName, string password)
+        {
+            var cryptography = new InMemoryCryptography();
+
+            if ((walletMetadata.UserName.ToLower() == userName.ToLower())
+                 && (walletMetadata.PasswordEncrypted == cryptography.Encrypt(password, password)))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

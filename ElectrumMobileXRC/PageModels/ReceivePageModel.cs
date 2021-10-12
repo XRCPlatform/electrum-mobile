@@ -4,28 +4,26 @@ using QRCoder;
 using System.IO;
 using System.Windows.Input;
 using Xamarin.Essentials;
+using ElectrumMobileXRC.Services;
+using WalletProvider;
+using System.Linq;
 
 namespace ElectrumMobileXRC.PageModels
 {
-    public class ReceivePageModel : FreshBasePageModel
+    public class ReceivePageModel : BasePageModel
     {
         public ICommand BackButtonCommand { get; set; }
         public ICommand MenuButtonCommand { get; set; }
         public ICommand CopyButtonCommand { get; set; }
 
-
         public ImageSource QrCodeImage { get; set; }
         public string Address { get; set; }
 
+        private ConfigDbService _configDb;
+
         public ReceivePageModel()
         {
-            Address = "TX7WVvmDtvMrx293ksM8io9Y15hdZUPPTq";
-
-            QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(string.Format("xrc:{0}", Address), QRCodeGenerator.ECCLevel.Q);
-            PngByteQRCode qRCode = new PngByteQRCode(qrCodeData);
-            byte[] qrCodeBytes = qRCode.GetGraphic(20);
-            QrCodeImage = ImageSource.FromStream(() => new MemoryStream(qrCodeBytes));
+            _configDb = new ConfigDbService();
 
             BackButtonCommand = new Command(async () =>
             {
@@ -60,6 +58,47 @@ namespace ElectrumMobileXRC.PageModels
                     await CoreMethods.DisplayAlert("Success", string.Format("Your copied address is ({0})", (string)value), "OK");
                 }
             });
+
+            LoadWallet();
+        }
+
+        private async void LoadWallet()
+        {
+            if (!IsUserValid())
+            {
+                await CoreMethods.PushPageModel<LoginPageModel>();
+            }
+            else
+            {
+                var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
+
+                if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)) || walletInit.Value != DbConfiguration.CFG_TRUE)
+                {
+                    await CoreMethods.PushPageModel<CreatePageModel>();
+                }
+                else
+                {
+                    var walletManager = new WalletManager();
+
+                    var serializedWallet = await _configDb.Get(DbConfiguration.CFG_WALLETMETADATA);
+                    if ((serializedWallet != null) && (!string.IsNullOrEmpty(serializedWallet.Value)))
+                    {
+                        var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet.Value);
+
+                        Address = deserializedWallet.ReceivingAddresses.First().Address;
+
+                        QRCodeGenerator qrGenerator = new QRCodeGenerator();
+                        QRCodeData qrCodeData = qrGenerator.CreateQrCode(string.Format("xrc:{0}", Address), QRCodeGenerator.ECCLevel.Q);
+                        PngByteQRCode qRCode = new PngByteQRCode(qrCodeData);
+                        byte[] qrCodeBytes = qRCode.GetGraphic(20);
+                        QrCodeImage = ImageSource.FromStream(() => new MemoryStream(qrCodeBytes));
+                    }
+                    else
+                    {
+                        await CoreMethods.PushPageModel<CreatePageModel>();
+                    }
+                }
+            }
         }
     }
 }

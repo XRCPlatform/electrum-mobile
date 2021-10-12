@@ -10,7 +10,7 @@ using WalletProvider;
 
 namespace ElectrumMobileXRC.PageModels
 {
-    public class AddressesPageModel : FreshBasePageModel
+    public class AddressesPageModel : BasePageModel
     {
         private ObservableCollection<AddressItemModel> _receivingAddresses = new ObservableCollection<AddressItemModel>();
         public ObservableCollection<AddressItemModel> ReceivingAddresses
@@ -87,43 +87,50 @@ namespace ElectrumMobileXRC.PageModels
 
         private async void LoadWallet()
         {
-            var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
-
-            if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)) || walletInit.Value != DbConfiguration.CFG_TRUE)
+            if (!IsUserValid())
             {
-                var walletManager = new WalletManager();
-
-                var serializedWallet = await _configDb.Get(DbConfiguration.CFG_WALLETMETADATA);
-                if ((serializedWallet != null) && (!string.IsNullOrEmpty(serializedWallet.Value)))
-                {
-                    var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet.Value);
-
-                    foreach (var address in deserializedWallet.ReceivingAddresses)
-                    {
-                        var addItem = new AddressItemModel();
-                        addItem.Balance = 2;
-                        addItem.Address = address.Address;
-                        addItem.TxCount = address.Transactions.Count;
-                        ReceivingAddresses.Add(addItem);
-                    }
-
-                    foreach (var address in deserializedWallet.ChangeAddresses)
-                    {
-                        var addItem = new AddressItemModel();
-                        addItem.Balance = 2;
-                        addItem.Address = address.Address;
-                        addItem.TxCount = address.Transactions.Count;
-                        ChangeAddresses.Add(addItem);
-                    }
-                }
-                else
-                {
-                    await CoreMethods.PushPageModel<CreatePageModel>();
-                }
+                await CoreMethods.PushPageModel<LoginPageModel>();
             }
             else
             {
-                await CoreMethods.PushPageModel<CreatePageModel>();
+                var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
+
+                if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)) || walletInit.Value != DbConfiguration.CFG_TRUE)
+                {
+                    await CoreMethods.PushPageModel<CreatePageModel>();
+                }
+                else
+                {
+                    var walletManager = new WalletManager();
+
+                    var serializedWallet = await _configDb.Get(DbConfiguration.CFG_WALLETMETADATA);
+                    if ((serializedWallet != null) && (!string.IsNullOrEmpty(serializedWallet.Value)))
+                    {
+                        var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet.Value);
+
+                        foreach (var address in deserializedWallet.ReceivingAddresses)
+                        {
+                            var addItem = new AddressItemModel();
+                            addItem.Balance = 2;
+                            addItem.Address = address.Address;
+                            addItem.TxCount = address.Transactions.Count;
+                            ReceivingAddresses.Add(addItem);
+                        }
+
+                        foreach (var address in deserializedWallet.ChangeAddresses)
+                        {
+                            var addItem = new AddressItemModel();
+                            addItem.Balance = 2;
+                            addItem.Address = address.Address;
+                            addItem.TxCount = address.Transactions.Count;
+                            ChangeAddresses.Add(addItem);
+                        }
+                    }
+                    else
+                    {
+                        await CoreMethods.PushPageModel<CreatePageModel>();
+                    }
+                }
             }
         }
     }

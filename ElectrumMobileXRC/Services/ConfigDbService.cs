@@ -27,11 +27,24 @@ namespace ElectrumMobileXRC.Services
         {
             await Init();
 
-            var cfg = new Configuration();
-            cfg.Code = code;
-            cfg.Value = data;
+            var id = 0;
 
-            var id = await db.InsertAsync(cfg);
+            var exist = await Get(code);
+            if (exist == null)
+            {
+                var cfg = new Configuration();
+                cfg.Code = code;
+                cfg.Value = data;
+
+                id = await db.InsertAsync(cfg);
+            } 
+            else
+            {
+                id = exist.Id;
+                exist.Value = data;
+
+                await db.UpdateAsync(exist);
+            }
 
             return id;
         }
@@ -81,6 +94,13 @@ namespace ElectrumMobileXRC.Services
             await Init();
 
             await db.DeleteAsync<Configuration>(id);
+        }
+
+        public async Task RemoveAll()
+        {
+            await Init();
+
+            await db.DeleteAllAsync<Configuration>();
         }
     }
 }

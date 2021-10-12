@@ -1,12 +1,14 @@
 ﻿using ElectrumMobileXRC.Resources;
+using ElectrumMobileXRC.Services;
 using FreshMvvm;
 using System.ComponentModel.DataAnnotations;
 using System.Windows.Input;
+using WalletProvider;
 using Xamarin.Forms;
 
 namespace ElectrumMobileXRC.PageModels
 {
-    public class LoginPageModel : FreshBasePageModel
+    public class LoginPageModel : BasePageModel
     {
         public ICommand LoginButtonCommand { get; set; }
         public ICommand ForgotPasswordButtonCommand { get; set; }
@@ -17,14 +19,18 @@ namespace ElectrumMobileXRC.PageModels
         [Required]
         public string Password { get; set; }
 
+        private ConfigDbService _configDb;
+
         public LoginPageModel()
         {
+            _configDb = new ConfigDbService();
+
             LoginButtonCommand = new Command(async () =>
             {
                 HideErrorLabels();
                 if (IsFormValid())
                 {
-                    await CoreMethods.PushPageModel<MainPageModel>();
+                    ValidateUser(UserName, Password);
                 }
                 else
                 {
@@ -44,6 +50,8 @@ namespace ElectrumMobileXRC.PageModels
             objUserNameError.IsVisible = false;
             var objPasswordError = CurrentPage.FindByName<Label>("PasswordError");
             objPasswordError.IsVisible = false;
+            var objLoginError = CurrentPage.FindByName<Label>("LoginError");
+            objLoginError.IsVisible = false;
         }
 
         private bool IsFormValid()
@@ -67,6 +75,33 @@ namespace ElectrumMobileXRC.PageModels
             }
 
             return isValid;
+        }
+
+        private async void ValidateUser(string userName, string password)
+        {
+            var walletManager = new WalletManager();
+
+            var serializedWallet = await _configDb.Get(DbConfiguration.CFG_WALLETMETADATA);
+            if ((serializedWallet != null) && (!string.IsNullOrEmpty(serializedWallet.Value)))
+            {
+                var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet.Value);
+
+                if (walletManager.IsPasswordUserValid(deserializedWallet, userName, password))
+                {
+                    SetValidUser(UserName);
+                    await CoreMethods.PushPageModel<MainPageModel>();
+                } 
+                else
+                {
+                    var objLoginError = CurrentPage.FindByName<Label>("LoginError");
+                    objLoginError.Text = SharedResource.Error_WrongLogin;
+                    objLoginError.IsVisible = true;
+                }
+            }
+            else
+            {
+                await CoreMethods.PushPageModel<CreatePageModel>();
+            }
         }
     }
 }

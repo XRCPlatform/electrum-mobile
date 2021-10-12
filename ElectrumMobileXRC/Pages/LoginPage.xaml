@@ -22,6 +22,8 @@
                             <Label HorizontalOptions="Center" VerticalOptions="Center" Text="Now you are able to load or create a new wallet. Generate your new seed or write your old one." FontSize="16" FontFamily="{StaticResource font_heavy}" TextColor="#ffffff" />
                         </StackLayout>
 
+                        <Label x:Name="LoginError" IsVisible="False" TextColor="#ff4242" Margin="0,20,0,0" />
+                        
                         <Label x:Name="UsernameLabel" Text="Your user name" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
                         <Label x:Name="UserNameError" IsVisible="False" TextColor="#ff4242" />
                         <controls:RoundedContentView x:Name="UserName" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
@@ -37,6 +39,8 @@
                                 <Entry Text="{Binding Password}" IsTextPredictionEnabled="false" Keyboard="Text" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="PasswordEntry" TextColor="{StaticResource dark_blue}" />
                             </StackLayout>
                         </controls:RoundedContentView>
+
+
                     </StackLayout>
                 </StackLayout>
             </ScrollView>

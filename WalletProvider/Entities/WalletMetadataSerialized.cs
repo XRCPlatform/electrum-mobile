@@ -30,5 +30,16 @@ namespace WalletProvider.Entities
         /// Wallet seed
         /// </summary>
         public string Seed { get; set; }
+
+        /// <summary>
+        /// Encrypted Password
+        /// </summary>
+        public string PasswordEncrypted { get; set; }
+
+        /// <summary>
+        /// UserName
+        /// </summary>
+        public string UserName { get; set; }
+
     }
 }

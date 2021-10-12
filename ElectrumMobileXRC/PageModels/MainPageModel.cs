@@ -10,10 +10,8 @@ using WalletProvider;
 
 namespace ElectrumMobileXRC.PageModels
 {
-    public class MainPageModel : FreshBasePageModel
+    public class MainPageModel : BasePageModel
     {
-        // Not proud of this construction, but with Bitcoin there are a lot of decimals to
-        // take into account which somehow get magically converted to e7 blabla.
         public string LastDateUpdate { get; set; }
         public double BalanceUnconfirmed { get; set; }
         public double Balance { get; set; }
@@ -96,57 +94,64 @@ namespace ElectrumMobileXRC.PageModels
 
         private async void LoadWallet()
         {
-            var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
-            
-            if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)) || walletInit.Value != DbConfiguration.CFG_TRUE)
+            if (!IsUserValid())
             {
-                var walletManager = new WalletManager();
+                await CoreMethods.PushPageModel<LoginPageModel>();
+            } 
+            else
+            {
+                var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
 
-                var serializedWallet = await _configDb.Get(DbConfiguration.CFG_WALLETMETADATA);
-                if ((serializedWallet != null) && (!string.IsNullOrEmpty(serializedWallet.Value)))
-                {
-                    var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet.Value);
-                } 
-                else
+                if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)) || walletInit.Value != DbConfiguration.CFG_TRUE)
                 {
                     await CoreMethods.PushPageModel<CreatePageModel>();
                 }
+                else
+                {
+                    var walletManager = new WalletManager();
+
+                    var serializedWallet = await _configDb.Get(DbConfiguration.CFG_WALLETMETADATA);
+                    if ((serializedWallet != null) && (!string.IsNullOrEmpty(serializedWallet.Value)))
+                    {
+                        var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet.Value);
+                    }
+                    else
+                    {
+                        await CoreMethods.PushPageModel<CreatePageModel>();
+                    }
+                }
+
+                LastDateUpdate = string.Format("{0} {1}",
+                    DateTime.Now.ToShortDateString(),
+                    DateTime.Now.ToShortTimeString());
+                Balance = 2;
+                BalanceUnconfirmed = 0.00000001;
+
+                var historyItem = new TransactionHistoryItemModel();
+                historyItem.Balance = 2;
+                historyItem.CreationDate = string.Format("{0} {1}",
+                    DateTime.Now.ToShortDateString(),
+                    DateTime.Now.ToShortTimeString());
+                TransactionHistory.Add(historyItem);
+
+
+                historyItem = new TransactionHistoryItemModel();
+                historyItem.Balance = -200;
+                historyItem.CreationDate = string.Format("{0} {1}",
+                    DateTime.Now.ToShortDateString(),
+                    DateTime.Now.ToShortTimeString());
+                TransactionHistory.Add(historyItem);
+
+                historyItem = new TransactionHistoryItemModel();
+                historyItem.Balance = 200;
+                historyItem.CreationDate = string.Format("{0} {1}",
+                    DateTime.Now.ToShortDateString(),
+                    DateTime.Now.ToShortTimeString());
+                TransactionHistory.Add(historyItem);
+
+                Test2.Add("xsxsx");
+                Test2.Add("xxxsxsx");
             }
-            else
-            {
-                await CoreMethods.PushPageModel<CreatePageModel>();
-            }
-
-            LastDateUpdate = string.Format("{0} {1}",
-                DateTime.Now.ToShortDateString(),
-                DateTime.Now.ToShortTimeString());
-            Balance = 2;
-            BalanceUnconfirmed = 0.00000001;
-
-            var historyItem = new TransactionHistoryItemModel();
-            historyItem.Balance = 2;
-            historyItem.CreationDate = string.Format("{0} {1}",
-                DateTime.Now.ToShortDateString(),
-                DateTime.Now.ToShortTimeString());
-            TransactionHistory.Add(historyItem);
-
-
-            historyItem = new TransactionHistoryItemModel();
-            historyItem.Balance = -200;
-            historyItem.CreationDate = string.Format("{0} {1}",
-                DateTime.Now.ToShortDateString(),
-                DateTime.Now.ToShortTimeString());
-            TransactionHistory.Add(historyItem);
-
-            historyItem = new TransactionHistoryItemModel();
-            historyItem.Balance = 200;
-            historyItem.CreationDate = string.Format("{0} {1}",
-                DateTime.Now.ToShortDateString(),
-                DateTime.Now.ToShortTimeString());
-            TransactionHistory.Add(historyItem);
-
-            Test2.Add("xsxsx");
-            Test2.Add("xxxsxsx");
         }
     }
 }
