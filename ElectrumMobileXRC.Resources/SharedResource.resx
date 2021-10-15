@@ -126,4 +126,16 @@
   <data name="Error_WrongLogin" xml:space="preserve">
     <value>Your login data are wrong. Please to try it again.</value>
   </data>
+  <data name="NetworkSelection_Auto" xml:space="preserve">
+    <value>Auto Selection</value>
+  </data>
+  <data name="NetworkSelection_Specific" xml:space="preserve">
+    <value>Use Own Server</value>
+  </data>
+  <data name="NetworkType_Main" xml:space="preserve">
+    <value>XRC MainNet</value>
+  </data>
+  <data name="NetworkType_Test" xml:space="preserve">
+    <value>XRC TestNet</value>
+  </data>
 </root>

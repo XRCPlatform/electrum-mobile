@@ -86,5 +86,41 @@ namespace ElectrumMobileXRC.Resources {
                 return ResourceManager.GetString("Error_WrongLogin", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Auto Selection.
+        /// </summary>
+        public static string NetworkSelection_Auto {
+            get {
+                return ResourceManager.GetString("NetworkSelection_Auto", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use Own Server.
+        /// </summary>
+        public static string NetworkSelection_Specific {
+            get {
+                return ResourceManager.GetString("NetworkSelection_Specific", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to XRC MainNet.
+        /// </summary>
+        public static string NetworkType_Main {
+            get {
+                return ResourceManager.GetString("NetworkType_Main", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to XRC TestNet.
+        /// </summary>
+        public static string NetworkType_Test {
+            get {
+                return ResourceManager.GetString("NetworkType_Test", resourceCulture);
+            }
+        }
     }
 }

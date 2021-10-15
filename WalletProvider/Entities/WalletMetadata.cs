@@ -40,5 +40,10 @@ namespace WalletProvider.Entities
         /// Seed
         /// </summary>
         public string Seed { get; set; }
+
+        /// <summary>
+        /// Is Main Network
+        /// </summary>
+        public bool IsMainNetwork { get; set; }
     }
 }

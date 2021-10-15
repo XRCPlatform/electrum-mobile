@@ -30,15 +30,15 @@ namespace WalletProvider
             dateTimeProvider = DateTimeProvider.Default;
         }
 
-        public WalletMetadata CreateElectrumWallet(string password, string name, string mnemonicList, string passphrase = null)
+        public WalletMetadata CreateElectrumWallet(string password, string name, string mnemonicList, string passphrase = null, bool isMainNetwork = true)
         {
-            return ImportElectrumWallet(password, name, mnemonicList, passphrase);
+            return ImportElectrumWallet(password, name, mnemonicList, passphrase, isMainNetwork);
         }
 
-        public WalletMetadata ImportElectrumWallet(string password, string name, string mnemonicList, string passphrase = null)
+        public WalletMetadata ImportElectrumWallet(string password, string name, string mnemonicList, string passphrase = null, bool isMainNetwork = true)
         {
             var walletMetadata = new WalletMetadata();
-            var network = Network.XRCTest(true);
+            var network = GetNetwork(isMainNetwork);
 
             // Generate the root seed used to generate keys from a mnemonic picked at random
             // and a passphrase optionally provided by the user.
@@ -86,23 +86,26 @@ namespace WalletProvider
             return walletMetadata;
         }
 
-        public WalletMetadata ImportWebWalletBase64(string password, string name, string mnemonicList, long creationTime, string passphrase = null)
+        public WalletMetadata ImportWebWalletBase64(string password, string name, string mnemonicList, long creationTime, string passphrase = null, bool isMainNetwork = true)
         {
             // For now the passphrase is set to be the password by default.
             if (passphrase == null)
                 passphrase = password;
 
-            var creationTimeDate = DateTimeOffset.FromUnixTimeSeconds(creationTime).DateTime;
-            var breakDate = DateTimeOffset.FromUnixTimeSeconds(1539810380).DateTime;
-            if (creationTimeDate > breakDate) passphrase = Convert.ToBase64String(Encoding.UTF8.GetBytes(passphrase));
+            if (isMainNetwork)
+            {
+                var creationTimeDate = DateTimeOffset.FromUnixTimeSeconds(creationTime).DateTime;
+                var breakDate = DateTimeOffset.FromUnixTimeSeconds(1539810380).DateTime;
+                if (creationTimeDate > breakDate) passphrase = Convert.ToBase64String(Encoding.UTF8.GetBytes(passphrase));
+            }
 
             return ImportWallet(password, name, mnemonicList, passphrase);
         }
 
-        public WalletMetadata ImportWallet(string password, string name, string mnemonicList, string passphrase = null)
+        public WalletMetadata ImportWallet(string password, string name, string mnemonicList, string passphrase = null, bool isMainNetwork = true)
         {
             var walletMetadata = new WalletMetadata();
-            var network = Network.XRCTest(false);
+            var network = GetNetwork(isMainNetwork);
 
             Mnemonic mnemonic = new Mnemonic(mnemonicList);
 
@@ -136,6 +139,18 @@ namespace WalletProvider
             walletMetadata.Seed = mnemonic.ToString();
 
             return walletMetadata;
+        }
+
+        private Network GetNetwork(bool isMainNetwork)
+        {
+            if (isMainNetwork)
+            {
+                return Network.XRCMain(false);
+            } 
+            else
+            {
+                return Network.XRCTest(false);
+            }
         }
 
         public bool ValidateWalletMetadata(WalletMetadata walletMetadata)
@@ -204,7 +219,7 @@ namespace WalletProvider
             return listOfObjects;
         }
 
-        public string SerializeWalletMetadata(WalletMetadata walletMetadata, string userName, string password)
+        public string SerializeWalletMetadata(WalletMetadata walletMetadata, string userName, string password, bool isMainNetwork)
         {
             var walletSerialized = new WalletMetadataSerialized();
             var cryptography = new InMemoryCryptography();
@@ -216,6 +231,7 @@ namespace WalletProvider
             walletSerialized.ChangeAddresses = SerializeListOfObjects(walletMetadata.ChangeAddresses);
             walletSerialized.UserName = userName;
             walletSerialized.PasswordEncrypted = cryptography.Encrypt(password, password);
+            walletSerialized.IsMainNetwork = isMainNetwork;
 
             return JsonConvert.SerializeObject(walletSerialized);
         }
@@ -223,15 +239,16 @@ namespace WalletProvider
         public WalletMetadata DeserializeWalletMetadata(string jsonWalletMetadata)
         {
             var walletMetadata = new WalletMetadata();
-            var walletSerialized = JsonConvert.DeserializeObject<WalletMetadataSerialized>(jsonWalletMetadata);
+            var walletDeserialized = JsonConvert.DeserializeObject<WalletMetadataSerialized>(jsonWalletMetadata);
 
-            walletMetadata.Seed = walletSerialized.Seed;
-            walletMetadata.Account = DeseralizeObject<HdAccount>(walletSerialized.Account);
-            walletMetadata.Wallet = DeseralizeObject<Wallet>(walletSerialized.Wallet);
-            walletMetadata.ReceivingAddresses = DeserializeListOfObjects<HdAddress>(walletSerialized.ReceivingAddresses);
-            walletMetadata.ChangeAddresses = DeserializeListOfObjects<HdAddress>(walletSerialized.ChangeAddresses);
-            walletMetadata.UserName = walletSerialized.UserName;
-            walletMetadata.PasswordEncrypted = walletSerialized.PasswordEncrypted;
+            walletMetadata.Seed = walletDeserialized.Seed;
+            walletMetadata.Account = DeseralizeObject<HdAccount>(walletDeserialized.Account);
+            walletMetadata.Wallet = DeseralizeObject<Wallet>(walletDeserialized.Wallet);
+            walletMetadata.ReceivingAddresses = DeserializeListOfObjects<HdAddress>(walletDeserialized.ReceivingAddresses);
+            walletMetadata.ChangeAddresses = DeserializeListOfObjects<HdAddress>(walletDeserialized.ChangeAddresses);
+            walletMetadata.UserName = walletDeserialized.UserName;
+            walletMetadata.PasswordEncrypted = walletDeserialized.PasswordEncrypted;
+            walletMetadata.IsMainNetwork = walletDeserialized.IsMainNetwork;
 
             return walletMetadata;
         }

@@ -28,7 +28,7 @@
                         <Label x:Name="UserNameError" IsVisible="False" TextColor="#ff4242" />
                         <controls:RoundedContentView x:Name="UserName" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
                             <StackLayout Padding="24" Spacing="2">
-                                <Entry Text="{Binding UserName}" IsTextPredictionEnabled="false" Keyboard="Text" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="UserNameEntry" TextColor="{StaticResource dark_blue}" />
+                                <Entry Text="{Binding UserName}" IsTextPredictionEnabled="false" Keyboard="Plain" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="UserNameEntry" TextColor="{StaticResource dark_blue}" />
                             </StackLayout>
                         </controls:RoundedContentView>
 
@@ -36,7 +36,7 @@
                         <Label x:Name="PasswordError" IsVisible="False" TextColor="#ff4242" />
                         <controls:RoundedContentView x:Name="Password" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
                             <StackLayout Padding="24" Spacing="2">
-                                <Entry Text="{Binding Password}" IsTextPredictionEnabled="false" Keyboard="Text" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="PasswordEntry" TextColor="{StaticResource dark_blue}" />
+                                <Entry Text="{Binding Password}" IsTextPredictionEnabled="false" Keyboard="Plain" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="PasswordEntry" TextColor="{StaticResource dark_blue}" />
                             </StackLayout>
                         </controls:RoundedContentView>
 

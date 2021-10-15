@@ -23,32 +23,64 @@
                         <controls:RoundedContentView x:Name="Network" Margin="0,5,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
                             <StackLayout Padding="24" Spacing="8">
                                 <StackLayout Orientation="Horizontal">
-                                    <Label VerticalOptions="Center" Text="SERVER" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
-                                    <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding LastDateUpdate}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                    <Label VerticalOptions="Center" Text="TYPE" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
+                                    <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding NetworkType}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
                                 </StackLayout>
                                 <StackLayout Orientation="Horizontal">
-                                    <Label VerticalOptions="Center" Text="CONNECTION" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
-                                    <Label VerticalOptions="Center" Text="{Binding Balance, StringFormat='{0:0.########;;0.########} XRC'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                    <Label VerticalOptions="Center" Text="LAST UPDATE" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
+                                    <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding NetworkLastUpdate}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
                                 </StackLayout>
                                 <StackLayout Orientation="Horizontal">
                                     <Label VerticalOptions="Center" Text="LAST BLOCK" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
-                                    <Label VerticalOptions="Center" Text="{Binding Balance, StringFormat='{0:0.########;;0.########} XRC'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                    <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding NetworkLastSyncedBlock}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
                                 </StackLayout>
+                                <StackLayout Orientation="Horizontal">
+                                    <Label VerticalOptions="Center" Text="PORT" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
+                                    <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding NetworkDefaultPort}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                </StackLayout>
+                                <StackLayout Orientation="Horizontal">
+                                    <Label VerticalOptions="Center" Text="SERVER" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
+                                    <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding NetworkDefaultServer}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                </StackLayout>
+                            </StackLayout>
+                        </controls:RoundedContentView>
+
+                        <Label x:Name="ServersLabel" Text="Network Servers" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
+                        <controls:RoundedContentView x:Name="Servers" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
+                            <StackLayout Padding="14" Spacing="2">
+                                <Picker x:Name="PickerServers" SelectedIndex="{Binding NetworkServersSelectedIndex}" ItemsSource="{Binding NetworkServers}"/>
+                            </StackLayout>
+                        </controls:RoundedContentView>
+
+                        <Label x:Name="PortLabel" Text="Network Port" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,10,0,0" />
+                        <controls:RoundedContentView x:Name="Port" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
+                            <StackLayout Padding="24" Spacing="2">
+                                <Entry Text="{Binding NetworkDefaultPort}" IsTextPredictionEnabled="false" Keyboard="Numeric" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="DefaultPortEntry" TextColor="{StaticResource dark_blue}" />
+                            </StackLayout>
+                        </controls:RoundedContentView>
+
+                        <Label x:Name="ServerLabel" Text="Own Server" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,10,0,0" />
+                        <Label x:Name="ServerLabelError" IsVisible="False" TextColor="#ff4242" />
+                        <controls:RoundedContentView x:Name="Server" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
+                            <StackLayout Padding="24" Spacing="2">
+                                <Entry Text="{Binding NetworkDefaultServer}" IsTextPredictionEnabled="false" Keyboard="Plain" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="DefaultServerEntry" TextColor="{StaticResource dark_blue}" />
                             </StackLayout>
                         </controls:RoundedContentView>
                     </StackLayout>
                 </StackLayout>
             </ScrollView>
-            <Grid VerticalOptions="Start" Grid.Row="1" Padding="40,0">
+            <Grid VerticalOptions="Start" Grid.Row="1" Padding="24,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="8*" />
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="3*" />
                     <ColumnDefinition Width="2*" />
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
                 </Grid.RowDefinitions>
-                <Button x:Name="BackButton" Grid.Column="0" Command="{Binding BackButtonCommand}" VerticalOptions="EndAndExpand" Text="BACK" Margin="5,5,5,5" />
-                <Button x:Name="MenuButton" Grid.Column="1" Command="{Binding MenuButtonCommand}" VerticalOptions="EndAndExpand" Text="☰" Margin="5,5,0,5" />
+                <Button x:Name="BackButton" Grid.Column="0" Command="{Binding BackButtonCommand}" VerticalOptions="EndAndExpand" Text="BACK" Margin="0,5,5,5" />
+                <Button x:Name="SaveButton" Grid.Column="1" Command="{Binding SaveButtonCommand}" VerticalOptions="EndAndExpand" Text="SAVE" Margin="5,5,5,5" />
+                <Button x:Name="MenuButton" Grid.Column="2" Command="{Binding MenuButtonCommand}" VerticalOptions="EndAndExpand" Text="☰" Margin="5,5,0,5" />
             </Grid>
         </Grid>
     </Grid>

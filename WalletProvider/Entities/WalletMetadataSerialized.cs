@@ -41,5 +41,9 @@ namespace WalletProvider.Entities
         /// </summary>
         public string UserName { get; set; }
 
+        /// <summary>
+        /// Is Main Network
+        /// </summary>
+        public bool IsMainNetwork { get; set; }
     }
 }
