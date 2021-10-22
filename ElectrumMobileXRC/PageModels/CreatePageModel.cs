@@ -32,6 +32,7 @@ namespace ElectrumMobileXRC.PageModels
         public int Type { get; set; }
 
         private ConfigDbService _configDb;
+        private DbWalletHelper _walletDbHelper;
 
         private enum WalletImportType
         {
@@ -49,6 +50,7 @@ namespace ElectrumMobileXRC.PageModels
             Seed = string.Empty;
 
             _configDb = new ConfigDbService();
+            _walletDbHelper = new DbWalletHelper(_configDb);
 
             GenerateButtonCommand = new Command(async () =>
             {
@@ -121,12 +123,10 @@ namespace ElectrumMobileXRC.PageModels
                     if (walletManager.ValidateWalletMetadata(walletMetadata))
                     {
                         SetValidUser(UserName);
-
-                        await _configDb.Add(DbConfiguration.CFG_WALLETINIT, DbConfiguration.CFG_TRUE);
                         
                         var serializedWallet = walletManager.SerializeWalletMetadata(walletMetadata, UserName, Password, isMainNetwork);
-                        await _configDb.Add(DbConfiguration.CFG_WALLETMETADATA, serializedWallet);
 
+                        await _walletDbHelper.UpdateWalletAsync(serializedWallet);
                         await CoreMethods.PushPageModel<MainPageModel>();
                     }
                     else

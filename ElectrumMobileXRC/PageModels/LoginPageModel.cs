@@ -20,17 +20,19 @@ namespace ElectrumMobileXRC.PageModels
         public string Password { get; set; }
 
         private ConfigDbService _configDb;
+        private DbWalletHelper _walletDbHelper;
 
         public LoginPageModel()
         {
             _configDb = new ConfigDbService();
+            _walletDbHelper = new DbWalletHelper(_configDb);
 
             LoginButtonCommand = new Command(async () =>
             {
                 HideErrorLabels();
                 if (IsFormValid())
                 {
-                    ValidateUser(UserName, Password);
+                    ValidateUserAsync(UserName, Password);
                 }
                 else
                 {
@@ -77,20 +79,19 @@ namespace ElectrumMobileXRC.PageModels
             return isValid;
         }
 
-        private async void ValidateUser(string userName, string password)
+        private async void ValidateUserAsync(string userName, string password)
         {
-            var walletManager = new WalletManager();
+            await _walletDbHelper.LoadFromDbAsync();
+            if (_walletDbHelper.IsWalletInit) {
 
-            var serializedWallet = await _configDb.Get(DbConfiguration.CFG_WALLETMETADATA);
-            if ((serializedWallet != null) && (!string.IsNullOrEmpty(serializedWallet.Value)))
-            {
-                var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet.Value);
+                var walletManager = new WalletManager();
+                var deserializedWallet = walletManager.DeserializeWalletMetadata(_walletDbHelper.SerializedWallet);
 
                 if (walletManager.IsPasswordUserValid(deserializedWallet, userName, password))
                 {
                     SetValidUser(UserName);
                     await CoreMethods.PushPageModel<MainPageModel>();
-                } 
+                }
                 else
                 {
                     var objLoginError = CurrentPage.FindByName<Label>("LoginError");

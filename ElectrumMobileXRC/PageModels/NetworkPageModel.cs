@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using FreshMvvm;
-using ElectrumMobileXRC.Models;
 using Xamarin.Forms;
-using Xamarin.Essentials;
 using ElectrumMobileXRC.Services;
 using WalletProvider;
-using Newtonsoft.Json;
 using ElectrumMobileXRC.Resources;
 using System.Linq;
+using NetworkProvider;
 
 namespace ElectrumMobileXRC.PageModels
 {
@@ -18,22 +15,6 @@ namespace ElectrumMobileXRC.PageModels
         public ICommand BackButtonCommand { get; set; }
         public ICommand MenuButtonCommand { get; set; }
         public ICommand SaveButtonCommand { get; set; }
-
-        public string[] NetworkTestNet =
-        {
-            "telectrum.xrhodium.org"
-        };
-
-        public string[] NetworkMainNet =
-        {
-            "electrumx1.xrhodium.org",
-            "electrumx2.xrhodium.org",
-            "electrumx3.xrhodium.org",
-            "electrumx4.xrhodium.org",
-        };
-
-        private ConfigDbService _configDb;
-
         public string NetworkLastUpdate { get; set; }
         public string NetworkType { get; set; }
         public int NetworkLastSyncedBlock { get; set; }
@@ -55,9 +36,14 @@ namespace ElectrumMobileXRC.PageModels
             }
         }
 
+        private ConfigDbService _configDb;
+        private DbNetworkHelper _networkDbHelper;
+        private DbWalletHelper _walletDbHelper;
+
         public NetworkPageModel()
         {
             _configDb = new ConfigDbService();
+            _walletDbHelper = new DbWalletHelper(_configDb);
 
             NetworkServersSelectedIndex = 0;
 
@@ -91,10 +77,10 @@ namespace ElectrumMobileXRC.PageModels
                 await CoreMethods.PushPageModel<MainPageModel>();
             });
 
-            LoadNetworkData();
+            LoadNetworkDataAsync();
         }
 
-        private async void LoadNetworkData()
+        private async void LoadNetworkDataAsync()
         {
             if (!IsUserValid())
             {
@@ -102,9 +88,8 @@ namespace ElectrumMobileXRC.PageModels
             }
             else
             {
-                var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
-
-                if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)) || walletInit.Value != DbConfiguration.CFG_TRUE)
+                await _walletDbHelper.LoadFromDbAsync();
+                if (!_walletDbHelper.IsWalletInit)
                 {
                     await CoreMethods.PushPageModel<CreatePageModel>();
                 }
@@ -112,100 +97,32 @@ namespace ElectrumMobileXRC.PageModels
                 {
                     var walletManager = new WalletManager();
 
-                    var serializedWallet = await _configDb.Get(DbConfiguration.CFG_WALLETMETADATA);
-                    if ((serializedWallet != null) && (!string.IsNullOrEmpty(serializedWallet.Value)))
+                    var deserializedWallet = walletManager.DeserializeWalletMetadata(_walletDbHelper.SerializedWallet);
+                    if (deserializedWallet.IsMainNetwork)
                     {
-                        var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet.Value);
-
-                        if (deserializedWallet.IsMainNetwork)
-                        {
-                            NetworkType = SharedResource.NetworkType_Main;
-                        }
-                        else
-                        {
-                            NetworkType = SharedResource.NetworkType_Test;
-                        }
-
-                        var networkLastUpdateUtc = await _configDb.Get(DbConfiguration.CFG_NETWORKLASTUPDATEUTC);
-                        if ((networkLastUpdateUtc == null) || (string.IsNullOrEmpty(networkLastUpdateUtc.Value)))
-                        {
-                            NetworkLastUpdate = "N/A";
-                        }
-                        else
-                        {
-                            var lastUpdate = DateTime.Parse(networkLastUpdateUtc.Value).ToLocalTime();
-                            NetworkLastUpdate = string.Format("{0} {1}", lastUpdate.ToShortDateString(), lastUpdate.ToShortTimeString());
-                        }
-
-                        var networkLastSyncedBlock = await _configDb.Get(DbConfiguration.CFG_NETWORKLASTSYNCEDBLOCK);
-                        if ((networkLastSyncedBlock == null) || (string.IsNullOrEmpty(networkLastSyncedBlock.Value)))
-                        {
-                            NetworkLastSyncedBlock = 0;
-                        }
-                        else
-                        {
-                            NetworkLastSyncedBlock = Int32.Parse(networkLastUpdateUtc.Value);
-                        }
-
-                        var networkDefaultServer = await _configDb.Get(DbConfiguration.CFG_NETWORKDEFAULTSERVER);
-                        if ((networkDefaultServer == null) || (string.IsNullOrEmpty(networkDefaultServer.Value)))
-                        {
-                            if (deserializedWallet.IsMainNetwork)
-                            {
-                                NetworkDefaultServer = NetworkMainNet.First();
-                            }
-                            else
-                            {
-                                NetworkDefaultServer = NetworkTestNet.First();
-                            }
-                        }
-                        else
-                        {
-                            NetworkDefaultServer = networkDefaultServer.Value.ToString();
-                        }
-
-                        var networkDefaultPort = await _configDb.Get(DbConfiguration.CFG_NETWORKDEFAULTPORT);
-                        if ((networkDefaultPort == null) || (string.IsNullOrEmpty(networkDefaultPort.Value)))
-                        {
-                            NetworkDefaultPort = 51002;
-                        }
-                        else
-                        {
-                            NetworkDefaultPort = Int32.Parse(networkDefaultPort.Value);
-                        }
-
-                        var networkServers = await _configDb.Get(DbConfiguration.CFG_NETWORKSERVERS);
-                        if ((networkServers == null) || (string.IsNullOrEmpty(networkServers.Value)))
-                        {
-                            NetworkServers.Add(SharedResource.NetworkSelection_Auto);
-                            NetworkServers.Add(SharedResource.NetworkSelection_Specific);
-
-                            if (deserializedWallet.IsMainNetwork)
-                            {
-                                foreach (var item in NetworkMainNet)
-                                {
-                                    NetworkServers.Add(item);
-                                }
-                            }
-                            else
-                            {
-                                foreach (var item in NetworkTestNet)
-                                {
-                                    NetworkServers.Add(item);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            NetworkServers = JsonConvert.DeserializeObject<ObservableCollection<string>>(networkServers.Value);
-                        }
-
-                        SetPickerValue();
+                        NetworkType = SharedResource.NetworkType_Main;
                     }
                     else
                     {
-                        await CoreMethods.PushPageModel<CreatePageModel>();
+                        NetworkType = SharedResource.NetworkType_Test;
                     }
+
+                    _networkDbHelper = new DbNetworkHelper(_configDb, deserializedWallet.IsMainNetwork);
+                    await _networkDbHelper.LoadFromDbAsync();
+
+                    NetworkLastUpdate = _networkDbHelper.NetworkLastUpdate;
+                    NetworkLastSyncedBlock = _networkDbHelper.NetworkLastSyncedBlock;
+                    NetworkDefaultServer = _networkDbHelper.NetworkDefaultServer;
+                    NetworkDefaultPort = _networkDbHelper.NetworkDefaultPort;
+
+                    NetworkServers.Add(SharedResource.NetworkSelection_Auto);
+                    NetworkServers.Add(SharedResource.NetworkSelection_Specific);
+                    foreach (var itemServer in _networkDbHelper.NetworkServers)
+                    {
+                        NetworkServers.Add(itemServer);
+                    }
+
+                    SetPickerValue();
                 }
             }
         }
@@ -215,13 +132,13 @@ namespace ElectrumMobileXRC.PageModels
             var selectedIndex = -1;
             var objPickerServers = CurrentPage.FindByName<Picker>("PickerServers");
 
-            var mainServerId = NetworkMainNet.ToList().IndexOf(NetworkDefaultServer);
+            var mainServerId = NetworkConfig.MainNet.ToList().IndexOf(NetworkDefaultServer);
             if (mainServerId >= 0)
             {
                 selectedIndex = mainServerId;
             }
 
-            var testServerId = NetworkTestNet.ToList().IndexOf(NetworkDefaultServer);
+            var testServerId = NetworkConfig.TestNet.ToList().IndexOf(NetworkDefaultServer);
             if (testServerId >= 0)
             {
                 selectedIndex = testServerId;
@@ -242,48 +159,46 @@ namespace ElectrumMobileXRC.PageModels
         private async void SaveConfiguration()
         {
             var walletManager = new WalletManager();
+            var deserializedWallet = walletManager.DeserializeWalletMetadata(_walletDbHelper.SerializedWallet);
 
-            var serializedWallet = await _configDb.Get(DbConfiguration.CFG_WALLETMETADATA);
-            if ((serializedWallet != null) && (!string.IsNullOrEmpty(serializedWallet.Value)))
+            switch (NetworkServersSelectedIndex)
             {
-                var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet.Value);
+                case 0:
+                    var random = new Random();
+                    if (deserializedWallet.IsMainNetwork)
+                    {
+                        int index = random.Next(NetworkConfig.MainNet.Length);
+                        NetworkDefaultServer = NetworkConfig.MainNet[index];
+                    }
+                    else
+                    {
+                        int index = random.Next(NetworkConfig.TestNet.Length);
+                        NetworkDefaultServer = NetworkConfig.TestNet[index];
+                    }
 
-                switch (NetworkServersSelectedIndex)
-                {
-                    case 0:
-                        var random = new Random();
-                        if (deserializedWallet.IsMainNetwork)
-                        {
-                            int index = random.Next(NetworkMainNet.Length);
-                            NetworkDefaultServer = NetworkMainNet[index];
-                        } 
-                        else
-                        {
-                            int index = random.Next(NetworkTestNet.Length);
-                            NetworkDefaultServer = NetworkTestNet[index];
-                        }
+                    break;
+                case 1:
+                    //do nothing
+                    break;
 
-                        break;
-                    case 1:
-                        //do nothing
-                        break;
+                default:
+                    if (deserializedWallet.IsMainNetwork)
+                    {
+                        NetworkDefaultServer = NetworkConfig.MainNet[NetworkServersSelectedIndex - 2];
+                    }
+                    else
+                    {
+                        NetworkDefaultServer = NetworkConfig.TestNet[NetworkServersSelectedIndex - 2];
+                    }
 
-                    default:
-                        if (deserializedWallet.IsMainNetwork)
-                        {
-                            NetworkDefaultServer = NetworkMainNet[NetworkServersSelectedIndex - 2];
-                        }
-                        else
-                        {
-                            NetworkDefaultServer = NetworkTestNet[NetworkServersSelectedIndex - 2];
-                        }
-
-                        break;
-                }
-
-                await _configDb.Add(DbConfiguration.CFG_NETWORKDEFAULTPORT, NetworkDefaultPort.ToString());
-                await _configDb.Add(DbConfiguration.CFG_NETWORKDEFAULTSERVER, NetworkDefaultServer);
+                    break;
             }
+
+            await _networkDbHelper.UpdateServersAsync(NetworkDefaultServer, NetworkDefaultPort);
+
+            await CoreMethods.DisplayAlert("Success", "New network configuration has been saved.", "OK");
+
+            await CoreMethods.PushPageModel<MainPageModel>();
         }
 
         private bool IsFormValid()

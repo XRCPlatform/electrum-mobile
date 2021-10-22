@@ -20,10 +20,12 @@ namespace ElectrumMobileXRC.PageModels
         public string Address { get; set; }
 
         private ConfigDbService _configDb;
+        private DbWalletHelper _walletDbHelper;
 
         public ReceivePageModel()
         {
             _configDb = new ConfigDbService();
+            _walletDbHelper = new DbWalletHelper(_configDb);
 
             BackButtonCommand = new Command(async () =>
             {
@@ -59,10 +61,10 @@ namespace ElectrumMobileXRC.PageModels
                 }
             });
 
-            LoadWallet();
+            LoadWalletAsync();
         }
 
-        private async void LoadWallet()
+        private async void LoadWalletAsync()
         {
             if (!IsUserValid())
             {
@@ -70,33 +72,23 @@ namespace ElectrumMobileXRC.PageModels
             }
             else
             {
-                var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
-
-                if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)) || walletInit.Value != DbConfiguration.CFG_TRUE)
+                await _walletDbHelper.LoadFromDbAsync();
+                if (!_walletDbHelper.IsWalletInit)
                 {
                     await CoreMethods.PushPageModel<CreatePageModel>();
                 }
                 else
                 {
                     var walletManager = new WalletManager();
+                    var deserializedWallet = walletManager.DeserializeWalletMetadata(_walletDbHelper.SerializedWallet);
 
-                    var serializedWallet = await _configDb.Get(DbConfiguration.CFG_WALLETMETADATA);
-                    if ((serializedWallet != null) && (!string.IsNullOrEmpty(serializedWallet.Value)))
-                    {
-                        var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet.Value);
+                    Address = deserializedWallet.ReceivingAddresses.First().Address;
 
-                        Address = deserializedWallet.ReceivingAddresses.First().Address;
-
-                        QRCodeGenerator qrGenerator = new QRCodeGenerator();
-                        QRCodeData qrCodeData = qrGenerator.CreateQrCode(string.Format("xrc:{0}", Address), QRCodeGenerator.ECCLevel.Q);
-                        PngByteQRCode qRCode = new PngByteQRCode(qrCodeData);
-                        byte[] qrCodeBytes = qRCode.GetGraphic(20);
-                        QrCodeImage = ImageSource.FromStream(() => new MemoryStream(qrCodeBytes));
-                    }
-                    else
-                    {
-                        await CoreMethods.PushPageModel<CreatePageModel>();
-                    }
+                    QRCodeGenerator qrGenerator = new QRCodeGenerator();
+                    QRCodeData qrCodeData = qrGenerator.CreateQrCode(string.Format("xrc:{0}", Address), QRCodeGenerator.ECCLevel.Q);
+                    PngByteQRCode qRCode = new PngByteQRCode(qrCodeData);
+                    byte[] qrCodeBytes = qRCode.GetGraphic(20);
+                    QrCodeImage = ImageSource.FromStream(() => new MemoryStream(qrCodeBytes));
                 }
             }
         }

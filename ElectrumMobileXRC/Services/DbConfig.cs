@@ -1,6 +1,6 @@
 ﻿namespace ElectrumMobileXRC.Services
 {
-    public class DbConfiguration
+    public class DbConfig
     {
         public const string SQLITE_DBFILENAME = "ElectrumRhodium.db";
 

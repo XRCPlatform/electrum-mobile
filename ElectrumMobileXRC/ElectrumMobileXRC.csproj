@@ -36,6 +36,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ElectrumMobileXRC.Resources\ElectrumMobileXRC.Resources.csproj" />
     <ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
+    <ProjectReference Include="..\NetworkProvider\NetworkProvider.csproj" />
     <ProjectReference Include="..\WalletProvider\WalletProvider.csproj" />
   </ItemGroup>
   <ItemGroup>

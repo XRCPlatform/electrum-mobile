@@ -12,6 +12,7 @@ namespace ElectrumMobileXRC
     public partial class App : Application
     {
         private ConfigDbService _configDb;
+        private DbWalletHelper _walletDbHelper;
 
         public App()
         {
@@ -19,12 +20,13 @@ namespace ElectrumMobileXRC
 
             Current.MainPage = new FreshNavigationContainer(FreshPageModelResolver.ResolvePageModel<LoadingPageModel>());
             _configDb = new ConfigDbService();
+            _walletDbHelper = new DbWalletHelper(_configDb);
         }
 
         protected override async void OnStart()
         {
-            var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
-            if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)) || walletInit.Value != DbConfiguration.CFG_TRUE)
+            await _walletDbHelper.LoadFromDbAsync();
+            if (!_walletDbHelper.IsWalletInit)
             {
                 Current.MainPage = new FreshNavigationContainer(FreshPageModelResolver.ResolvePageModel<CreatePageModel>());
             }

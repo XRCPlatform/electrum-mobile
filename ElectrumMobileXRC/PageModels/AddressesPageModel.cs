@@ -43,10 +43,12 @@ namespace ElectrumMobileXRC.PageModels
         public ICommand CopyButtonCommand { get; set; }
 
         private ConfigDbService _configDb;
+        private DbWalletHelper _walletDbHelper;
 
         public AddressesPageModel()
         {
             _configDb = new ConfigDbService();
+            _walletDbHelper = new DbWalletHelper(_configDb);
 
             BackButtonCommand = new Command(async () =>
             {
@@ -82,10 +84,10 @@ namespace ElectrumMobileXRC.PageModels
                 }
             });
 
-            LoadWallet();
+            LoadWalletAsync();
         }
 
-        private async void LoadWallet()
+        private async void LoadWalletAsync()
         {
             if (!IsUserValid())
             {
@@ -93,42 +95,32 @@ namespace ElectrumMobileXRC.PageModels
             }
             else
             {
-                var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
-
-                if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)) || walletInit.Value != DbConfiguration.CFG_TRUE)
+                await _walletDbHelper.LoadFromDbAsync();
+                if (!_walletDbHelper.IsWalletInit)
                 {
                     await CoreMethods.PushPageModel<CreatePageModel>();
                 }
                 else
                 {
                     var walletManager = new WalletManager();
+                    var deserializedWallet = walletManager.DeserializeWalletMetadata(_walletDbHelper.SerializedWallet);
 
-                    var serializedWallet = await _configDb.Get(DbConfiguration.CFG_WALLETMETADATA);
-                    if ((serializedWallet != null) && (!string.IsNullOrEmpty(serializedWallet.Value)))
+                    foreach (var address in deserializedWallet.ReceivingAddresses)
                     {
-                        var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet.Value);
-
-                        foreach (var address in deserializedWallet.ReceivingAddresses)
-                        {
-                            var addItem = new AddressItemModel();
-                            addItem.Balance = 2;
-                            addItem.Address = address.Address;
-                            addItem.TxCount = address.Transactions.Count;
-                            ReceivingAddresses.Add(addItem);
-                        }
-
-                        foreach (var address in deserializedWallet.ChangeAddresses)
-                        {
-                            var addItem = new AddressItemModel();
-                            addItem.Balance = 2;
-                            addItem.Address = address.Address;
-                            addItem.TxCount = address.Transactions.Count;
-                            ChangeAddresses.Add(addItem);
-                        }
+                        var addItem = new AddressItemModel();
+                        addItem.Balance = 2;
+                        addItem.Address = address.Address;
+                        addItem.TxCount = address.Transactions.Count;
+                        ReceivingAddresses.Add(addItem);
                     }
-                    else
+
+                    foreach (var address in deserializedWallet.ChangeAddresses)
                     {
-                        await CoreMethods.PushPageModel<CreatePageModel>();
+                        var addItem = new AddressItemModel();
+                        addItem.Balance = 2;
+                        addItem.Address = address.Address;
+                        addItem.TxCount = address.Transactions.Count;
+                        ChangeAddresses.Add(addItem);
                     }
                 }
             }

@@ -7,6 +7,8 @@ using Xamarin.Forms;
 using ElectrumMobileXRC.Services;
 using WalletProvider.Entities;
 using WalletProvider;
+using NetworkProvider;
+using System.Threading;
 
 namespace ElectrumMobileXRC.PageModels
 {
@@ -26,40 +28,24 @@ namespace ElectrumMobileXRC.PageModels
             set
             {
                 _transactionHistory = value;
-                //RaisePropertyChanged();
-                //NotifyPropertyChanged("YourList");
-            }
-        }
-
-        public ObservableCollection<string> _Test2 = new ObservableCollection<string>();
-
-        public ObservableCollection<string> Test2
-        {
-            get
-            {
-                return _Test2;
-            }
-            set
-            {
-                _Test2 = value;
-                //RaisePropertyChanged();
-                //NotifyPropertyChanged("YourList");
             }
         }
 
         public string TargetPrice { get; set; }
         public string EntryPrice { get; set; }
         public string StopPrice { get; set; }
-
         public ICommand SendButtonCommand { get; set; }
         public ICommand ReceiveButtonCommand { get; set; }
         public ICommand MenuButtonCommand { get; set; }
 
         private ConfigDbService _configDb;
+        private DbNetworkHelper _networkDbHelper;
+        private DbWalletHelper _walletDbHelper;
 
         public MainPageModel()
         {
             _configDb = new ConfigDbService();
+            _walletDbHelper = new DbWalletHelper(_configDb);
 
             SendButtonCommand = new Command(async () =>
             {
@@ -89,10 +75,10 @@ namespace ElectrumMobileXRC.PageModels
                 }
             });
 
-            LoadWallet();
+            LoadWalletAsync();
         }
 
-        private async void LoadWallet()
+        private async void LoadWalletAsync()
         {
             if (!IsUserValid())
             {
@@ -100,32 +86,28 @@ namespace ElectrumMobileXRC.PageModels
             } 
             else
             {
-                var walletInit = await _configDb.Get(DbConfiguration.CFG_WALLETINIT);
-
-                if ((walletInit == null) || (string.IsNullOrEmpty(walletInit.Value)) || walletInit.Value != DbConfiguration.CFG_TRUE)
+                await _walletDbHelper.LoadFromDbAsync();
+                if (!_walletDbHelper.IsWalletInit)
                 {
                     await CoreMethods.PushPageModel<CreatePageModel>();
                 }
                 else
                 {
                     var walletManager = new WalletManager();
+                    var deserializedWallet = walletManager.DeserializeWalletMetadata(_walletDbHelper.SerializedWallet);
 
-                    var serializedWallet = await _configDb.Get(DbConfiguration.CFG_WALLETMETADATA);
-                    if ((serializedWallet != null) && (!string.IsNullOrEmpty(serializedWallet.Value)))
-                    {
-                        var deserializedWallet = walletManager.DeserializeWalletMetadata(serializedWallet.Value);
-                    }
-                    else
-                    {
-                        await CoreMethods.PushPageModel<CreatePageModel>();
-                    }
+                    _networkDbHelper = new DbNetworkHelper(_configDb, deserializedWallet.IsMainNetwork);
+                    await _networkDbHelper.LoadFromDbAsync();
+
+                    var networkManager = new NetworkManager(_networkDbHelper.NetworkDefaultServer, _networkDbHelper.NetworkDefaultPort,
+                            walletManager.GetNetwork(deserializedWallet.IsMainNetwork));
                 }
 
                 LastDateUpdate = string.Format("{0} {1}",
                     DateTime.Now.ToShortDateString(),
                     DateTime.Now.ToShortTimeString());
-                Balance = 2;
-                BalanceUnconfirmed = 0.00000001;
+                Balance = 0;
+                BalanceUnconfirmed = 0;
 
                 var historyItem = new TransactionHistoryItemModel();
                 historyItem.Balance = 2;
@@ -133,7 +115,6 @@ namespace ElectrumMobileXRC.PageModels
                     DateTime.Now.ToShortDateString(),
                     DateTime.Now.ToShortTimeString());
                 TransactionHistory.Add(historyItem);
-
 
                 historyItem = new TransactionHistoryItemModel();
                 historyItem.Balance = -200;
@@ -148,10 +129,8 @@ namespace ElectrumMobileXRC.PageModels
                     DateTime.Now.ToShortDateString(),
                     DateTime.Now.ToShortTimeString());
                 TransactionHistory.Add(historyItem);
-
-                Test2.Add("xsxsx");
-                Test2.Add("xxxsxsx");
             }
         }
+
     }
 }

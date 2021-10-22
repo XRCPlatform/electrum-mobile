@@ -141,7 +141,7 @@ namespace WalletProvider
             return walletMetadata;
         }
 
-        private Network GetNetwork(bool isMainNetwork)
+        public Network GetNetwork(bool isMainNetwork)
         {
             if (isMainNetwork)
             {
