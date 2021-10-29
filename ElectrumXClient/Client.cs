@@ -115,7 +115,7 @@ namespace ElectrumXClient
         public async Task<BlockchainTransactionGetResponse> GetBlockchainTransactionGet(string txhash)
         {
             var request = new BlockchainTransactionGetRequest();
-            request.Parameters = new object[] { txhash, false };
+            request.Parameters = new object[] { txhash, true };
             var requestData = request.GetRequestData<BlockchainTransactionGetRequest>();
             await this.Connect();
             string response = await SendMessage(requestData);

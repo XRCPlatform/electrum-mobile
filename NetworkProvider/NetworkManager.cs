@@ -1,7 +1,13 @@
 ﻿using ElectrumXClient;
+using ElectrumXClient.Request;
+using ElectrumXClient.Response;
 using NBitcoin;
 using NetworkProvider.Utils;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using WalletProvider.Entities;
 
 namespace NetworkProvider
 {
@@ -17,24 +23,47 @@ namespace NetworkProvider
             _server = server;
             _port = port;
             _net = net;
-            _electrumClient = new Client(_server, _port, false);
-
-            StartSyncingAsync();
+            _electrumClient = new Client(_server, _port, true);
         }
 
-        private async void StartSyncingAsync()
+        public async Task<List<WalletTransaction>> StartSyncingAsync(WalletMetadata wallet)
         {
             var cnvHelper = new ConversionHelper();
+            var transactionList = new List<WalletTransaction>();
 
-            var address = BitcoinAddress.Create("TXF7wJVwt4sdwtGeE8oGAE78SJnu6nx6aq", _net);
-            var bytes = address.ScriptPubKey.ToBytes();
-            var P2PKHBytes = cnvHelper.ByteArrayToString(bytes);
-            var P2PKH = cnvHelper.StringToByteArray(P2PKHBytes);
-            var hass_addr = cnvHelper.sha256_hash_bytes(P2PKH);
-            var hass_addr_reverse = cnvHelper.sha256_hash_reverse_bytes(P2PKH);
+            foreach (var itemAddress in wallet.ReceivingAddresses)
+            {
+                var address = BitcoinAddress.Create(itemAddress.Address, _net);
+                var addressBytes = address.ScriptPubKey.ToBytes();
+                var P2PKHBytes = cnvHelper.ByteArrayToString(addressBytes);
+                var P2PKH = cnvHelper.StringToByteArray(P2PKHBytes);
+                var hashAddressReverse = cnvHelper.sha256_hash_reverse_bytes(P2PKH);
 
-          //  var response = await _electrumClient.GetBlockchainScripthashGetBalance("914bb56abc57ee1317e039f249b9e3fd0ebc5a4b447bd244b8f56bb7c9704998");
-            var x = true;
+                var addressHistory = await _electrumClient.GetBlockchainScripthashGetHistory(hashAddressReverse);
+                if ((addressHistory != null) && (addressHistory.Result != null))
+                {
+                    var transactionResult = addressHistory.Result;
+                    foreach (var itemTransaction in transactionResult)
+                    {
+                        var itemTxDataResult = await _electrumClient.GetBlockchainTransactionGet(itemTransaction.TxHash);
+                        if ((itemTxDataResult != null) && (itemTxDataResult.Result != null))
+                        {
+                            var newWalletTransation = new WalletTransaction();
+                            newWalletTransation.Address = itemAddress;
+                            newWalletTransation.Transaction = itemTxDataResult.Result;
+
+                            transactionList.Add(newWalletTransation);
+                        }
+                    }
+                }
+            }
+
+            transactionList = transactionList
+                .OrderBy(tx => tx.Transaction.Height)
+                .ThenBy(tx => tx.Transaction.Time)
+                .ToList();
+
+            return transactionList;
         }
 
         public void Dispose()

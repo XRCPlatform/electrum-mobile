@@ -95,10 +95,9 @@ namespace ElectrumMobileXRC.PageModels
                 }
                 else
                 {
-                    var walletManager = new WalletManager();
+                    var walletManager = new WalletManager(_walletDbHelper.SerializedWallet);
 
-                    var deserializedWallet = walletManager.DeserializeWalletMetadata(_walletDbHelper.SerializedWallet);
-                    if (deserializedWallet.IsMainNetwork)
+                    if (walletManager.Wallet.IsMainNetwork)
                     {
                         NetworkType = SharedResource.NetworkType_Main;
                     }
@@ -107,7 +106,7 @@ namespace ElectrumMobileXRC.PageModels
                         NetworkType = SharedResource.NetworkType_Test;
                     }
 
-                    _networkDbHelper = new DbNetworkHelper(_configDb, deserializedWallet.IsMainNetwork);
+                    _networkDbHelper = new DbNetworkHelper(_configDb, walletManager.Wallet.IsMainNetwork);
                     await _networkDbHelper.LoadFromDbAsync();
 
                     NetworkLastUpdate = _networkDbHelper.NetworkLastUpdate;
@@ -158,14 +157,13 @@ namespace ElectrumMobileXRC.PageModels
 
         private async void SaveConfiguration()
         {
-            var walletManager = new WalletManager();
-            var deserializedWallet = walletManager.DeserializeWalletMetadata(_walletDbHelper.SerializedWallet);
+            var walletManager = new WalletManager(_walletDbHelper.SerializedWallet);
 
             switch (NetworkServersSelectedIndex)
             {
                 case 0:
                     var random = new Random();
-                    if (deserializedWallet.IsMainNetwork)
+                    if (walletManager.Wallet.IsMainNetwork)
                     {
                         int index = random.Next(NetworkConfig.MainNet.Length);
                         NetworkDefaultServer = NetworkConfig.MainNet[index];
@@ -182,7 +180,7 @@ namespace ElectrumMobileXRC.PageModels
                     break;
 
                 default:
-                    if (deserializedWallet.IsMainNetwork)
+                    if (walletManager.Wallet.IsMainNetwork)
                     {
                         NetworkDefaultServer = NetworkConfig.MainNet[NetworkServersSelectedIndex - 2];
                     }

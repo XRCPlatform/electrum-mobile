@@ -102,10 +102,8 @@ namespace ElectrumMobileXRC.PageModels
                 }
                 else
                 {
-                    var walletManager = new WalletManager();
-                    var deserializedWallet = walletManager.DeserializeWalletMetadata(_walletDbHelper.SerializedWallet);
-
-                    foreach (var address in deserializedWallet.ReceivingAddresses)
+                    var walletManager = new WalletManager(_walletDbHelper.SerializedWallet);
+                    foreach (var address in walletManager.Wallet.ReceivingAddresses)
                     {
                         var addItem = new AddressItemModel();
                         addItem.Balance = 2;
@@ -114,7 +112,7 @@ namespace ElectrumMobileXRC.PageModels
                         ReceivingAddresses.Add(addItem);
                     }
 
-                    foreach (var address in deserializedWallet.ChangeAddresses)
+                    foreach (var address in walletManager.Wallet.ChangeAddresses)
                     {
                         var addItem = new AddressItemModel();
                         addItem.Balance = 2;

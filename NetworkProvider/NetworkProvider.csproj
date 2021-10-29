@@ -7,6 +7,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ElectrumXClient\ElectrumXClient.csproj" />
     <ProjectReference Include="..\NBitcoin\NBitcoin.csproj" />
+    <ProjectReference Include="..\WalletProvider\WalletProvider.csproj" />
   </ItemGroup>
 
 </Project>

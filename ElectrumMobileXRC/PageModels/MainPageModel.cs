@@ -93,14 +93,16 @@ namespace ElectrumMobileXRC.PageModels
                 }
                 else
                 {
-                    var walletManager = new WalletManager();
-                    var deserializedWallet = walletManager.DeserializeWalletMetadata(_walletDbHelper.SerializedWallet);
+                    var walletManager = new WalletManager(_walletDbHelper.SerializedWallet);
 
-                    _networkDbHelper = new DbNetworkHelper(_configDb, deserializedWallet.IsMainNetwork);
+                    _networkDbHelper = new DbNetworkHelper(_configDb, walletManager.Wallet.IsMainNetwork);
                     await _networkDbHelper.LoadFromDbAsync();
 
                     var networkManager = new NetworkManager(_networkDbHelper.NetworkDefaultServer, _networkDbHelper.NetworkDefaultPort,
-                            walletManager.GetNetwork(deserializedWallet.IsMainNetwork));
+                            walletManager.GetNetwork(walletManager.Wallet.IsMainNetwork));
+
+                    var blockchainTransactionData = await networkManager.StartSyncingAsync(walletManager.Wallet);
+                    walletManager.SyncBlockchainData(blockchainTransactionData);
                 }
 
                 LastDateUpdate = string.Format("{0} {1}",

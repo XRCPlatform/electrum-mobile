@@ -79,10 +79,8 @@ namespace ElectrumMobileXRC.PageModels
                 }
                 else
                 {
-                    var walletManager = new WalletManager();
-                    var deserializedWallet = walletManager.DeserializeWalletMetadata(_walletDbHelper.SerializedWallet);
-
-                    Address = deserializedWallet.ReceivingAddresses.First().Address;
+                    var walletManager = new WalletManager(_walletDbHelper.SerializedWallet);
+                    Address = walletManager.Wallet.ReceivingAddresses.First().Address;
 
                     QRCodeGenerator qrGenerator = new QRCodeGenerator();
                     QRCodeData qrCodeData = qrGenerator.CreateQrCode(string.Format("xrc:{0}", Address), QRCodeGenerator.ECCLevel.Q);

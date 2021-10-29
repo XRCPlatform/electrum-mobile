@@ -8,6 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using Newtonsoft.Json;
 using WalletProvider.Utils;
+using System.Threading.Tasks;
 
 namespace WalletProvider
 {
@@ -23,11 +24,19 @@ namespace WalletProvider
         private const string DEFAULTACCOUNT = "account 0";
 
         /// <summary>Provider of time functions.</summary>
-        private readonly IDateTimeProvider dateTimeProvider;
+        private readonly IDateTimeProvider _dateTimeProvider;
+
+        public WalletMetadata Wallet { get; set; }
 
         public WalletManager()
         {
-            dateTimeProvider = DateTimeProvider.Default;
+            _dateTimeProvider = DateTimeProvider.Default;
+        }
+
+        public WalletManager(string serializedWallet)
+        {
+            _dateTimeProvider = DateTimeProvider.Default;
+            Wallet = DeserializeWalletMetadata(serializedWallet);
         }
 
         public WalletMetadata CreateElectrumWallet(string password, string name, string mnemonicList, string passphrase = null, bool isMainNetwork = true)
@@ -63,7 +72,7 @@ namespace WalletProvider
                 Name = name,
                 EncryptedSeed = encryptedSeed,
                 ChainCode = extendedKey.ChainCode,
-                CreationTime = dateTimeProvider.GetTimeOffset(),
+                CreationTime = _dateTimeProvider.GetTimeOffset(),
                 Network = network,
                 AccountsRoot = new List<AccountRoot> { new AccountRoot() { Accounts = new List<HdAccount>(), CoinType = (CoinType)network.Consensus.CoinType } },
             };
@@ -71,7 +80,7 @@ namespace WalletProvider
             // Generate multiple accounts and addresses from the get-go.
             for (int i = 0; i < WALLETCREATIONACCOUNTSCOUNT; i++)
             {
-                HdAccount account = wallet.AddNewElectrumAccount(password, (CoinType)network.Consensus.CoinType, dateTimeProvider.GetTimeOffset());
+                HdAccount account = wallet.AddNewElectrumAccount(password, (CoinType)network.Consensus.CoinType, _dateTimeProvider.GetTimeOffset());
                 IEnumerable<HdAddress> newReceivingAddresses = account.CreateAddresses(network, UNUSEDADDRESSESBUFFER);
                 IEnumerable<HdAddress> newChangeAddresses = account.CreateAddresses(network, UNUSEDADDRESSESBUFFER, true);
 
@@ -118,7 +127,7 @@ namespace WalletProvider
                 Name = name,
                 EncryptedSeed = encryptedSeed,
                 ChainCode = extendedKey.ChainCode,
-                CreationTime = dateTimeProvider.GetTimeOffset(),
+                CreationTime = _dateTimeProvider.GetTimeOffset(),
                 Network = network,
                 AccountsRoot = new List<AccountRoot> { new AccountRoot() { Accounts = new List<HdAccount>(), CoinType = (CoinType)network.Consensus.CoinType } },
             };
@@ -126,7 +135,7 @@ namespace WalletProvider
             // Generate multiple accounts and addresses from the get-go.
             for (int i = 0; i < WALLETCREATIONACCOUNTSCOUNT; i++)
             {
-                HdAccount account = wallet.AddNewAccount(password, (CoinType)network.Consensus.CoinType, dateTimeProvider.GetTimeOffset());
+                HdAccount account = wallet.AddNewAccount(password, (CoinType)network.Consensus.CoinType, _dateTimeProvider.GetTimeOffset());
                 IEnumerable<HdAddress> newReceivingAddresses = account.CreateAddresses(network, UNUSEDADDRESSESBUFFER);
                 IEnumerable<HdAddress> newChangeAddresses = account.CreateAddresses(network, UNUSEDADDRESSESBUFFER, true);
 
@@ -236,7 +245,7 @@ namespace WalletProvider
             return JsonConvert.SerializeObject(walletSerialized);
         }
 
-        public WalletMetadata DeserializeWalletMetadata(string jsonWalletMetadata)
+        private WalletMetadata DeserializeWalletMetadata(string jsonWalletMetadata)
         {
             var walletMetadata = new WalletMetadata();
             var walletDeserialized = JsonConvert.DeserializeObject<WalletMetadataSerialized>(jsonWalletMetadata);
@@ -267,5 +276,77 @@ namespace WalletProvider
                 return false;
             }
         }
+
+        public void SyncBlockchainData(List<WalletTransaction> blockchainTransactionData)
+        {
+            //throw new NotImplementedException();
+
+          
+        }
+
+        //private void AddTransactionToWallet(Transaction transaction, TxOut utxo, int? blockHeight = null, string blockHash)
+        //{
+        //    uint256 transactionHash = transaction.GetHash();
+
+        //    // Get the collection of transactions to add to.
+        //    Script script = utxo.ScriptPubKey;
+        //    ICollection<TransactionData> addressTransactions = address.Transactions;
+
+        //    // Check if a similar UTXO exists or not (same transaction ID and same index).
+        //    // New UTXOs are added, existing ones are updated.
+        //    int index = transaction.Outputs.IndexOf(utxo);
+        //    Money amount = utxo.Value;
+        //    TransactionData foundTransaction = addressTransactions.FirstOrDefault(t => (t.Id == transactionHash) && (t.Index == index));
+        //    if (foundTransaction == null)
+        //    {
+        //        var newTransaction = new TransactionData
+        //        {
+        //            Amount = amount,
+        //            BlockHeight = blockHeight,
+        //            BlockHash = new uint256(blockHash),
+        //            Id = transactionHash,
+        //            CreationTime = DateTimeOffset.FromUnixTimeSeconds(block?.Header.Time ?? transaction.Time),
+        //            Index = index,
+        //            ScriptPubKey = script,
+        //            Hex = transaction.ToHex(),
+        //            IsPropagated = true,
+        //            IsCoinbase = transaction.IsCoinBase
+        //        };
+
+        //        addressTransactions.Add(newTransaction);
+        //        this.AddInputKeysLookupLock(newTransaction);
+        //    }
+        //    else
+        //    {
+        //        // Update the block height and block hash.
+        //        if ((foundTransaction.BlockHeight == null) && (blockHeight != null))
+        //        {
+        //            foundTransaction.BlockHeight = blockHeight;
+        //            foundTransaction.BlockHash = block?.GetHash();
+        //        }
+
+        //        // Update the block time.
+        //        if (block != null)
+        //        {
+        //            foundTransaction.CreationTime = DateTimeOffset.FromUnixTimeSeconds(block.Header.Time);
+        //        }
+
+        //        // Add the Merkle proof now that the transaction is confirmed in a block.
+        //        if ((block != null) && (foundTransaction.MerkleProof == null))
+        //        {
+        //            foundTransaction.MerkleProof = new MerkleBlock(block, new[] { transactionHash }).PartialMerkleTree;
+        //        }
+
+        //        if (isPropagated)
+        //        {
+        //            foundTransaction.IsPropagated = true;
+        //        }
+
+        //        foundTransaction.IsCoinbase = transaction.IsCoinBase;
+        //    }
+
+        //    this.TransactionFoundInternal(script);
+        //    this.logger.LogTrace("(-)");
+        //}
     }
 }
