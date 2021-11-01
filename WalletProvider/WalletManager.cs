@@ -26,6 +26,9 @@ namespace WalletProvider
         /// <summary>Provider of time functions.</summary>
         private readonly IDateTimeProvider _dateTimeProvider;
 
+        private Dictionary<OutPoint, TransactionData> _outpointLookup;
+        private Dictionary<Script, HdAddress> _keysLookup;
+
         public WalletMetadata Wallet { get; set; }
 
         public WalletManager()
@@ -36,7 +39,13 @@ namespace WalletProvider
         public WalletManager(string serializedWallet)
         {
             _dateTimeProvider = DateTimeProvider.Default;
+            _keysLookup = new Dictionary<Script, HdAddress>();
+            _outpointLookup = new Dictionary<OutPoint, TransactionData>();
+
             Wallet = DeserializeWalletMetadata(serializedWallet);
+            if (Wallet.Wallet.Network == null) Wallet.Wallet.Network = GetNetwork(Wallet.IsMainNetwork);
+
+            LoadKeysLookupLock();
         }
 
         public WalletMetadata CreateElectrumWallet(string password, string name, string mnemonicList, string passphrase = null, bool isMainNetwork = true)
@@ -245,6 +254,22 @@ namespace WalletProvider
             return JsonConvert.SerializeObject(walletSerialized);
         }
 
+        public string SerializeWalletMetadata()
+        {
+            var walletSerialized = new WalletMetadataSerialized();
+
+            walletSerialized.Account = SerializeObject(Wallet.Account);
+            walletSerialized.Seed = Wallet.Seed;
+            walletSerialized.Wallet = SerializeObject(Wallet.Wallet);
+            walletSerialized.ReceivingAddresses = SerializeListOfObjects(Wallet.ReceivingAddresses);
+            walletSerialized.ChangeAddresses = SerializeListOfObjects(Wallet.ChangeAddresses);
+            walletSerialized.UserName = Wallet.UserName;
+            walletSerialized.PasswordEncrypted = Wallet.PasswordEncrypted;
+            walletSerialized.IsMainNetwork = Wallet.IsMainNetwork;
+
+            return JsonConvert.SerializeObject(walletSerialized);
+        }
+
         private WalletMetadata DeserializeWalletMetadata(string jsonWalletMetadata)
         {
             var walletMetadata = new WalletMetadata();
@@ -277,76 +302,320 @@ namespace WalletProvider
             }
         }
 
-        public void SyncBlockchainData(List<WalletTransaction> blockchainTransactionData)
+        public void SyncBlockchainData(List<WalletTransaction> blockchainTransactionData, Network network)
         {
-            //throw new NotImplementedException();
+            if ((blockchainTransactionData != null) && (blockchainTransactionData.Any()))
+            {
+                foreach (var itemTransactionData in blockchainTransactionData)
+                {
+                    var transaction = Transaction.Load(itemTransactionData.BlockchainTransaction.Hex, network);
+                    
+                    int? blockHeight = itemTransactionData.BlockchainTransaction.Height;
+                    if (blockHeight == 0) blockHeight = null;
 
-          
+                    var blockTime = itemTransactionData.BlockchainTransaction.Blocktime;
+
+                    uint256 blockHash = null;
+                    if (!string.IsNullOrEmpty(itemTransactionData.BlockchainTransaction.Blockhash)) blockHash = new uint256(itemTransactionData.BlockchainTransaction.Blockhash);
+
+                    ProcessTransaction(transaction, blockHeight, blockTime, blockHash, network);
+                }
+            }         
         }
 
-        //private void AddTransactionToWallet(Transaction transaction, TxOut utxo, int? blockHeight = null, string blockHash)
-        //{
-        //    uint256 transactionHash = transaction.GetHash();
+        private bool ProcessTransaction(
+            Transaction transaction, 
+            int? blockHeight, 
+            long blockTime, 
+            uint256 blockHash,
+            Network network, 
+            bool isPropagated = true)
+        {
+            uint256 hash = transaction.GetHash();
 
-        //    // Get the collection of transactions to add to.
-        //    Script script = utxo.ScriptPubKey;
-        //    ICollection<TransactionData> addressTransactions = address.Transactions;
+            bool foundReceivingTrx = false, foundSendingTrx = false;
 
-        //    // Check if a similar UTXO exists or not (same transaction ID and same index).
-        //    // New UTXOs are added, existing ones are updated.
-        //    int index = transaction.Outputs.IndexOf(utxo);
-        //    Money amount = utxo.Value;
-        //    TransactionData foundTransaction = addressTransactions.FirstOrDefault(t => (t.Id == transactionHash) && (t.Index == index));
-        //    if (foundTransaction == null)
-        //    {
-        //        var newTransaction = new TransactionData
-        //        {
-        //            Amount = amount,
-        //            BlockHeight = blockHeight,
-        //            BlockHash = new uint256(blockHash),
-        //            Id = transactionHash,
-        //            CreationTime = DateTimeOffset.FromUnixTimeSeconds(block?.Header.Time ?? transaction.Time),
-        //            Index = index,
-        //            ScriptPubKey = script,
-        //            Hex = transaction.ToHex(),
-        //            IsPropagated = true,
-        //            IsCoinbase = transaction.IsCoinBase
-        //        };
+            // Check the outputs.
+            foreach (TxOut utxo in transaction.Outputs)
+            {
+                // Check if the outputs contain one of our addresses.
+                if (this._keysLookup.TryGetValue(utxo.ScriptPubKey, out HdAddress _))
+                {
+                    this.AddTransactionToWallet(transaction, utxo, blockHeight, blockTime, blockHash, isPropagated);
+                    foundReceivingTrx = true;
+                }
+            }
 
-        //        addressTransactions.Add(newTransaction);
-        //        this.AddInputKeysLookupLock(newTransaction);
-        //    }
-        //    else
-        //    {
-        //        // Update the block height and block hash.
-        //        if ((foundTransaction.BlockHeight == null) && (blockHeight != null))
-        //        {
-        //            foundTransaction.BlockHeight = blockHeight;
-        //            foundTransaction.BlockHash = block?.GetHash();
-        //        }
+            // Check the inputs - include those that have a reference to a transaction containing one of our scripts and the same index.
+            foreach (TxIn input in transaction.Inputs)
+            {
+                if (!this._outpointLookup.TryGetValue(input.PrevOut, out TransactionData tTx))
+                {
+                    continue;
+                }
 
-        //        // Update the block time.
-        //        if (block != null)
-        //        {
-        //            foundTransaction.CreationTime = DateTimeOffset.FromUnixTimeSeconds(block.Header.Time);
-        //        }
+                // Get the details of the outputs paid out.
+                IEnumerable<TxOut> paidOutTo = transaction.Outputs.Where(o =>
+                {
+                    // If script is empty ignore it.
+                    if (o.IsEmpty)
+                        return false;
 
-        //        // Add the Merkle proof now that the transaction is confirmed in a block.
-        //        if ((block != null) && (foundTransaction.MerkleProof == null))
-        //        {
-        //            foundTransaction.MerkleProof = new MerkleBlock(block, new[] { transactionHash }).PartialMerkleTree;
-        //        }
+                    // Check if the destination script is one of the wallet's.
+                    bool found = this._keysLookup.TryGetValue(o.ScriptPubKey, out HdAddress addr);
 
-        //        if (isPropagated)
-        //        {
-        //            foundTransaction.IsPropagated = true;
-        //        }
+                    // Include the keys not included in our wallets (external payees).
+                    if (!found)
+                        return true;
 
-        //        foundTransaction.IsCoinbase = transaction.IsCoinBase;
-        //    }
+                    // Include the keys that are in the wallet but that are for receiving
+                    // addresses (which would mean the user paid itself).
+                    // We also exclude the keys involved in a staking transaction.
+                    return !addr.IsChangeAddress();
+                });
 
-        //    this.TransactionFoundInternal(script);
-        //    this.logger.LogTrace("(-)");
-        //}
+                this.AddSpendingTransactionToWallet(transaction, paidOutTo, tTx.Id, tTx.Index, network, blockTime, blockHeight);
+                foundSendingTrx = true;
+            }
+
+            return foundSendingTrx || foundReceivingTrx;
+        }
+
+        private void AddTransactionToWallet(
+            Transaction transaction, 
+            TxOut utxo, 
+            int? blockHeight, 
+            long blockTime, 
+            uint256 blockHash, 
+            bool isPropagated = true)
+        {
+            uint256 transactionHash = transaction.GetHash();
+
+            // Get the collection of transactions to add to.
+            Script script = utxo.ScriptPubKey;
+            this._keysLookup.TryGetValue(script, out HdAddress address);
+            ICollection<TransactionData> addressTransactions = address.Transactions;
+
+            // Check if a similar UTXO exists or not (same transaction ID and same index).
+            // New UTXOs are added, existing ones are updated.
+            int index = transaction.Outputs.IndexOf(utxo);
+            Money amount = utxo.Value;
+            TransactionData foundTransaction = addressTransactions.FirstOrDefault(t => (t.Id == transactionHash) && (t.Index == index));
+            if (foundTransaction == null)
+            {
+                var newTransaction = new TransactionData
+                {
+                    Amount = amount,
+                    BlockHeight = blockHeight,
+                    BlockHash = blockHash,
+                    Id = transactionHash,
+                    CreationTime = DateTimeOffset.FromUnixTimeSeconds(blockTime),
+                    Index = index,
+                    ScriptPubKey = script,
+                    Hex = transaction.ToHex(),
+                    IsPropagated = isPropagated,
+                    IsCoinbase = transaction.IsCoinBase
+                };
+
+                // Add the Merkle proof to the (non-spending) transaction.
+                if (blockHeight.HasValue)
+                {
+                  ///////////////////////////////// newTransaction.MerkleProof = new MerkleBlock(block, new[] { transactionHash }).PartialMerkleTree;
+                }
+
+                addressTransactions.Add(newTransaction);
+                this.AddInputKeysLookupLock(newTransaction);
+            }
+            else
+            {
+                // Update the block height and block hash.
+                if ((foundTransaction.BlockHeight == null) && (blockHeight != null))
+                {
+                    foundTransaction.BlockHeight = blockHeight;
+                    foundTransaction.BlockHash = blockHash;
+                }
+
+                // Update the block time.
+                if (blockHeight.HasValue)
+                {
+                    foundTransaction.CreationTime = DateTimeOffset.FromUnixTimeSeconds(blockTime);
+                }
+
+                // Add the Merkle proof now that the transaction is confirmed in a block.
+                if ((blockHeight.HasValue) && (foundTransaction.MerkleProof == null))
+                {
+                    ///////////////////////////////// foundTransaction.MerkleProof = new MerkleBlock(block, new[] { transactionHash }).PartialMerkleTree;
+                }
+
+                if (isPropagated)
+                {
+                    foundTransaction.IsPropagated = true;
+                }
+
+                foundTransaction.IsCoinbase = transaction.IsCoinBase;
+            }
+        }
+
+        private void AddSpendingTransactionToWallet(
+            Transaction transaction, 
+            IEnumerable<TxOut> paidToOutputs,
+            uint256 spendingTransactionId, 
+            int? spendingTransactionIndex, 
+            Network network, 
+            long? blockTime = null, 
+            int? blockHeight = null)
+        {
+            // Get the transaction being spent.
+            TransactionData spentTransaction = this._keysLookup.Values.Distinct().SelectMany(v => v.Transactions)
+                .SingleOrDefault(t => (t.Id == spendingTransactionId) && (t.Index == spendingTransactionIndex));
+            if (spentTransaction == null)
+            {
+                // Strange, why would it be null?
+                return;
+            }
+
+            // If the details of this spending transaction are seen for the first time.
+            if (spentTransaction.SpendingDetails == null)
+            {
+                List<PaymentDetails> payments = new List<PaymentDetails>();
+                foreach (TxOut paidToOutput in paidToOutputs)
+                {
+                    // Figure out how to retrieve the destination address.
+                    string destinationAddress = string.Empty;
+                    ScriptTemplate scriptTemplate = paidToOutput.ScriptPubKey.FindTemplate(network);
+                    switch (scriptTemplate.Type)
+                    {
+                        // Pay to PubKey can be found in outputs of staking transactions.
+                        case TxOutType.TX_PUBKEY:
+                            PubKey pubKey = PayToPubkeyTemplate.Instance.ExtractScriptPubKeyParameters(paidToOutput.ScriptPubKey);
+                            destinationAddress = pubKey.GetAddress(network).ToString();
+                            break;
+                        // Pay to PubKey hash is the regular, most common type of output.
+                        case TxOutType.TX_PUBKEYHASH:
+                            destinationAddress = paidToOutput.ScriptPubKey.GetDestinationAddress(network).ToString();
+                            break;
+                        case TxOutType.TX_NONSTANDARD:
+                        case TxOutType.TX_SCRIPTHASH:
+                        case TxOutType.TX_MULTISIG:
+                        case TxOutType.TX_NULL_DATA:
+                            destinationAddress = paidToOutput.ScriptPubKey.GetDestinationAddress(network)?.ToString();
+                            break;
+                    }
+
+                    payments.Add(new PaymentDetails
+                    {
+                        DestinationScriptPubKey = paidToOutput.ScriptPubKey,
+                        DestinationAddress = destinationAddress,
+                        Amount = paidToOutput.Value
+                    });
+                }
+
+                SpendingDetails spendingDetails = new SpendingDetails
+                {
+                    TransactionId = transaction.GetHash(),
+                    Payments = payments,
+                    CreationTime = DateTimeOffset.FromUnixTimeSeconds(blockTime ?? transaction.Time),
+                    BlockHeight = blockHeight,
+                    Hex = transaction.ToHex()
+                };
+
+                spentTransaction.SpendingDetails = spendingDetails;
+                spentTransaction.MerkleProof = null;
+            }
+            else // If this spending transaction is being confirmed in a block.
+            {
+                // Update the block height.
+                if (spentTransaction.SpendingDetails.BlockHeight == null && blockHeight != null)
+                {
+                    spentTransaction.SpendingDetails.BlockHeight = blockHeight;
+                }
+
+                // Update the block time to be that of the block in which the transaction is confirmed.
+                if (blockHeight.HasValue)
+                {
+                    spentTransaction.SpendingDetails.CreationTime = DateTimeOffset.FromUnixTimeSeconds(blockTime.Value);
+                }
+            }
+        }
+
+        public void LoadKeysLookupLock()
+        {
+            IEnumerable<HdAddress> addresses = GetCombinedAddresses();
+            foreach (HdAddress address in addresses)
+            {
+                this._keysLookup[address.ScriptPubKey] = address;
+                if (address.Pubkey != null)
+                {
+                    this._keysLookup[address.Pubkey] = address;
+                }
+
+                foreach (var transaction in address.Transactions)
+                {
+                    this._outpointLookup[new OutPoint(transaction.Id, transaction.Index)] = transaction;
+                }
+            }
+        }
+
+        private void UpdateKeysLookupLock(IEnumerable<HdAddress> addresses)
+        {
+            if (addresses == null || !addresses.Any())
+            {
+                return;
+            }
+
+            foreach (HdAddress address in addresses)
+            {
+                this._keysLookup[address.ScriptPubKey] = address;
+                if (address.Pubkey != null)
+                {
+                    this._keysLookup[address.Pubkey] = address;
+                }
+            }
+        }
+
+        private void AddInputKeysLookupLock(TransactionData transactionData)
+        {
+            this._outpointLookup[new OutPoint(transactionData.Id, transactionData.Index)] = transactionData;
+        }
+
+        public IEnumerable<HdAddress> GetCombinedAddresses()
+        {
+            IEnumerable<HdAddress> addresses = new List<HdAddress>();
+            if (Wallet.ReceivingAddresses != null)
+            {
+                addresses = Wallet.ReceivingAddresses;
+            }
+
+            if (Wallet.ChangeAddresses != null)
+            {
+                addresses = addresses.Concat(Wallet.ChangeAddresses);
+            }
+
+            return addresses;
+        }
+
+        public WalletBalance GetWalletBalance(int lastBlockHeight, Network network)
+        {
+            (Money amountConfirmed, Money amountUnconfirmed, Money amountImmature) result = 
+                Wallet.Account.GetSpendableAmount(lastBlockHeight, network);
+
+            return new WalletBalance
+            {
+                AmountConfirmed = result.amountConfirmed,
+                AmountUnconfirmed = result.amountUnconfirmed,
+                AmountImmature = result.amountImmature
+            };
+        }
+
+        public List<WalletTransaction> GetWalletHistory()
+        {
+            var transactions = new List<WalletTransaction>();
+
+            transactions = GetCombinedAddresses()
+                .Where(a => a.Transactions.Any())
+                .SelectMany(s => s.Transactions.Select(t => new WalletTransaction(s, t))).ToList();
+
+            return transactions;
+        }
     }
 }

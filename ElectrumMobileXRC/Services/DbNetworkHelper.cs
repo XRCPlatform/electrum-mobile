@@ -10,7 +10,7 @@ namespace ElectrumMobileXRC.Services
 {
     public class DbNetworkHelper
     {
-        public string NetworkLastUpdate { get; set; }
+        public string NetworkDateLastUpdate { get; set; }
         public int NetworkLastSyncedBlock { get; set; }
         public string NetworkDefaultServer { get; set; }
         public int NetworkDefaultPort { get; set; }
@@ -36,9 +36,9 @@ namespace ElectrumMobileXRC.Services
             _configDb = configDb;
             _isMainNetwork = isMainNetwork;
 
-            NetworkLastUpdate = "N/A";
+            NetworkDateLastUpdate = "N/A";
             NetworkLastSyncedBlock = 0;
-            NetworkDefaultPort = 510021;
+            NetworkDefaultPort = 51002;
 
             if (_isMainNetwork)
             {
@@ -66,13 +66,13 @@ namespace ElectrumMobileXRC.Services
             if ((networkLastUpdateUtc != null) && (!string.IsNullOrEmpty(networkLastUpdateUtc.Value)))
             {
                 var lastUpdate = DateTime.Parse(networkLastUpdateUtc.Value).ToLocalTime();
-                NetworkLastUpdate = string.Format("{0} {1}", lastUpdate.ToShortDateString(), lastUpdate.ToShortTimeString());
+                NetworkDateLastUpdate = string.Format("{0} {1}", lastUpdate.ToShortDateString(), lastUpdate.ToShortTimeString());
             }
 
             var networkLastSyncedBlock = await _configDb.Get(DbConfig.CFG_NETWORKLASTSYNCEDBLOCK);
             if ((networkLastSyncedBlock != null) && (!string.IsNullOrEmpty(networkLastSyncedBlock.Value)))
             {
-                NetworkLastSyncedBlock = int.Parse(networkLastUpdateUtc.Value);
+                NetworkLastSyncedBlock = int.Parse(networkLastSyncedBlock.Value);
             }
 
             var networkDefaultServer = await _configDb.Get(DbConfig.CFG_NETWORKDEFAULTSERVER);
@@ -92,6 +92,16 @@ namespace ElectrumMobileXRC.Services
         {
             await _configDb.Add(DbConfig.CFG_NETWORKDEFAULTPORT, networkDefaultPort.ToString());
             await _configDb.Add(DbConfig.CFG_NETWORKDEFAULTSERVER, networkDefaultServer);
+        }
+
+        internal async Task UpdateNetworkInfoAsync(int lastBlockHeight)
+        {
+            NetworkLastSyncedBlock = lastBlockHeight;
+            await _configDb.Add(DbConfig.CFG_NETWORKLASTSYNCEDBLOCK, lastBlockHeight.ToString());
+
+            var nowUtc = DateTime.UtcNow;
+            NetworkDateLastUpdate = string.Format("{0} {1}", nowUtc.ToShortDateString(), nowUtc.ToShortTimeString());
+            await _configDb.Add(DbConfig.CFG_NETWORKLASTUPDATEUTC, nowUtc.ToString());
         }
     }
 }

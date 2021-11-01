@@ -47,14 +47,14 @@ namespace ElectrumXClient
             return ServerPeersSubscribeResponse.FromJson(response);
         }
 
-        public async Task<BlockchainNumblocksSubscribeResponse> GetBlockchainNumblocksSubscribe()
+        public async Task<BlockchainHeadersSubscribeResponse> GetBlockchainHeadersSubscribe()
         {
-            var request = new BlockchainNumblocksSubscribeRequest();
-            var requestData = request.GetRequestData<BlockchainNumblocksSubscribeRequest>();
+            var request = new BlockchainHeadersSubscribeRequest();
+            var requestData = request.GetRequestData<BlockchainHeadersSubscribeRequest>();
             await this.Connect();
             string response = await SendMessage(requestData);
             this.Disconnect();
-            return BlockchainNumblocksSubscribeResponse.FromJson(response);
+            return BlockchainHeadersSubscribeResponse.FromJson(response);
         }
 
         public async Task<BlockchainBlockHeaderResponse> GetBlockchainBlockHeader(uint height)

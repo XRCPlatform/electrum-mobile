@@ -16,7 +16,7 @@ namespace ElectrumXClient.Response
         public class BlockchainScripthashListunspentResult
         {
             [JsonProperty("height")]
-            public int Height { get; set; }
+            public uint Height { get; set; }
 
             [JsonProperty("tx_pos")]
             public int TxPos { get; set; }

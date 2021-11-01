@@ -23,7 +23,7 @@ namespace NBitcoin
         /// <summary>
         /// RegTest
         /// </summary>
-        RegTest = 1
+        RegTest = 100
     }
 
     public partial class Network

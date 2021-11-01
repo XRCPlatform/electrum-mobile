@@ -109,7 +109,7 @@ namespace ElectrumMobileXRC.PageModels
                     _networkDbHelper = new DbNetworkHelper(_configDb, walletManager.Wallet.IsMainNetwork);
                     await _networkDbHelper.LoadFromDbAsync();
 
-                    NetworkLastUpdate = _networkDbHelper.NetworkLastUpdate;
+                    NetworkLastUpdate = _networkDbHelper.NetworkDateLastUpdate;
                     NetworkLastSyncedBlock = _networkDbHelper.NetworkLastSyncedBlock;
                     NetworkDefaultServer = _networkDbHelper.NetworkDefaultServer;
                     NetworkDefaultPort = _networkDbHelper.NetworkDefaultPort;

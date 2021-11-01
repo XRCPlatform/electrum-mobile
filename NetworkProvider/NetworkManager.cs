@@ -1,5 +1,4 @@
 ﻿using ElectrumXClient;
-using ElectrumXClient.Request;
 using ElectrumXClient.Response;
 using NBitcoin;
 using NetworkProvider.Utils;
@@ -17,6 +16,7 @@ namespace NetworkProvider
         private int _port;
         private Network _net;
         private Client _electrumClient;
+        public BlockchainHeadersSubscribeResponse ServerInfo { get; set; }
 
         public NetworkManager(string server, int port, Network net)
         {
@@ -26,12 +26,14 @@ namespace NetworkProvider
             _electrumClient = new Client(_server, _port, true);
         }
 
-        public async Task<List<WalletTransaction>> StartSyncingAsync(WalletMetadata wallet)
+        public async Task<List<WalletTransaction>> StartSyncingAsync(IEnumerable<HdAddress> addresses, int lastSyncedHeight)
         {
             var cnvHelper = new ConversionHelper();
             var transactionList = new List<WalletTransaction>();
 
-            foreach (var itemAddress in wallet.ReceivingAddresses)
+            ServerInfo = await _electrumClient.GetBlockchainHeadersSubscribe();
+
+            foreach (var itemAddress in addresses)
             {
                 var address = BitcoinAddress.Create(itemAddress.Address, _net);
                 var addressBytes = address.ScriptPubKey.ToBytes();
@@ -45,22 +47,22 @@ namespace NetworkProvider
                     var transactionResult = addressHistory.Result;
                     foreach (var itemTransaction in transactionResult)
                     {
-                        var itemTxDataResult = await _electrumClient.GetBlockchainTransactionGet(itemTransaction.TxHash);
-                        if ((itemTxDataResult != null) && (itemTxDataResult.Result != null))
+                        if (itemTransaction.Height > lastSyncedHeight)
                         {
-                            var newWalletTransation = new WalletTransaction();
-                            newWalletTransation.Address = itemAddress;
-                            newWalletTransation.Transaction = itemTxDataResult.Result;
-
-                            transactionList.Add(newWalletTransation);
+                            var itemTxDataResult = await _electrumClient.GetBlockchainTransactionGet(itemTransaction.TxHash);
+                            if ((itemTxDataResult != null) && (itemTxDataResult.Result != null))
+                            {
+                                var newWalletTransation = new WalletTransaction(itemAddress, itemTxDataResult.Result);
+                                transactionList.Add(newWalletTransation);
+                            }
                         }
                     }
                 }
             }
 
             transactionList = transactionList
-                .OrderBy(tx => tx.Transaction.Height)
-                .ThenBy(tx => tx.Transaction.Time)
+                .OrderBy(tx => tx.BlockchainTransaction.Height)
+                .ThenBy(tx => tx.BlockchainTransaction.Time)
                 .ToList();
 
             return transactionList;

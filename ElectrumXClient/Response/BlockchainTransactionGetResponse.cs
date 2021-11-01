@@ -25,7 +25,7 @@ namespace ElectrumXClient.Response
             public long Size { get; set; }
 
             [JsonProperty("version")]
-            public long Version { get; set; }
+            public uint Version { get; set; }
 
             [JsonProperty("locktime")]
             public long Locktime { get; set; }
@@ -40,10 +40,10 @@ namespace ElectrumXClient.Response
             public string Blockhash { get; set; }
 
             [JsonProperty("height")]
-            public long Height { get; set; }
+            public int Height { get; set; }
 
             [JsonProperty("confirmations")]
-            public long Confirmations { get; set; }
+            public int Confirmations { get; set; }
 
             [JsonProperty("time")]
             public long Time { get; set; }
@@ -57,13 +57,13 @@ namespace ElectrumXClient.Response
                 public string Coinbase { get; set; }
 
                 [JsonProperty("sequence")]
-                public long Sequence { get; set; }
+                public uint Sequence { get; set; }
             }
 
             public class Vout
             {
                 [JsonProperty("value")]
-                public double Value { get; set; }
+                public decimal Value { get; set; }
 
                 [JsonProperty("valueSat")]
                 public long ValueSat { get; set; }

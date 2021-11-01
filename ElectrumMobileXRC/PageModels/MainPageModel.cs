@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
-using FreshMvvm;
 using ElectrumMobileXRC.Models;
 using Xamarin.Forms;
 using ElectrumMobileXRC.Services;
-using WalletProvider.Entities;
 using WalletProvider;
 using NetworkProvider;
-using System.Threading;
+using NBitcoin;
+using System.Threading.Tasks;
+using System.Linq;
 
 namespace ElectrumMobileXRC.PageModels
 {
     public class MainPageModel : BasePageModel
     {
         public string LastDateUpdate { get; set; }
-        public double BalanceUnconfirmed { get; set; }
-        public double Balance { get; set; }
+        public decimal BalanceUnconfirmed { get; set; }
+        public decimal Balance { get; set; }
 
         private ObservableCollection<TransactionHistoryItemModel> _transactionHistory = new ObservableCollection<TransactionHistoryItemModel>();
         public ObservableCollection<TransactionHistoryItemModel> TransactionHistory
@@ -31,9 +30,6 @@ namespace ElectrumMobileXRC.PageModels
             }
         }
 
-        public string TargetPrice { get; set; }
-        public string EntryPrice { get; set; }
-        public string StopPrice { get; set; }
         public ICommand SendButtonCommand { get; set; }
         public ICommand ReceiveButtonCommand { get; set; }
         public ICommand MenuButtonCommand { get; set; }
@@ -41,6 +37,8 @@ namespace ElectrumMobileXRC.PageModels
         private ConfigDbService _configDb;
         private DbNetworkHelper _networkDbHelper;
         private DbWalletHelper _walletDbHelper;
+        private WalletManager _walletManager;
+        private NetworkManager _networkManager;
 
         public MainPageModel()
         {
@@ -93,46 +91,60 @@ namespace ElectrumMobileXRC.PageModels
                 }
                 else
                 {
-                    var walletManager = new WalletManager(_walletDbHelper.SerializedWallet);
+                    _walletManager = new WalletManager(_walletDbHelper.SerializedWallet);
+                    var test = _walletManager.SerializeWalletMetadata();
 
-                    _networkDbHelper = new DbNetworkHelper(_configDb, walletManager.Wallet.IsMainNetwork);
+                    _networkDbHelper = new DbNetworkHelper(_configDb, _walletManager.Wallet.IsMainNetwork);
                     await _networkDbHelper.LoadFromDbAsync();
 
-                    var networkManager = new NetworkManager(_networkDbHelper.NetworkDefaultServer, _networkDbHelper.NetworkDefaultPort,
-                            walletManager.GetNetwork(walletManager.Wallet.IsMainNetwork));
+                    var network = _walletManager.GetNetwork(_walletManager.Wallet.IsMainNetwork);
+                    _networkManager = new NetworkManager(
+                        _networkDbHelper.NetworkDefaultServer,
+                        _networkDbHelper.NetworkDefaultPort,
+                        network);
 
-                    var blockchainTransactionData = await networkManager.StartSyncingAsync(walletManager.Wallet);
-                    walletManager.SyncBlockchainData(blockchainTransactionData);
+                    await SyncWalletWithNetwork(network);
                 }
-
-                LastDateUpdate = string.Format("{0} {1}",
-                    DateTime.Now.ToShortDateString(),
-                    DateTime.Now.ToShortTimeString());
-                Balance = 0;
-                BalanceUnconfirmed = 0;
-
-                var historyItem = new TransactionHistoryItemModel();
-                historyItem.Balance = 2;
-                historyItem.CreationDate = string.Format("{0} {1}",
-                    DateTime.Now.ToShortDateString(),
-                    DateTime.Now.ToShortTimeString());
-                TransactionHistory.Add(historyItem);
-
-                historyItem = new TransactionHistoryItemModel();
-                historyItem.Balance = -200;
-                historyItem.CreationDate = string.Format("{0} {1}",
-                    DateTime.Now.ToShortDateString(),
-                    DateTime.Now.ToShortTimeString());
-                TransactionHistory.Add(historyItem);
-
-                historyItem = new TransactionHistoryItemModel();
-                historyItem.Balance = 200;
-                historyItem.CreationDate = string.Format("{0} {1}",
-                    DateTime.Now.ToShortDateString(),
-                    DateTime.Now.ToShortTimeString());
-                TransactionHistory.Add(historyItem);
             }
         }
 
+        private async Task SyncWalletWithNetwork(Network network)
+        {
+            var blockchainTransactionData = await _networkManager.StartSyncingAsync(
+                _walletManager.GetCombinedAddresses(),
+                _networkDbHelper.NetworkLastSyncedBlock);
+            _walletManager.SyncBlockchainData(blockchainTransactionData, network);
+
+            await _networkDbHelper.UpdateNetworkInfoAsync(_networkManager.ServerInfo.Result.BlockHeight);
+            await _walletDbHelper.UpdateWalletAsync(_walletManager.SerializeWalletMetadata());
+
+            UpdateWalletUI(network);
+        }
+
+        private void UpdateWalletUI(Network network)
+        {
+            LastDateUpdate = _networkDbHelper.NetworkDateLastUpdate;
+
+            var walletBalance = _walletManager.GetWalletBalance(_networkDbHelper.NetworkLastSyncedBlock, network);
+            if (walletBalance != null)
+            {
+                Balance = walletBalance.AmountConfirmed.ToUnit(MoneyUnit.XRC);
+                BalanceUnconfirmed = walletBalance.AmountUnconfirmed.ToUnit(MoneyUnit.XRC);
+            }
+
+            var walletTransactions = _walletManager.GetWalletHistory();
+            if ((walletTransactions != null) && walletTransactions.Any())
+            {
+                foreach (var itemTransaction in walletTransactions)
+                {
+                    var historyItem = new TransactionHistoryItemModel();
+                    historyItem.Balance = itemTransaction.Transaction.Amount.ToUnit(MoneyUnit.XRC);
+                    historyItem.CreationDate = string.Format("{0} {1}",
+                        itemTransaction.Transaction.CreationTime.DateTime.ToShortDateString(),
+                        itemTransaction.Transaction.CreationTime.DateTime.ToShortTimeString());
+                    TransactionHistory.Add(historyItem);
+                }
+            }
+        }
     }
 }

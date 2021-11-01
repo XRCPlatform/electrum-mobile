@@ -672,14 +672,14 @@ namespace WalletProvider.Entities
         /// <summary>
         /// Get the accounts total spendable value for both confirmed and unconfirmed UTXO.
         /// </summary>
-        public (Money ConfirmedAmount, Money UnConfirmedAmount, Money Immature) GetSpendableAmount(ConcurrentChain chain)
+        public (Money ConfirmedAmount, Money UnConfirmedAmount, Money Immature) GetSpendableAmount(int chainHeight, Network network)
         {
             var allTransactions = this.ExternalAddresses.SelectMany(a => a.Transactions)
                 .Concat(this.InternalAddresses.SelectMany(i => i.Transactions)).ToList();
             
             var confirmed = allTransactions.Sum(t => t.SpendableAmount(true));
             var total = allTransactions.Sum(t => t.SpendableAmount(false));
-            var immature = allTransactions.Sum(t => t.ImmatureCoinbaseAmount(chain)); 
+            var immature = allTransactions.Sum(t => t.ImmatureCoinbaseAmount(chainHeight, network)); 
 
             return (confirmed- immature, total - confirmed, immature);
         }
@@ -1040,13 +1040,13 @@ namespace WalletProvider.Entities
         /// <summary>
         /// Get the address total spendable value for both confirmed and unconfirmed UTXO.
         /// </summary>
-        public (Money confirmedAmount, Money unConfirmedAmount, Money immature) GetSpendableAmount(ConcurrentChain chain)
+        public (Money confirmedAmount, Money unConfirmedAmount, Money immature) GetSpendableAmount(int chainHeight, Network network)
         {
             List<TransactionData> allTransactions = this.Transactions.ToList();
 
             long confirmed = allTransactions.Sum(t => t.SpendableAmount(true));
             long total = allTransactions.Sum(t => t.SpendableAmount(false));
-            long immature = allTransactions.Sum(t => t.ImmatureCoinbaseAmount(chain));
+            long immature = allTransactions.Sum(t => t.ImmatureCoinbaseAmount(chainHeight, network));
 
             return (confirmed, total - confirmed, immature);
         }
@@ -1281,11 +1281,11 @@ namespace WalletProvider.Entities
             return Money.Zero;
         }
 
-        public Money ImmatureCoinbaseAmount(ConcurrentChain chain)
+        public Money ImmatureCoinbaseAmount(int chainHeight, Network network)
         {
             if (this.IsCoinbase.HasValue && this.IsCoinbase.Value)
             {
-                if (chain.Network.Consensus.Option<PowConsensusOptions>().CoinbaseMaturity > (chain.Height - this.BlockHeight))
+                if (network.Consensus.Option<PowConsensusOptions>().CoinbaseMaturity > (chainHeight - this.BlockHeight))
                 {
                     return this.Amount;
                 }

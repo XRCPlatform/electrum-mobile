@@ -3,6 +3,6 @@
     public class TransactionHistoryItemModel
     {
         public string CreationDate { get; set; }
-        public double Balance { get; set; }
+        public decimal Balance { get; set; }
     }
 }

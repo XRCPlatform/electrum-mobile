@@ -53,8 +53,8 @@ namespace ElectrumXClient.Tests
         [Test]
         public async Task Test_CanGetBlockchainNumblocksSubscribe()
         {
-            var response = await _client.GetBlockchainNumblocksSubscribe();
-            Assert.IsInstanceOf<BlockchainNumblocksSubscribeResponse>(response);
+            var response = await _client.GetBlockchainHeadersSubscribe();
+            Assert.IsInstanceOf<BlockchainHeadersSubscribeResponse>(response);
         }
 
         [Test]
