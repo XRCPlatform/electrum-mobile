@@ -52,7 +52,9 @@ namespace NetworkProvider
                             var itemTxDataResult = await _electrumClient.GetBlockchainTransactionGet(itemTransaction.TxHash);
                             if ((itemTxDataResult != null) && (itemTxDataResult.Result != null))
                             {
-                                var newWalletTransation = new WalletTransaction(itemAddress, itemTxDataResult.Result);
+                                var itemTxMerkleResult = await _electrumClient.GetTransactionGetMerkle(itemTransaction.TxHash, itemTransaction.Height);
+
+                                var newWalletTransation = new WalletTransaction(itemAddress, itemTxDataResult.Result, itemTxMerkleResult.Result);
                                 transactionList.Add(newWalletTransation);
                             }
                         }

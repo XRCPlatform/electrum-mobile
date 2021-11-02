@@ -7,6 +7,7 @@ using Xamarin.Essentials;
 using ElectrumMobileXRC.Services;
 using WalletProvider;
 using System.Linq;
+using NBitcoin;
 
 namespace ElectrumMobileXRC.PageModels
 {
@@ -80,7 +81,11 @@ namespace ElectrumMobileXRC.PageModels
                 else
                 {
                     var walletManager = new WalletManager(_walletDbHelper.SerializedWallet);
-                    Address = walletManager.Wallet.ReceivingAddresses.First().Address;
+
+                    var coinType = walletManager.Wallet.Wallet.Network.Consensus.CoinType;
+                    var account = walletManager.Wallet.Wallet.GetAccountByCoinType(WalletManager.DEFAULTACCOUNT, (CoinType)coinType);
+
+                    Address = account.ExternalAddresses.First().Address;
 
                     QRCodeGenerator qrGenerator = new QRCodeGenerator();
                     QRCodeData qrCodeData = qrGenerator.CreateQrCode(string.Format("xrc:{0}", Address), QRCodeGenerator.ECCLevel.Q);

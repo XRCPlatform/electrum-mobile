@@ -211,5 +211,16 @@ namespace ElectrumXClient
             this.Disconnect();
             return BlockchainTransactionIdFromPosResponse.FromJson(response);
         }
+
+        public async Task<BlockchainTransactionGetMerkleResponse> GetTransactionGetMerkle(string txhash, uint height)
+        {
+            var request = new BlockchainTransactionGetMerkleRequest();
+            request.Parameters = new object[2] { txhash, height };
+            var requestData = request.GetRequestData<BlockchainTransactionGetMerkleRequest>();
+            await this.Connect();
+            string response = await SendMessage(requestData);
+            this.Disconnect();
+            return BlockchainTransactionGetMerkleResponse.FromJson(response);
+        }
     }
 }

@@ -7,6 +7,7 @@ using Xamarin.Forms;
 using Xamarin.Essentials;
 using ElectrumMobileXRC.Services;
 using WalletProvider;
+using NBitcoin;
 
 namespace ElectrumMobileXRC.PageModels
 {
@@ -103,7 +104,11 @@ namespace ElectrumMobileXRC.PageModels
                 else
                 {
                     var walletManager = new WalletManager(_walletDbHelper.SerializedWallet);
-                    foreach (var address in walletManager.Wallet.ReceivingAddresses)
+
+                    var coinType = walletManager.Wallet.Wallet.Network.Consensus.CoinType;
+                    var account = walletManager.Wallet.Wallet.GetAccountByCoinType(WalletManager.DEFAULTACCOUNT, (CoinType)coinType);
+
+                    foreach (var address in account.ExternalAddresses)
                     {
                         var addItem = new AddressItemModel();
                         addItem.Balance = 2;
@@ -112,7 +117,7 @@ namespace ElectrumMobileXRC.PageModels
                         ReceivingAddresses.Add(addItem);
                     }
 
-                    foreach (var address in walletManager.Wallet.ChangeAddresses)
+                    foreach (var address in account.InternalAddresses)
                     {
                         var addItem = new AddressItemModel();
                         addItem.Balance = 2;

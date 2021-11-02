@@ -1,4 +1,6 @@
-﻿using static ElectrumXClient.Response.BlockchainTransactionGetResponse;
+﻿using System.Collections.Generic;
+using static ElectrumXClient.Response.BlockchainTransactionGetMerkleResponse;
+using static ElectrumXClient.Response.BlockchainTransactionGetResponse;
 
 namespace WalletProvider.Entities
 {
@@ -6,12 +8,17 @@ namespace WalletProvider.Entities
     {
         public HdAddress Address { get; set; }
         public BlockchainTransactionGetResult BlockchainTransaction { get; set; }
+        public List<string> BlockchainTransactionMerkle { get; set; }
         public TransactionData Transaction { get; set; }
 
-        public WalletTransaction(HdAddress address, BlockchainTransactionGetResult blockchainTransaction)
+        public WalletTransaction(
+            HdAddress address,
+            BlockchainTransactionGetResult blockchainTransaction,
+            BlockchainTransactionGetMerkleResult blockchainTransactionMerkle)
         {
             Address = address;
             BlockchainTransaction = blockchainTransaction;
+            BlockchainTransactionMerkle = blockchainTransactionMerkle.Merkle;
         }
 
         public WalletTransaction(HdAddress address, TransactionData transaction)

@@ -12,16 +12,6 @@ namespace WalletProvider.Entities
         public HdAccount Account { get; set; }
 
         /// <summary>
-        /// Receiving addresses
-        /// </summary>
-        public List<HdAddress> ReceivingAddresses { get; set; }
-
-        /// <summary>
-        /// Change addresses
-        /// </summary>
-        public List<HdAddress> ChangeAddresses { get; set; }
-
-        /// <summary>
         /// Wallet base data
         /// </summary>
         public Wallet Wallet { get; set; }

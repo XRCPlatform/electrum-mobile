@@ -8,7 +8,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using Newtonsoft.Json;
 using WalletProvider.Utils;
-using System.Threading.Tasks;
 
 namespace WalletProvider
 {
@@ -21,7 +20,7 @@ namespace WalletProvider
         private const int WALLETCREATIONACCOUNTSCOUNT = 1;
 
         /// <summary>Default account name </summary>
-        private const string DEFAULTACCOUNT = "account 0";
+        public const string DEFAULTACCOUNT = "account 0";
 
         /// <summary>Provider of time functions.</summary>
         private readonly IDateTimeProvider _dateTimeProvider;
@@ -90,12 +89,11 @@ namespace WalletProvider
             for (int i = 0; i < WALLETCREATIONACCOUNTSCOUNT; i++)
             {
                 HdAccount account = wallet.AddNewElectrumAccount(password, (CoinType)network.Consensus.CoinType, _dateTimeProvider.GetTimeOffset());
-                IEnumerable<HdAddress> newReceivingAddresses = account.CreateAddresses(network, UNUSEDADDRESSESBUFFER);
-                IEnumerable<HdAddress> newChangeAddresses = account.CreateAddresses(network, UNUSEDADDRESSESBUFFER, true);
+                account.CreateAddresses(network, UNUSEDADDRESSESBUFFER);
+                account.CreateAddresses(network, UNUSEDADDRESSESBUFFER, true);
+                UpdateKeysLookupLock(account.GetCombinedAddresses());
 
                 walletMetadata.Account = account;
-                walletMetadata.ReceivingAddresses = newReceivingAddresses.ToList();
-                walletMetadata.ChangeAddresses = newChangeAddresses.ToList();
             }
 
             walletMetadata.Wallet = wallet;
@@ -145,12 +143,11 @@ namespace WalletProvider
             for (int i = 0; i < WALLETCREATIONACCOUNTSCOUNT; i++)
             {
                 HdAccount account = wallet.AddNewAccount(password, (CoinType)network.Consensus.CoinType, _dateTimeProvider.GetTimeOffset());
-                IEnumerable<HdAddress> newReceivingAddresses = account.CreateAddresses(network, UNUSEDADDRESSESBUFFER);
-                IEnumerable<HdAddress> newChangeAddresses = account.CreateAddresses(network, UNUSEDADDRESSESBUFFER, true);
+                account.CreateAddresses(network, UNUSEDADDRESSESBUFFER);
+                account.CreateAddresses(network, UNUSEDADDRESSESBUFFER, true);
+                UpdateKeysLookupLock(account.GetCombinedAddresses());
 
                 walletMetadata.Account = account;
-                walletMetadata.ReceivingAddresses = newReceivingAddresses.ToList();
-                walletMetadata.ChangeAddresses = newChangeAddresses.ToList();
             }
 
             walletMetadata.Wallet = wallet;
@@ -183,16 +180,21 @@ namespace WalletProvider
             if (walletMetadata.Wallet == null)
             {
                 isValid = false;
-            }
-
-            if ((walletMetadata.ChangeAddresses == null) || (walletMetadata.ChangeAddresses.Count == 0))
+            } 
+            else
             {
-                isValid = false;
-            }
+                var coinType = walletMetadata.Wallet.Network.Consensus.CoinType;
+                var account = walletMetadata.Wallet.GetAccountByCoinType(DEFAULTACCOUNT, (CoinType)coinType);
 
-            if ((walletMetadata.ReceivingAddresses == null) || (walletMetadata.ReceivingAddresses.Count == 0))
-            {
-                isValid = false;
+                if ((account.InternalAddresses == null) || (account.InternalAddresses.Count == 0))
+                {
+                    isValid = false;
+                }
+
+                if ((account.ExternalAddresses == null) || (account.ExternalAddresses.Count == 0))
+                {
+                    isValid = false;
+                }
             }
 
             return isValid;
@@ -213,30 +215,6 @@ namespace WalletProvider
             return (T)bf.Deserialize(memorystream);
         }
 
-        private List<byte[]> SerializeListOfObjects(List<HdAddress> value)
-        {
-            var listOfObjects = new List<byte[]>();
-
-            foreach (var item in value)
-            {
-                listOfObjects.Add(SerializeObject(item));
-            }
-
-            return listOfObjects;
-        }
-
-        private List<T> DeserializeListOfObjects<T>(List<byte[]> value)
-        {
-            var listOfObjects = new List<T>();
-
-            foreach (var item in value)
-            {
-                listOfObjects.Add(DeseralizeObject<T>(item));
-            }
-
-            return listOfObjects;
-        }
-
         public string SerializeWalletMetadata(WalletMetadata walletMetadata, string userName, string password, bool isMainNetwork)
         {
             var walletSerialized = new WalletMetadataSerialized();
@@ -245,8 +223,6 @@ namespace WalletProvider
             walletSerialized.Account = SerializeObject(walletMetadata.Account);
             walletSerialized.Seed = cryptography.Encrypt(walletMetadata.Seed, password);
             walletSerialized.Wallet = SerializeObject(walletMetadata.Wallet);
-            walletSerialized.ReceivingAddresses = SerializeListOfObjects(walletMetadata.ReceivingAddresses);
-            walletSerialized.ChangeAddresses = SerializeListOfObjects(walletMetadata.ChangeAddresses);
             walletSerialized.UserName = userName;
             walletSerialized.PasswordEncrypted = cryptography.Encrypt(password, password);
             walletSerialized.IsMainNetwork = isMainNetwork;
@@ -261,8 +237,6 @@ namespace WalletProvider
             walletSerialized.Account = SerializeObject(Wallet.Account);
             walletSerialized.Seed = Wallet.Seed;
             walletSerialized.Wallet = SerializeObject(Wallet.Wallet);
-            walletSerialized.ReceivingAddresses = SerializeListOfObjects(Wallet.ReceivingAddresses);
-            walletSerialized.ChangeAddresses = SerializeListOfObjects(Wallet.ChangeAddresses);
             walletSerialized.UserName = Wallet.UserName;
             walletSerialized.PasswordEncrypted = Wallet.PasswordEncrypted;
             walletSerialized.IsMainNetwork = Wallet.IsMainNetwork;
@@ -278,8 +252,6 @@ namespace WalletProvider
             walletMetadata.Seed = walletDeserialized.Seed;
             walletMetadata.Account = DeseralizeObject<HdAccount>(walletDeserialized.Account);
             walletMetadata.Wallet = DeseralizeObject<Wallet>(walletDeserialized.Wallet);
-            walletMetadata.ReceivingAddresses = DeserializeListOfObjects<HdAddress>(walletDeserialized.ReceivingAddresses);
-            walletMetadata.ChangeAddresses = DeserializeListOfObjects<HdAddress>(walletDeserialized.ChangeAddresses);
             walletMetadata.UserName = walletDeserialized.UserName;
             walletMetadata.PasswordEncrypted = walletDeserialized.PasswordEncrypted;
             walletMetadata.IsMainNetwork = walletDeserialized.IsMainNetwork;
@@ -309,7 +281,7 @@ namespace WalletProvider
                 foreach (var itemTransactionData in blockchainTransactionData)
                 {
                     var transaction = Transaction.Load(itemTransactionData.BlockchainTransaction.Hex, network);
-                    
+
                     int? blockHeight = itemTransactionData.BlockchainTransaction.Height;
                     if (blockHeight == 0) blockHeight = null;
 
@@ -318,13 +290,14 @@ namespace WalletProvider
                     uint256 blockHash = null;
                     if (!string.IsNullOrEmpty(itemTransactionData.BlockchainTransaction.Blockhash)) blockHash = new uint256(itemTransactionData.BlockchainTransaction.Blockhash);
 
-                    ProcessTransaction(transaction, blockHeight, blockTime, blockHash, network);
+                    ProcessTransaction(transaction, itemTransactionData.BlockchainTransactionMerkle, blockHeight, blockTime, blockHash, network);
                 }
             }         
         }
 
         private bool ProcessTransaction(
-            Transaction transaction, 
+            Transaction transaction,
+            List<string> transactionMerkle,
             int? blockHeight, 
             long blockTime, 
             uint256 blockHash,
@@ -339,9 +312,9 @@ namespace WalletProvider
             foreach (TxOut utxo in transaction.Outputs)
             {
                 // Check if the outputs contain one of our addresses.
-                if (this._keysLookup.TryGetValue(utxo.ScriptPubKey, out HdAddress _))
+                if (_keysLookup.TryGetValue(utxo.ScriptPubKey, out HdAddress _))
                 {
-                    this.AddTransactionToWallet(transaction, utxo, blockHeight, blockTime, blockHash, isPropagated);
+                    AddTransactionToWallet(transaction, transactionMerkle, utxo, blockHeight, blockTime, blockHash, isPropagated);
                     foundReceivingTrx = true;
                 }
             }
@@ -349,7 +322,7 @@ namespace WalletProvider
             // Check the inputs - include those that have a reference to a transaction containing one of our scripts and the same index.
             foreach (TxIn input in transaction.Inputs)
             {
-                if (!this._outpointLookup.TryGetValue(input.PrevOut, out TransactionData tTx))
+                if (!_outpointLookup.TryGetValue(input.PrevOut, out TransactionData tTx))
                 {
                     continue;
                 }
@@ -362,7 +335,7 @@ namespace WalletProvider
                         return false;
 
                     // Check if the destination script is one of the wallet's.
-                    bool found = this._keysLookup.TryGetValue(o.ScriptPubKey, out HdAddress addr);
+                    bool found = _keysLookup.TryGetValue(o.ScriptPubKey, out HdAddress addr);
 
                     // Include the keys not included in our wallets (external payees).
                     if (!found)
@@ -374,7 +347,7 @@ namespace WalletProvider
                     return !addr.IsChangeAddress();
                 });
 
-                this.AddSpendingTransactionToWallet(transaction, paidOutTo, tTx.Id, tTx.Index, network, blockTime, blockHeight);
+                AddSpendingTransactionToWallet(transaction, paidOutTo, tTx.Id, tTx.Index, network, blockTime, blockHeight);
                 foundSendingTrx = true;
             }
 
@@ -382,7 +355,8 @@ namespace WalletProvider
         }
 
         private void AddTransactionToWallet(
-            Transaction transaction, 
+            Transaction transaction,
+            List<string> transactionMerkle,
             TxOut utxo, 
             int? blockHeight, 
             long blockTime, 
@@ -393,7 +367,7 @@ namespace WalletProvider
 
             // Get the collection of transactions to add to.
             Script script = utxo.ScriptPubKey;
-            this._keysLookup.TryGetValue(script, out HdAddress address);
+            _keysLookup.TryGetValue(script, out HdAddress address);
             ICollection<TransactionData> addressTransactions = address.Transactions;
 
             // Check if a similar UTXO exists or not (same transaction ID and same index).
@@ -420,11 +394,11 @@ namespace WalletProvider
                 // Add the Merkle proof to the (non-spending) transaction.
                 if (blockHeight.HasValue)
                 {
-                  ///////////////////////////////// newTransaction.MerkleProof = new MerkleBlock(block, new[] { transactionHash }).PartialMerkleTree;
+                    newTransaction.MerkleProof = GetMerkleTree(transactionMerkle, transactionHash);
                 }
 
                 addressTransactions.Add(newTransaction);
-                this.AddInputKeysLookupLock(newTransaction);
+                AddInputKeysLookupLock(newTransaction);
             }
             else
             {
@@ -444,7 +418,7 @@ namespace WalletProvider
                 // Add the Merkle proof now that the transaction is confirmed in a block.
                 if ((blockHeight.HasValue) && (foundTransaction.MerkleProof == null))
                 {
-                    ///////////////////////////////// foundTransaction.MerkleProof = new MerkleBlock(block, new[] { transactionHash }).PartialMerkleTree;
+                    foundTransaction.MerkleProof = GetMerkleTree(transactionMerkle, transactionHash);
                 }
 
                 if (isPropagated)
@@ -543,15 +517,15 @@ namespace WalletProvider
             IEnumerable<HdAddress> addresses = GetCombinedAddresses();
             foreach (HdAddress address in addresses)
             {
-                this._keysLookup[address.ScriptPubKey] = address;
+                _keysLookup[address.ScriptPubKey] = address;
                 if (address.Pubkey != null)
                 {
-                    this._keysLookup[address.Pubkey] = address;
+                    _keysLookup[address.Pubkey] = address;
                 }
 
                 foreach (var transaction in address.Transactions)
                 {
-                    this._outpointLookup[new OutPoint(transaction.Id, transaction.Index)] = transaction;
+                    _outpointLookup[new OutPoint(transaction.Id, transaction.Index)] = transaction;
                 }
             }
         }
@@ -565,30 +539,37 @@ namespace WalletProvider
 
             foreach (HdAddress address in addresses)
             {
-                this._keysLookup[address.ScriptPubKey] = address;
+                _keysLookup[address.ScriptPubKey] = address;
                 if (address.Pubkey != null)
                 {
-                    this._keysLookup[address.Pubkey] = address;
+                    _keysLookup[address.Pubkey] = address;
                 }
             }
         }
 
         private void AddInputKeysLookupLock(TransactionData transactionData)
         {
-            this._outpointLookup[new OutPoint(transactionData.Id, transactionData.Index)] = transactionData;
+            _outpointLookup[new OutPoint(transactionData.Id, transactionData.Index)] = transactionData;
         }
 
         public IEnumerable<HdAddress> GetCombinedAddresses()
         {
             IEnumerable<HdAddress> addresses = new List<HdAddress>();
-            if (Wallet.ReceivingAddresses != null)
-            {
-                addresses = Wallet.ReceivingAddresses;
-            }
 
-            if (Wallet.ChangeAddresses != null)
+            if (Wallet != null)
             {
-                addresses = addresses.Concat(Wallet.ChangeAddresses);
+                var coinType = Wallet.Wallet.Network.Consensus.CoinType;
+                var account = Wallet.Wallet.GetAccountByCoinType(DEFAULTACCOUNT, (CoinType)coinType);
+
+                if (account.ExternalAddresses != null)
+                {
+                    addresses = account.ExternalAddresses;
+                }
+
+                if (account.InternalAddresses != null)
+                {
+                    addresses = addresses.Concat(account.InternalAddresses);
+                }
             }
 
             return addresses;
@@ -616,6 +597,25 @@ namespace WalletProvider
                 .SelectMany(s => s.Transactions.Select(t => new WalletTransaction(s, t))).ToList();
 
             return transactions;
+        }
+
+        private PartialMerkleTree GetMerkleTree(List<string> transactionHashes, uint256 transactionHash)
+        {
+            List<bool> vMatch = new List<bool>();
+            List<uint256> vHashes = new List<uint256>();
+
+            if ((transactionHashes != null) && (transactionHashes.Any()))
+            {
+                foreach (var itemHash in transactionHashes)
+                {
+                    var uint256hash = new uint256(itemHash);
+
+                    vHashes.Add(uint256hash);
+                    vMatch.Add(uint256hash.Equals(transactionHash));
+                }
+            }
+
+            return new PartialMerkleTree(vHashes.ToArray(), vMatch.ToArray());
         }
     }
 }
