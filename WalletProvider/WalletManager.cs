@@ -11,7 +11,7 @@ using WalletProvider.Utils;
 
 namespace WalletProvider
 {
-    public class WalletManager
+    public class WalletManager 
     {
         /// <summary>Size of the buffer of unused addresses maintained in an account. </summary>
         private const int UNUSEDADDRESSESBUFFER = 20;
@@ -33,6 +33,8 @@ namespace WalletProvider
         public WalletManager()
         {
             _dateTimeProvider = DateTimeProvider.Default;
+            _keysLookup = new Dictionary<Script, HdAddress>();
+            _outpointLookup = new Dictionary<OutPoint, TransactionData>();
         }
 
         public WalletManager(string serializedWallet)
@@ -274,8 +276,10 @@ namespace WalletProvider
             }
         }
 
-        public void SyncBlockchainData(List<WalletTransaction> blockchainTransactionData, Network network)
+        public bool SyncBlockchainData(List<WalletTransaction> blockchainTransactionData, Network network)
         {
+            var isWalletUpdated = false;
+
             if ((blockchainTransactionData != null) && (blockchainTransactionData.Any()))
             {
                 foreach (var itemTransactionData in blockchainTransactionData)
@@ -290,9 +294,12 @@ namespace WalletProvider
                     uint256 blockHash = null;
                     if (!string.IsNullOrEmpty(itemTransactionData.BlockchainTransaction.Blockhash)) blockHash = new uint256(itemTransactionData.BlockchainTransaction.Blockhash);
 
-                    ProcessTransaction(transaction, itemTransactionData.BlockchainTransactionMerkle, blockHeight, blockTime, blockHash, network);
+                    isWalletUpdated = 
+                        isWalletUpdated || ProcessTransaction(transaction, itemTransactionData.BlockchainTransactionMerkle, blockHeight, blockTime, blockHash, network);
                 }
-            }         
+            }
+
+            return isWalletUpdated;
         }
 
         private bool ProcessTransaction(

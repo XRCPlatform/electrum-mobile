@@ -10,15 +10,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElectrumMobileXRC", "Electr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElectrumXClient", "ElectrumXClient\ElectrumXClient.csproj", "{51B9E364-A8CB-4B46-9CFD-9184290BE744}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElectrumXClient.Tests", "ElectrumXClient.Tests\ElectrumXClient.Tests.csproj", "{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NBitcoin", "NBitcoin\NBitcoin.csproj", "{40C3A35B-8332-46FD-A28C-25556A937CFA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ElectrumMobileXRC.Resources", "ElectrumMobileXRC.Resources\ElectrumMobileXRC.Resources.csproj", "{95193621-435B-4DFC-B082-DC2405DACA8B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WalletProvider", "WalletProvider\WalletProvider.csproj", "{955C654E-4D59-40B5-AD10-84D858429CE9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkProvider", "NetworkProvider\NetworkProvider.csproj", "{B709D8DC-DD91-4DB4-932E-96542FC7D092}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkProvider", "NetworkProvider\NetworkProvider.csproj", "{B709D8DC-DD91-4DB4-932E-96542FC7D092}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -134,30 +132,6 @@ Global
 		{51B9E364-A8CB-4B46-9CFD-9184290BE744}.Release|iPhone.Build.0 = Release|Any CPU
 		{51B9E364-A8CB-4B46-9CFD-9184290BE744}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{51B9E364-A8CB-4B46-9CFD-9184290BE744}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Ad-Hoc|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Ad-Hoc|Any CPU.Build.0 = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Ad-Hoc|iPhone.ActiveCfg = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Ad-Hoc|iPhone.Build.0 = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Ad-Hoc|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Ad-Hoc|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.AppStore|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.AppStore|Any CPU.Build.0 = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.AppStore|iPhone.ActiveCfg = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.AppStore|iPhone.Build.0 = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.AppStore|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.AppStore|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Debug|iPhone.ActiveCfg = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Debug|iPhone.Build.0 = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Release|iPhone.ActiveCfg = Release|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Release|iPhone.Build.0 = Release|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
-		{F1EE243A-FBA6-4762-BF72-37BAE639FBC7}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 		{40C3A35B-8332-46FD-A28C-25556A937CFA}.Ad-Hoc|Any CPU.ActiveCfg = Debug|Any CPU
 		{40C3A35B-8332-46FD-A28C-25556A937CFA}.Ad-Hoc|Any CPU.Build.0 = Debug|Any CPU
 		{40C3A35B-8332-46FD-A28C-25556A937CFA}.Ad-Hoc|iPhone.ActiveCfg = Debug|Any CPU

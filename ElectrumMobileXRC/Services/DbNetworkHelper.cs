@@ -37,7 +37,7 @@ namespace ElectrumMobileXRC.Services
             _isMainNetwork = isMainNetwork;
 
             NetworkDateLastUpdate = "N/A";
-            NetworkLastSyncedBlock = 0;
+            NetworkLastSyncedBlock = -1;
             NetworkDefaultPort = 51002;
 
             if (_isMainNetwork)

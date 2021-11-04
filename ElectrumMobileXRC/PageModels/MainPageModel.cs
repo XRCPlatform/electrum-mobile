@@ -92,7 +92,6 @@ namespace ElectrumMobileXRC.PageModels
                 else
                 {
                     _walletManager = new WalletManager(_walletDbHelper.SerializedWallet);
-                    var test = _walletManager.SerializeWalletMetadata();
 
                     _networkDbHelper = new DbNetworkHelper(_configDb, _walletManager.Wallet.IsMainNetwork);
                     await _networkDbHelper.LoadFromDbAsync();
@@ -113,15 +112,18 @@ namespace ElectrumMobileXRC.PageModels
             var blockchainTransactionData = await _networkManager.StartSyncingAsync(
                 _walletManager.GetCombinedAddresses(),
                 _networkDbHelper.NetworkLastSyncedBlock);
-            _walletManager.SyncBlockchainData(blockchainTransactionData, network);
+            
+            if (_walletManager.SyncBlockchainData(blockchainTransactionData, network))
+            {
+                await _walletDbHelper.UpdateWalletAsync(_walletManager.SerializeWalletMetadata());
+            }
 
-            await _networkDbHelper.UpdateNetworkInfoAsync(_networkManager.ServerInfo.Result.BlockHeight);
-            await _walletDbHelper.UpdateWalletAsync(_walletManager.SerializeWalletMetadata());
+            // await _networkDbHelper.UpdateNetworkInfoAsync(_networkManager.ServerInfo.Result.BlockHeight);
 
-            UpdateWalletUI(network);
+            await UpdateWalletUI(network);
         }
 
-        private void UpdateWalletUI(Network network)
+        private async Task UpdateWalletUI(Network network)
         {
             LastDateUpdate = _networkDbHelper.NetworkDateLastUpdate;
 

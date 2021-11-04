@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using NBitcoin.DataEncoders;
-using WalletProvider;
 using WalletProvider.JsonConverters;
 
 namespace WalletProvider.Entities

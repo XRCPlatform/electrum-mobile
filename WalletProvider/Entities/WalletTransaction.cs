@@ -21,6 +21,14 @@ namespace WalletProvider.Entities
             BlockchainTransactionMerkle = blockchainTransactionMerkle.Merkle;
         }
 
+        public WalletTransaction(
+            HdAddress address,
+            BlockchainTransactionGetResult blockchainTransaction)
+        {
+            Address = address;
+            BlockchainTransaction = blockchainTransaction;
+        }
+
         public WalletTransaction(HdAddress address, TransactionData transaction)
         {
             Address = address;

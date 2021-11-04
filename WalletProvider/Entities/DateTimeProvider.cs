@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WalletProvider
+namespace WalletProvider.Entities
 {
     /// <summary>
     /// Providing date time functionality.

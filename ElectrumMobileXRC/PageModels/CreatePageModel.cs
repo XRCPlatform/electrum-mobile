@@ -142,6 +142,11 @@ namespace ElectrumMobileXRC.PageModels
                 else
                 {
                     await CoreMethods.DisplayAlert("Please to fill all fields.", "", "Ok");
+
+                    objActivityLayout.IsVisible = false;
+                    objSelectionLayout.IsVisible = true;
+                    objGenerateButton.IsEnabled = true;
+                    objCreateButton.IsEnabled = true;
                 }
             });
         }
