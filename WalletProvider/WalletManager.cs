@@ -28,7 +28,7 @@ namespace WalletProvider
         private Dictionary<OutPoint, TransactionData> _outpointLookup;
         private Dictionary<Script, HdAddress> _keysLookup;
 
-        public WalletMetadata Wallet { get; set; }
+        public WalletMetadata WalletMetadata { get; set; }
 
         public WalletManager()
         {
@@ -43,8 +43,8 @@ namespace WalletProvider
             _keysLookup = new Dictionary<Script, HdAddress>();
             _outpointLookup = new Dictionary<OutPoint, TransactionData>();
 
-            Wallet = DeserializeWalletMetadata(serializedWallet);
-            if (Wallet.Wallet.Network == null) Wallet.Wallet.Network = GetNetwork(Wallet.IsMainNetwork);
+            WalletMetadata = DeserializeWalletMetadata(serializedWallet);
+            if (WalletMetadata.Wallet.Network == null) WalletMetadata.Wallet.Network = GetNetwork(WalletMetadata.IsMainNetwork);
 
             LoadKeysLookupLock();
         }
@@ -94,8 +94,6 @@ namespace WalletProvider
                 account.CreateAddresses(network, UNUSEDADDRESSESBUFFER);
                 account.CreateAddresses(network, UNUSEDADDRESSESBUFFER, true);
                 UpdateKeysLookupLock(account.GetCombinedAddresses());
-
-                walletMetadata.Account = account;
             }
 
             walletMetadata.Wallet = wallet;
@@ -148,8 +146,6 @@ namespace WalletProvider
                 account.CreateAddresses(network, UNUSEDADDRESSESBUFFER);
                 account.CreateAddresses(network, UNUSEDADDRESSESBUFFER, true);
                 UpdateKeysLookupLock(account.GetCombinedAddresses());
-
-                walletMetadata.Account = account;
             }
 
             walletMetadata.Wallet = wallet;
@@ -222,7 +218,6 @@ namespace WalletProvider
             var walletSerialized = new WalletMetadataSerialized();
             var cryptography = new InMemoryCryptography();
 
-            walletSerialized.Account = SerializeObject(walletMetadata.Account);
             walletSerialized.Seed = cryptography.Encrypt(walletMetadata.Seed, password);
             walletSerialized.Wallet = SerializeObject(walletMetadata.Wallet);
             walletSerialized.UserName = userName;
@@ -236,12 +231,11 @@ namespace WalletProvider
         {
             var walletSerialized = new WalletMetadataSerialized();
 
-            walletSerialized.Account = SerializeObject(Wallet.Account);
-            walletSerialized.Seed = Wallet.Seed;
-            walletSerialized.Wallet = SerializeObject(Wallet.Wallet);
-            walletSerialized.UserName = Wallet.UserName;
-            walletSerialized.PasswordEncrypted = Wallet.PasswordEncrypted;
-            walletSerialized.IsMainNetwork = Wallet.IsMainNetwork;
+            walletSerialized.Seed = WalletMetadata.Seed;
+            walletSerialized.Wallet = SerializeObject(WalletMetadata.Wallet);
+            walletSerialized.UserName = WalletMetadata.UserName;
+            walletSerialized.PasswordEncrypted = WalletMetadata.PasswordEncrypted;
+            walletSerialized.IsMainNetwork = WalletMetadata.IsMainNetwork;
 
             return JsonConvert.SerializeObject(walletSerialized);
         }
@@ -252,7 +246,6 @@ namespace WalletProvider
             var walletDeserialized = JsonConvert.DeserializeObject<WalletMetadataSerialized>(jsonWalletMetadata);
 
             walletMetadata.Seed = walletDeserialized.Seed;
-            walletMetadata.Account = DeseralizeObject<HdAccount>(walletDeserialized.Account);
             walletMetadata.Wallet = DeseralizeObject<Wallet>(walletDeserialized.Wallet);
             walletMetadata.UserName = walletDeserialized.UserName;
             walletMetadata.PasswordEncrypted = walletDeserialized.PasswordEncrypted;
@@ -285,17 +278,21 @@ namespace WalletProvider
                 foreach (var itemTransactionData in blockchainTransactionData)
                 {
                     var transaction = Transaction.Load(itemTransactionData.BlockchainTransaction.Hex, network);
+                    var blockTime = itemTransactionData.BlockchainTransaction.Blocktime;
 
                     int? blockHeight = itemTransactionData.BlockchainTransaction.Height;
-                    if (blockHeight == 0) blockHeight = null;
-
-                    var blockTime = itemTransactionData.BlockchainTransaction.Blocktime;
+                    if (blockHeight == 0)
+                    {
+                        blockHeight = null;
+                    }
 
                     uint256 blockHash = null;
                     if (!string.IsNullOrEmpty(itemTransactionData.BlockchainTransaction.Blockhash)) blockHash = new uint256(itemTransactionData.BlockchainTransaction.Blockhash);
 
-                    isWalletUpdated = 
-                        isWalletUpdated || ProcessTransaction(transaction, itemTransactionData.BlockchainTransactionMerkle, blockHeight, blockTime, blockHash, network);
+                    if (ProcessTransaction(transaction, itemTransactionData.BlockchainTransactionMerkle, blockHeight, blockTime, blockHash, network))
+                    {
+                        isWalletUpdated = true;
+                    }
                 }
             }
 
@@ -563,10 +560,10 @@ namespace WalletProvider
         {
             IEnumerable<HdAddress> addresses = new List<HdAddress>();
 
-            if (Wallet != null)
+            if (WalletMetadata != null)
             {
-                var coinType = Wallet.Wallet.Network.Consensus.CoinType;
-                var account = Wallet.Wallet.GetAccountByCoinType(DEFAULTACCOUNT, (CoinType)coinType);
+                var coinType = WalletMetadata.Wallet.Network.Consensus.CoinType;
+                var account = WalletMetadata.Wallet.GetAccountByCoinType(DEFAULTACCOUNT, (CoinType)coinType);
 
                 if (account.ExternalAddresses != null)
                 {
@@ -584,8 +581,11 @@ namespace WalletProvider
 
         public WalletBalance GetWalletBalance(int lastBlockHeight, Network network)
         {
-            (Money amountConfirmed, Money amountUnconfirmed, Money amountImmature) result = 
-                Wallet.Account.GetSpendableAmount(lastBlockHeight, network);
+            var coinType = WalletMetadata.Wallet.Network.Consensus.CoinType;
+            var account = WalletMetadata.Wallet.GetAccountByCoinType(DEFAULTACCOUNT, (CoinType)coinType);
+
+            (Money amountConfirmed, Money amountUnconfirmed, Money amountImmature) result =
+                account.GetSpendableAmount(lastBlockHeight, network);
 
             return new WalletBalance
             {
@@ -601,7 +601,15 @@ namespace WalletProvider
 
             transactions = GetCombinedAddresses()
                 .Where(a => a.Transactions.Any())
-                .SelectMany(s => s.Transactions.Select(t => new WalletTransaction(s, t))).ToList();
+                .SelectMany(s => s.Transactions.Select(t => new WalletTransaction(s, t)))
+                .ToList();
+
+            if (transactions.Any())
+            {
+                transactions = transactions
+                    .OrderByDescending(a => a.Transaction.CreationTime)
+                    .ToList();
+            }
 
             return transactions;
         }

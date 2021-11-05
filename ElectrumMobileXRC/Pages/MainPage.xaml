@@ -29,22 +29,39 @@
                                 </StackLayout>
                                 <StackLayout Orientation="Horizontal">
                                     <Label VerticalOptions="Center" Text="UNCONFIRMED" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
-                                    <Label VerticalOptions="Center" Text="{Binding Balance, StringFormat='{0:0.########;;0.########} XRC'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                    <Label VerticalOptions="Center" Text="{Binding BalanceUnconfirmed, StringFormat='{0:0.########;;0.########} XRC'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
                                 </StackLayout>
                                 <BoxView Margin="0,16" HeightRequest="1" BackgroundColor="#DDDDDD" />
-                                <Label HorizontalOptions="Center" VerticalOptions="Center" Text="{Binding BalanceUnconfirmed, StringFormat='BALANCE: {0:0.########;;0.########} XRC'}" FontSize="16" FontFamily="{StaticResource font_heavy}" TextColor="{StaticResource dark_blue}" />
+                                <Label HorizontalOptions="Center" VerticalOptions="Center" Text="{Binding Balance, StringFormat='BALANCE: {0:0.########;;0.########} XRC'}" FontSize="16" FontFamily="{StaticResource font_heavy}" TextColor="{StaticResource dark_blue}" />
                             </StackLayout>
                         </controls:RoundedContentView>
 
-                        <Label x:Name="HistoryLabel" Text="Transaction history" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
+                        <Label x:Name="UnconfirmedTransactionsLabel" Text="Unconfirmed Transactions" IsVisible="false" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
+                        <controls:RoundedContentView x:Name="UnconfirmedTransactions" IsVisible="false" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
+                            <StackLayout Padding="24" Spacing="2">
+                                <StackLayout x:Name="UnconfirmedTransactionsList" BindableLayout.ItemsSource="{Binding UnconfirmedTransactions}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackLayout Orientation="Horizontal" Padding="0,10">
+                                                <Label VerticalOptions="Center" Text="Unconfirmed" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
+                                                <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding Balance, StringFormat='{0:0.########;-0.########;+0.########}'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                            </StackLayout>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </StackLayout>
+
+                            </StackLayout>
+                        </controls:RoundedContentView>
+                        
+                        <Label x:Name="HistoryLabel" Text="Transactions" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
                         <controls:RoundedContentView x:Name="History" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
                             <StackLayout Padding="24" Spacing="2">
-                                <StackLayout  x:Name="HistoryList" BindableLayout.ItemsSource="{Binding TransactionHistory}">
+                                <StackLayout  x:Name="HistoryList" BindableLayout.ItemsSource="{Binding ConfirmedTransactions}">
                                     <BindableLayout.ItemTemplate>
                                         <DataTemplate>
                                             <StackLayout Orientation="Horizontal" Padding="0,10">
                                                 <Label VerticalOptions="Center" Text="{Binding CreationDate}" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
-                                                <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding Balance, StringFormat='{0:0.########;-0.########;0.########} XRC'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                                <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding Balance, StringFormat='{0:0.########;-0.########;+0.########}'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
                                             </StackLayout>
                                         </DataTemplate>
                                     </BindableLayout.ItemTemplate>

@@ -105,8 +105,8 @@ namespace ElectrumMobileXRC.PageModels
                 {
                     var walletManager = new WalletManager(_walletDbHelper.SerializedWallet);
 
-                    var coinType = walletManager.Wallet.Wallet.Network.Consensus.CoinType;
-                    var account = walletManager.Wallet.Wallet.GetAccountByCoinType(WalletManager.DEFAULTACCOUNT, (CoinType)coinType);
+                    var coinType = walletManager.WalletMetadata.Wallet.Network.Consensus.CoinType;
+                    var account = walletManager.WalletMetadata.Wallet.GetAccountByCoinType(WalletManager.DEFAULTACCOUNT, (CoinType)coinType);
 
                     foreach (var address in account.ExternalAddresses)
                     {

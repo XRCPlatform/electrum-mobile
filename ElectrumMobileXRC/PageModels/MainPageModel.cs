@@ -17,16 +17,29 @@ namespace ElectrumMobileXRC.PageModels
         public decimal BalanceUnconfirmed { get; set; }
         public decimal Balance { get; set; }
 
-        private ObservableCollection<TransactionHistoryItemModel> _transactionHistory = new ObservableCollection<TransactionHistoryItemModel>();
-        public ObservableCollection<TransactionHistoryItemModel> TransactionHistory
+        private ObservableCollection<TransactionHistoryItemModel> _unconfirmedTransactions = new ObservableCollection<TransactionHistoryItemModel>();
+        public ObservableCollection<TransactionHistoryItemModel> UnconfirmedTransactions
         {
             get
             {
-                return _transactionHistory;
+                return _unconfirmedTransactions;
             }
             set
             {
-                _transactionHistory = value;
+                _unconfirmedTransactions = value;
+            }
+        }
+
+        private ObservableCollection<TransactionHistoryItemModel> _confirmedTransactions = new ObservableCollection<TransactionHistoryItemModel>();
+        public ObservableCollection<TransactionHistoryItemModel> ConfirmedTransactions
+        {
+            get
+            {
+                return _confirmedTransactions;
+            }
+            set
+            {
+                _confirmedTransactions = value;
             }
         }
 
@@ -93,14 +106,16 @@ namespace ElectrumMobileXRC.PageModels
                 {
                     _walletManager = new WalletManager(_walletDbHelper.SerializedWallet);
 
-                    _networkDbHelper = new DbNetworkHelper(_configDb, _walletManager.Wallet.IsMainNetwork);
+                    _networkDbHelper = new DbNetworkHelper(_configDb, _walletManager.WalletMetadata.IsMainNetwork);
                     await _networkDbHelper.LoadFromDbAsync();
 
-                    var network = _walletManager.GetNetwork(_walletManager.Wallet.IsMainNetwork);
+                    var network = _walletManager.GetNetwork(_walletManager.WalletMetadata.IsMainNetwork);
                     _networkManager = new NetworkManager(
                         _networkDbHelper.NetworkDefaultServer,
                         _networkDbHelper.NetworkDefaultPort,
                         network);
+
+                    UpdateWalletUI(network);
 
                     await SyncWalletWithNetwork(network);
                 }
@@ -109,21 +124,24 @@ namespace ElectrumMobileXRC.PageModels
 
         private async Task SyncWalletWithNetwork(Network network)
         {
+            LastDateUpdate = Resources.SharedResource.Main_Syncing;
+
             var blockchainTransactionData = await _networkManager.StartSyncingAsync(
                 _walletManager.GetCombinedAddresses(),
                 _networkDbHelper.NetworkLastSyncedBlock);
-            
-            if (_walletManager.SyncBlockchainData(blockchainTransactionData, network))
+
+            await _networkDbHelper.UpdateNetworkInfoAsync(_networkManager.ServerInfo.Result.BlockHeight);
+
+            var isUpdated = _walletManager.SyncBlockchainData(blockchainTransactionData, network);
+            if (isUpdated)
             {
                 await _walletDbHelper.UpdateWalletAsync(_walletManager.SerializeWalletMetadata());
             }
 
-            // await _networkDbHelper.UpdateNetworkInfoAsync(_networkManager.ServerInfo.Result.BlockHeight);
-
-            await UpdateWalletUI(network);
+            UpdateWalletUI(network);
         }
 
-        private async Task UpdateWalletUI(Network network)
+        private void UpdateWalletUI(Network network)
         {
             LastDateUpdate = _networkDbHelper.NetworkDateLastUpdate;
 
@@ -137,14 +155,36 @@ namespace ElectrumMobileXRC.PageModels
             var walletTransactions = _walletManager.GetWalletHistory();
             if ((walletTransactions != null) && walletTransactions.Any())
             {
+                var updatedConfirmedTransactions = new ObservableCollection<TransactionHistoryItemModel>();
+                var updatedUnconfirmedTransactions = new ObservableCollection<TransactionHistoryItemModel>();
+
                 foreach (var itemTransaction in walletTransactions)
                 {
                     var historyItem = new TransactionHistoryItemModel();
                     historyItem.Balance = itemTransaction.Transaction.Amount.ToUnit(MoneyUnit.XRC);
                     historyItem.CreationDate = string.Format("{0} {1}",
-                        itemTransaction.Transaction.CreationTime.DateTime.ToShortDateString(),
-                        itemTransaction.Transaction.CreationTime.DateTime.ToShortTimeString());
-                    TransactionHistory.Add(historyItem);
+                        itemTransaction.Transaction.CreationTime.ToLocalTime().DateTime.ToShortDateString(),
+                        itemTransaction.Transaction.CreationTime.ToLocalTime().DateTime.ToShortTimeString());
+
+                    if (itemTransaction.Transaction.IsConfirmed())
+                    {
+                        updatedConfirmedTransactions.Add(historyItem);
+                    }
+                    else
+                    {
+                        updatedUnconfirmedTransactions.Add(historyItem);
+                    }
+
+                    ConfirmedTransactions = updatedConfirmedTransactions;
+                    UnconfirmedTransactions = updatedUnconfirmedTransactions;
+                }
+
+                if (UnconfirmedTransactions.Any())
+                {
+                    var objUnconfirmedTransactionsLabel = CurrentPage.FindByName<Label>("UnconfirmedTransactionsLabel");
+                    objUnconfirmedTransactionsLabel.IsVisible = true;
+                    var objUnconfirmedTransactions = CurrentPage.FindByName<ContentView>("UnconfirmedTransactions");
+                    objUnconfirmedTransactions.IsVisible = true;
                 }
             }
         }

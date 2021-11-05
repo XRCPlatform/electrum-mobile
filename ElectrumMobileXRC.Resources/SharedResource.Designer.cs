@@ -88,6 +88,15 @@ namespace ElectrumMobileXRC.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Syncing....
+        /// </summary>
+        public static string Main_Syncing {
+            get {
+                return ResourceManager.GetString("Main_Syncing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Auto Selection.
         /// </summary>
         public static string NetworkSelection_Auto {

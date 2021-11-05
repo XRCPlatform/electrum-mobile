@@ -97,7 +97,7 @@ namespace ElectrumMobileXRC.PageModels
                 {
                     var walletManager = new WalletManager(_walletDbHelper.SerializedWallet);
 
-                    if (walletManager.Wallet.IsMainNetwork)
+                    if (walletManager.WalletMetadata.IsMainNetwork)
                     {
                         NetworkType = SharedResource.NetworkType_Main;
                     }
@@ -106,7 +106,7 @@ namespace ElectrumMobileXRC.PageModels
                         NetworkType = SharedResource.NetworkType_Test;
                     }
 
-                    _networkDbHelper = new DbNetworkHelper(_configDb, walletManager.Wallet.IsMainNetwork);
+                    _networkDbHelper = new DbNetworkHelper(_configDb, walletManager.WalletMetadata.IsMainNetwork);
                     await _networkDbHelper.LoadFromDbAsync();
 
                     NetworkLastUpdate = _networkDbHelper.NetworkDateLastUpdate;
@@ -163,7 +163,7 @@ namespace ElectrumMobileXRC.PageModels
             {
                 case 0:
                     var random = new Random();
-                    if (walletManager.Wallet.IsMainNetwork)
+                    if (walletManager.WalletMetadata.IsMainNetwork)
                     {
                         int index = random.Next(NetworkConfig.MainNet.Length);
                         NetworkDefaultServer = NetworkConfig.MainNet[index];
@@ -180,7 +180,7 @@ namespace ElectrumMobileXRC.PageModels
                     break;
 
                 default:
-                    if (walletManager.Wallet.IsMainNetwork)
+                    if (walletManager.WalletMetadata.IsMainNetwork)
                     {
                         NetworkDefaultServer = NetworkConfig.MainNet[NetworkServersSelectedIndex - 2];
                     }

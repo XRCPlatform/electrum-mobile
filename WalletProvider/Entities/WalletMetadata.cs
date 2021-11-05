@@ -7,11 +7,6 @@ namespace WalletProvider.Entities
     public class WalletMetadata
     {
         /// <summary>
-        /// HD Account
-        /// </summary>
-        public HdAccount Account { get; set; }
-
-        /// <summary>
         /// Wallet base data
         /// </summary>
         public Wallet Wallet { get; set; }

@@ -138,4 +138,7 @@
   <data name="NetworkType_Test" xml:space="preserve">
     <value>XRC TestNet</value>
   </data>
+  <data name="Main_Syncing" xml:space="preserve">
+    <value>Syncing...</value>
+  </data>
 </root>
