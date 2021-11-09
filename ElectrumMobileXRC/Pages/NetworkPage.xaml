@@ -45,24 +45,17 @@
                             </StackLayout>
                         </controls:RoundedContentView>
 
-                        <Label x:Name="ServersLabel" Text="Network Servers" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
+                        <Label x:Name="ServersLabel" Text="Own Configuration" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
                         <controls:RoundedContentView x:Name="Servers" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
-                            <StackLayout Padding="14" Spacing="2">
-                                <Picker x:Name="PickerServers" SelectedIndex="{Binding NetworkServersSelectedIndex}" ItemsSource="{Binding NetworkServers}"/>
-                            </StackLayout>
-                        </controls:RoundedContentView>
+                            <StackLayout Padding="22" Spacing="2">
+                                <Label x:Name="PickerServersLabel" Text="Definition" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,0,0,0" />
+                                <Picker x:Name="PickerServers" SelectedIndex="{Binding NetworkServersSelectedIndex}" ItemsSource="{Binding NetworkServers}" FontSize="16" TextColor="{StaticResource dark_blue}" />
 
-                        <Label x:Name="PortLabel" Text="Network Port" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,10,0,0" />
-                        <controls:RoundedContentView x:Name="Port" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
-                            <StackLayout Padding="24" Spacing="2">
+                                <Label x:Name="PortLabel" Text="Network Port" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,10,0,0" />
                                 <Entry Text="{Binding NetworkDefaultPort}" IsTextPredictionEnabled="false" Keyboard="Numeric" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="DefaultPortEntry" TextColor="{StaticResource dark_blue}" />
-                            </StackLayout>
-                        </controls:RoundedContentView>
 
-                        <Label x:Name="ServerLabel" Text="Own Server" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,10,0,0" />
-                        <Label x:Name="ServerLabelError" IsVisible="False" TextColor="#ff4242" />
-                        <controls:RoundedContentView x:Name="Server" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
-                            <StackLayout Padding="24" Spacing="2">
+                                <Label x:Name="ServerLabel" Text="Own Server" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,10,0,0" />
+                                <Label x:Name="ServerLabelError" IsVisible="False" TextColor="#ff4242" />
                                 <Entry Text="{Binding NetworkDefaultServer}" IsTextPredictionEnabled="false" Keyboard="Plain" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="DefaultServerEntry" TextColor="{StaticResource dark_blue}" />
                             </StackLayout>
                         </controls:RoundedContentView>

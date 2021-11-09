@@ -20,7 +20,7 @@
                             <Label x:Name="ElectrumMobileXRCLabel" Margin="10,0,0,0" Text="xRhodium" FontSize="41" FontFamily="{StaticResource font_heavy}" TextColor="#ffffff" />
                         </StackLayout>
 
-                        <Label x:Name="ReceiveLabel" Text="Receive Address" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,20,20,10" />
+                        <Label x:Name="ReceiveLabel" Text="Receiving Address" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,20,20,10" />
                         <controls:RoundedContentView x:Name="QRCode" Margin="0,5,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
                             <StackLayout Padding="10">
                                 <Image Source="{Binding QrCodeImage}" />

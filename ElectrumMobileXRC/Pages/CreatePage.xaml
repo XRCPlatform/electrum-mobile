@@ -25,58 +25,43 @@
                         <StackLayout x:Name="ActivityLayout" Margin="0,40,0,0" VerticalOptions="StartAndExpand" IsVisible="False">
                             <ActivityIndicator Color="Orange" IsRunning="true" />
                         </StackLayout>
-                        
+
                         <StackLayout x:Name="SelectionLayout">
-                            <Label x:Name="TypeLabel" Text="Type of wallet" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
-                            <Label x:Name="TypeLabelError" IsVisible="False" TextColor="#ff4242" />
+                            <Label x:Name="CreateLabel" Text="New Wallet" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
                             <controls:RoundedContentView x:Name="Type" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
-                                <StackLayout Padding="14" Spacing="2">
-                                    <Picker x:Name="PickerWalletType" SelectedIndex="{Binding Type}">
-                                        <Picker.ItemsSource >
-                                            <x:Array Type="{x:Type x:String}">
-                                                <x:String>New Wallet</x:String>
-                                                <x:String>Recover Wallet</x:String>
-                                                <x:String>Import Electrum Rhodium Wallet</x:String>
-                                                <x:String>Import Old WebWallet</x:String>
-                                                <x:String>Import Old WebWallet Base64</x:String>
-                                                <x:String>New Test Wallet</x:String>
-                                                <x:String>Import Test Electrum Rhodium Wallet</x:String>
-                                            </x:Array>
-                                        </Picker.ItemsSource>
-                                    </Picker>
-                                </StackLayout>
-                            </controls:RoundedContentView>
-
-                            <Label x:Name="UsernameLabel" Text="Your user name" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
-                            <Label x:Name="UserNameError" IsVisible="False" TextColor="#ff4242" />
-                            <controls:RoundedContentView x:Name="UserName" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
-                                <StackLayout Padding="24" Spacing="2">
+                                <StackLayout Padding="22" Spacing="2">
+                                    <Label x:Name="TypeLabel" Text="Type of wallet" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,0,0,0" />
+                                    <Label x:Name="TypeLabelError" IsVisible="False" TextColor="#ff4242" />
+                                        <Picker x:Name="PickerWalletType" SelectedIndex="{Binding Type}" FontSize="16" TextColor="{StaticResource dark_blue}">
+                                            <Picker.ItemsSource>
+                                                <x:Array Type="{x:Type x:String}">
+                                                    <x:String>New Wallet</x:String>
+                                                    <x:String>Recover Wallet</x:String>
+                                                    <x:String>Import Electrum Rhodium Wallet</x:String>
+                                                    <x:String>Import Old WebWallet</x:String>
+                                                    <x:String>Import Old WebWallet Base64</x:String>
+                                                    <x:String>New Test Wallet</x:String>
+                                                    <x:String>Import Test Electrum Rhodium Wallet</x:String>
+                                                </x:Array>
+                                            </Picker.ItemsSource>
+                                        </Picker>
+                                   
+                                    
+                                    <Label x:Name="UsernameLabel" Text="Your user name" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,30,0,0" />
+                                    <Label x:Name="UserNameError" IsVisible="False" TextColor="#ff4242" />
                                     <Entry Text="{Binding UserName}" IsTextPredictionEnabled="false" Keyboard="Plain" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="UserNameEntry" TextColor="{StaticResource dark_blue}" />
-                                </StackLayout>
-                            </controls:RoundedContentView>
 
-                            <Label x:Name="PasswordLabel" Text="Your password" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
-                            <Label x:Name="PasswordError" IsVisible="False" TextColor="#ff4242" />
-                            <controls:RoundedContentView x:Name="Password" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
-                                <StackLayout Padding="24" Spacing="2">
+                                    <Label x:Name="PasswordLabel" Text="Your password" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,30,0,0" />
+                                    <Label x:Name="PasswordError" IsVisible="False" TextColor="#ff4242" />
                                     <Entry Text="{Binding Password}" IsTextPredictionEnabled="false" Keyboard="Plain" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="PasswordEntry" TextColor="{StaticResource dark_blue}" />
-                                </StackLayout>
-                            </controls:RoundedContentView>
 
-                            <Label x:Name="SeedLabel" Text="Your wallet seed" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
-                            <Label x:Name="SeedError" IsVisible="False" TextColor="#ff4242" />
-                            <controls:RoundedContentView x:Name="Seed" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
-                                <StackLayout Padding="24" Spacing="2">
+                                    <Label x:Name="SeedLabel" Text="Your wallet seed" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,30,0,0" />
+                                    <Label x:Name="SeedError" IsVisible="False" TextColor="#ff4242" />
                                     <Editor Keyboard="Plain" Text="{Binding Seed}" IsTextPredictionEnabled="false" IsSpellCheckEnabled="false" x:Name="SeedEditor" AutoSize="TextChanges" Placeholder="" PlaceholderColor="Olive" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_blue}"/>
-                                </StackLayout>
-                            </controls:RoundedContentView>
 
-                            <Label x:Name="PassphraseLabel" Text="Your passphrase" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
-                            <Label x:Name="PassphraseError" IsVisible="False" TextColor="#ff4242" />
-                            <controls:RoundedContentView x:Name="Passphrase" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
-                                <StackLayout Padding="24" Spacing="2">
+                                    <Label x:Name="PassphraseLabel" Text="Your passphrase" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,30,0,0" />
+                                    <Label x:Name="PassphraseError" IsVisible="False" TextColor="#ff4242" />
                                     <Editor Keyboard="Plain" Text="{Binding Passphrase}" IsTextPredictionEnabled="false" IsSpellCheckEnabled="false" x:Name="PassphraseEditor" AutoSize="TextChanges" Placeholder="" PlaceholderColor="Olive" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_blue}"/>
-
                                 </StackLayout>
                             </controls:RoundedContentView>
                         </StackLayout>

@@ -14,6 +14,7 @@ namespace ElectrumMobileXRC.PageModels
     public class MainPageModel : BasePageModel
     {
         public string LastDateUpdate { get; set; }
+        public string LastBlockUpdate { get; set; }
         public decimal BalanceUnconfirmed { get; set; }
         public decimal Balance { get; set; }
 
@@ -144,6 +145,9 @@ namespace ElectrumMobileXRC.PageModels
         private void UpdateWalletUI(Network network)
         {
             LastDateUpdate = _networkDbHelper.NetworkDateLastUpdate;
+            LastBlockUpdate = "N/A";
+            
+            if (_networkDbHelper.NetworkLastSyncedBlock > -1) LastBlockUpdate = _networkDbHelper.NetworkLastSyncedBlock.ToString();
 
             var walletBalance = _walletManager.GetWalletBalance(_networkDbHelper.NetworkLastSyncedBlock, network);
             if (walletBalance != null)

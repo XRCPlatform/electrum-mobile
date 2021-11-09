@@ -108,10 +108,16 @@ namespace ElectrumMobileXRC.PageModels
                     var coinType = walletManager.WalletMetadata.Wallet.Network.Consensus.CoinType;
                     var account = walletManager.WalletMetadata.Wallet.GetAccountByCoinType(WalletManager.DEFAULTACCOUNT, (CoinType)coinType);
 
+                    var network = walletManager.GetNetwork(walletManager.WalletMetadata.IsMainNetwork);
+                    var networkDbHelper = new DbNetworkHelper(_configDb, walletManager.WalletMetadata.IsMainNetwork);
+                    await networkDbHelper.LoadFromDbAsync();
+
                     foreach (var address in account.ExternalAddresses)
                     {
+                        var addressBalance = address.GetSpendableAmount(networkDbHelper.NetworkLastSyncedBlock, network);
+
                         var addItem = new AddressItemModel();
-                        addItem.Balance = 2;
+                        addItem.Balance = addressBalance.confirmedAmount.ToUnit(MoneyUnit.XRC);
                         addItem.Address = address.Address;
                         addItem.TxCount = address.Transactions.Count;
                         ReceivingAddresses.Add(addItem);
@@ -119,8 +125,10 @@ namespace ElectrumMobileXRC.PageModels
 
                     foreach (var address in account.InternalAddresses)
                     {
+                        var addressBalance = address.GetSpendableAmount(networkDbHelper.NetworkLastSyncedBlock, network);
+
                         var addItem = new AddressItemModel();
-                        addItem.Balance = 2;
+                        addItem.Balance = addressBalance.confirmedAmount.ToUnit(MoneyUnit.XRC);
                         addItem.Address = address.Address;
                         addItem.TxCount = address.Transactions.Count;
                         ChangeAddresses.Add(addItem);
