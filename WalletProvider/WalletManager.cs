@@ -8,10 +8,12 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using Newtonsoft.Json;
 using WalletProvider.Utils;
+using WalletProvider.Interfaces;
+using System.Collections.Concurrent;
 
 namespace WalletProvider
 {
-    public class WalletManager 
+    public class WalletManager : IWalletManager
     {
         /// <summary>Size of the buffer of unused addresses maintained in an account. </summary>
         private const int UNUSEDADDRESSESBUFFER = 20;
@@ -19,22 +21,30 @@ namespace WalletProvider
         /// <summary>Quantity of accounts created in a wallet file when a wallet is created.</summary>
         private const int WALLETCREATIONACCOUNTSCOUNT = 1;
 
-        /// <summary>Default account name </summary>
-        public const string DEFAULTACCOUNT = "account 0";
-
         /// <summary>Provider of time functions.</summary>
         private readonly IDateTimeProvider _dateTimeProvider;
 
         private Dictionary<OutPoint, TransactionData> _outpointLookup;
         private Dictionary<Script, HdAddress> _keysLookup;
 
-        public WalletMetadata WalletMetadata { get; set; }
+        private int _networkLastSyncedBlock { get; set; }
 
+        private readonly object _lockObject;
+
+        /// <summary>Default account name </summary>
+        public const string DEFAULTACCOUNT = "account 0";
+
+        public WalletMetadata WalletMetadata { get; set; }
+        public bool WalletChanged { get; set; }
+
+        public ConcurrentDictionary<string, int> LockedTxOut { get; set; }
+       
         public WalletManager()
         {
             _dateTimeProvider = DateTimeProvider.Default;
             _keysLookup = new Dictionary<Script, HdAddress>();
             _outpointLookup = new Dictionary<OutPoint, TransactionData>();
+            _lockObject = new object();
         }
 
         public WalletManager(string serializedWallet)
@@ -42,6 +52,7 @@ namespace WalletProvider
             _dateTimeProvider = DateTimeProvider.Default;
             _keysLookup = new Dictionary<Script, HdAddress>();
             _outpointLookup = new Dictionary<OutPoint, TransactionData>();
+            _lockObject = new object();
 
             WalletMetadata = DeserializeWalletMetadata(serializedWallet);
             if (WalletMetadata.Wallet.Network == null) WalletMetadata.Wallet.Network = GetNetwork(WalletMetadata.IsMainNetwork);
@@ -158,11 +169,15 @@ namespace WalletProvider
         {
             if (isMainNetwork)
             {
-                return Network.XRCMain(false);
+                var network = Network.XRCMain(false);
+                network.Consensus.Options = new PowConsensusOptions();
+                return network;
             } 
             else
             {
-                return Network.XRCTest(false);
+                var network = Network.XRCTest(false);
+                network.Consensus.Options = new PowConsensusOptions().TestPowConsensusOptions();
+                return network;
             }
         }
 
@@ -312,47 +327,50 @@ namespace WalletProvider
 
             bool foundReceivingTrx = false, foundSendingTrx = false;
 
-            // Check the outputs.
-            foreach (TxOut utxo in transaction.Outputs)
+            lock (_lockObject)
             {
-                // Check if the outputs contain one of our addresses.
-                if (_keysLookup.TryGetValue(utxo.ScriptPubKey, out HdAddress _))
+                // Check the outputs.
+                foreach (TxOut utxo in transaction.Outputs)
                 {
-                    AddTransactionToWallet(transaction, transactionMerkle, utxo, blockHeight, blockTime, blockHash, isPropagated);
-                    foundReceivingTrx = true;
-                }
-            }
-
-            // Check the inputs - include those that have a reference to a transaction containing one of our scripts and the same index.
-            foreach (TxIn input in transaction.Inputs)
-            {
-                if (!_outpointLookup.TryGetValue(input.PrevOut, out TransactionData tTx))
-                {
-                    continue;
+                    // Check if the outputs contain one of our addresses.
+                    if (_keysLookup.TryGetValue(utxo.ScriptPubKey, out HdAddress _))
+                    {
+                        AddTransactionToWallet(transaction, transactionMerkle, utxo, blockHeight, blockTime, blockHash, isPropagated);
+                        foundReceivingTrx = true;
+                    }
                 }
 
-                // Get the details of the outputs paid out.
-                IEnumerable<TxOut> paidOutTo = transaction.Outputs.Where(o =>
+                // Check the inputs - include those that have a reference to a transaction containing one of our scripts and the same index.
+                foreach (TxIn input in transaction.Inputs)
                 {
-                    // If script is empty ignore it.
-                    if (o.IsEmpty)
-                        return false;
+                    if (!_outpointLookup.TryGetValue(input.PrevOut, out TransactionData tTx))
+                    {
+                        continue;
+                    }
 
-                    // Check if the destination script is one of the wallet's.
-                    bool found = _keysLookup.TryGetValue(o.ScriptPubKey, out HdAddress addr);
+                    // Get the details of the outputs paid out.
+                    IEnumerable<TxOut> paidOutTo = transaction.Outputs.Where(o =>
+                    {
+                        // If script is empty ignore it.
+                        if (o.IsEmpty)
+                            return false;
 
-                    // Include the keys not included in our wallets (external payees).
-                    if (!found)
-                        return true;
+                        // Check if the destination script is one of the wallet's.
+                        bool found = _keysLookup.TryGetValue(o.ScriptPubKey, out HdAddress addr);
 
-                    // Include the keys that are in the wallet but that are for receiving
-                    // addresses (which would mean the user paid itself).
-                    // We also exclude the keys involved in a staking transaction.
-                    return !addr.IsChangeAddress();
-                });
+                        // Include the keys not included in our wallets (external payees).
+                        if (!found)
+                            return true;
 
-                AddSpendingTransactionToWallet(transaction, paidOutTo, tTx.Id, tTx.Index, network, blockTime, blockHeight);
-                foundSendingTrx = true;
+                        // Include the keys that are in the wallet but that are for receiving
+                        // addresses (which would mean the user paid itself).
+                        // We also exclude the keys involved in a staking transaction.
+                        return !addr.IsChangeAddress();
+                    });
+
+                    AddSpendingTransactionToWallet(transaction, paidOutTo, tTx.Id, tTx.Index, network, blockTime, blockHeight);
+                    foundSendingTrx = true;
+                }
             }
 
             return foundSendingTrx || foundReceivingTrx;
@@ -519,17 +537,21 @@ namespace WalletProvider
         public void LoadKeysLookupLock()
         {
             IEnumerable<HdAddress> addresses = GetCombinedAddresses();
-            foreach (HdAddress address in addresses)
-            {
-                _keysLookup[address.ScriptPubKey] = address;
-                if (address.Pubkey != null)
-                {
-                    _keysLookup[address.Pubkey] = address;
-                }
 
-                foreach (var transaction in address.Transactions)
+            lock (_lockObject)
+            {
+                foreach (HdAddress address in addresses)
                 {
-                    _outpointLookup[new OutPoint(transaction.Id, transaction.Index)] = transaction;
+                    _keysLookup[address.ScriptPubKey] = address;
+                    if (address.Pubkey != null)
+                    {
+                        _keysLookup[address.Pubkey] = address;
+                    }
+
+                    foreach (var transaction in address.Transactions)
+                    {
+                        _outpointLookup[new OutPoint(transaction.Id, transaction.Index)] = transaction;
+                    }
                 }
             }
         }
@@ -541,19 +563,25 @@ namespace WalletProvider
                 return;
             }
 
-            foreach (HdAddress address in addresses)
+            lock (_lockObject)
             {
-                _keysLookup[address.ScriptPubKey] = address;
-                if (address.Pubkey != null)
+                foreach (HdAddress address in addresses)
                 {
-                    _keysLookup[address.Pubkey] = address;
+                    _keysLookup[address.ScriptPubKey] = address;
+                    if (address.Pubkey != null)
+                    {
+                        _keysLookup[address.Pubkey] = address;
+                    }
                 }
             }
         }
 
         private void AddInputKeysLookupLock(TransactionData transactionData)
         {
-            _outpointLookup[new OutPoint(transactionData.Id, transactionData.Index)] = transactionData;
+            lock (_lockObject)
+            {
+                _outpointLookup[new OutPoint(transactionData.Id, transactionData.Index)] = transactionData;
+            }
         }
 
         public IEnumerable<HdAddress> GetCombinedAddresses()
@@ -631,6 +659,115 @@ namespace WalletProvider
             }
 
             return new PartialMerkleTree(vHashes.ToArray(), vMatch.ToArray());
+        }
+
+        public IEnumerable<UnspentOutputReference> GetSpendableTransactionsInAccount(WalletAccountReference walletAccountReference, int confirmations = 0)
+        {
+            Wallet wallet = this.GetWalletByName(walletAccountReference.WalletName);
+            UnspentOutputReference[] res = null;
+            var network = GetNetwork(WalletMetadata.IsMainNetwork);
+
+            lock (_lockObject)
+            {
+                HdAccount account = wallet.GetAccountByCoinType(walletAccountReference.AccountName, (CoinType)network.Consensus.CoinType);
+
+                if (account == null)
+                {
+                    throw new WalletException(
+                        $"Account '{walletAccountReference.AccountName}' in wallet '{walletAccountReference.WalletName}' not found.");
+                }
+
+                res = account.GetSpendableTransactions(network, _networkLastSyncedBlock, confirmations).ToArray();
+            }
+
+            return res;
+        }
+
+        public HdAddress GetUnusedChangeAddress(WalletAccountReference accountReference)
+        {
+            HdAddress res = this.GetUnusedAddresses(accountReference, 1, true).Single();
+
+            return res;
+        }
+
+        public IEnumerable<HdAddress> GetUnusedAddresses(WalletAccountReference accountReference, int count, bool isChange = false)
+        {
+            Wallet wallet = this.GetWalletByName(accountReference.WalletName);
+
+            return GetUnusedAddresses(wallet, count, isChange, accountReference.AccountName);
+        }
+
+        public IEnumerable<HdAddress> GetUnusedAddresses(Wallet wallet, int count, bool isChange = false, string accountName = null)
+        {
+            IEnumerable<HdAddress> addresses;
+
+            var network = GetNetwork(WalletMetadata.IsMainNetwork);
+
+            if (accountName == null)
+            {
+                var accountReference = wallet.AccountsRoot.Single(a => a.CoinType == (CoinType)network.Consensus.CoinType);
+                accountName = accountReference.Accounts.First().Name;
+            }
+
+            lock (_lockObject)
+            {
+                // Get the account.
+                HdAccount account = wallet.GetAccountByCoinType(accountName, (CoinType)network.Consensus.CoinType);
+
+                List<HdAddress> unusedAddresses = isChange ?
+                    account.InternalAddresses.Where(acc => !acc.Transactions.Any()).ToList() :
+                    account.ExternalAddresses.Where(acc => !acc.Transactions.Any()).ToList();
+
+                int diff = unusedAddresses.Count - count;
+                List<HdAddress> newAddresses = new List<HdAddress>();
+                if (diff < 0)
+                {
+                    newAddresses = account.CreateAddresses(network, Math.Abs(diff), isChange: isChange).ToList();
+                    UpdateKeysLookupLock(newAddresses);
+                    WalletChanged = true;
+                }
+
+                addresses = unusedAddresses.Concat(newAddresses).OrderBy(x => x.Index).Take(count);
+            }
+
+            return addresses;
+        }
+
+        public Wallet GetWalletByName(string walletName)
+        {
+            return WalletMetadata.Wallet;
+        }
+
+        public Transaction GetFakeTransactionForEstimation(FeeType feeType, Money amount, string targetAddress, int networkLastSyncedBlock)
+        {
+            var network = GetNetwork(WalletMetadata.IsMainNetwork);
+            var feePolicy = new WalletFeePolicy(network);
+            var transaction = new WalletTransactionHandler(this, feePolicy, network);
+
+            _networkLastSyncedBlock = networkLastSyncedBlock;
+
+            var walletReference = new WalletAccountReference()
+            {
+                AccountName = DEFAULTACCOUNT,
+                WalletName = WalletMetadata.Wallet.Name
+            };
+
+            var maturity = (int)network.Consensus.Option<PowConsensusOptions>().CoinbaseMaturity;
+
+            var context = new TransactionBuildContext(
+                walletReference,
+                new[]
+                {
+                         new Recipient {
+                             Amount = amount,
+                             ScriptPubKey = BitcoinAddress.Create(targetAddress, network).ScriptPubKey
+                         }
+                }.ToList())
+            {
+                MinConfirmations = maturity
+            };
+
+            return transaction.BuildTransaction(context);
         }
     }
 }

@@ -68,15 +68,25 @@ namespace ElectrumXClient
             return BlockchainBlockHeaderResponse.FromJson(response);
         }
 
-        public async Task<BlockchainEstimatefeeResponse> GetBlockchainEstimatefee(uint number)
+        public async Task<BlockchainEstimateFeeResponse> GetBlockchainEstimateFee(uint number)
         {
-            var request = new BlockchainEstimatefeeRequest();
+            var request = new BlockchainEstimateFeeRequest();
             request.Parameters = new uint[] { number };
-            var requestData = request.GetRequestData<BlockchainEstimatefeeRequest>();
+            var requestData = request.GetRequestData<BlockchainEstimateFeeRequest>();
             await this.Connect();
             string response = await SendMessage(requestData);
             this.Disconnect();
-            return BlockchainEstimatefeeResponse.FromJson(response);
+            return BlockchainEstimateFeeResponse.FromJson(response);
+        }
+
+        public async Task<BlockchainRelayFeeResponse> GetBlockchainRelayFee()
+        {
+            var request = new BlockchainRelayFeeRequest();
+            var requestData = request.GetRequestData<BlockchainRelayFeeRequest>();
+            await this.Connect();
+            string response = await SendMessage(requestData);
+            this.Disconnect();
+            return BlockchainRelayFeeResponse.FromJson(response);
         }
 
         public async Task<BlockchainScripthashGetBalanceResponse> GetBlockchainScripthashGetBalance(string scripthash)

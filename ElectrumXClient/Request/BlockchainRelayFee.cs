@@ -4,11 +4,11 @@ using System.Text;
 
 namespace ElectrumXClient.Request
 {
-    public class BlockchainEstimateFeeRequest : RequestBase
+    public class BlockchainRelayFeeRequest : RequestBase
     {
-        public BlockchainEstimateFeeRequest() : base()
+        public BlockchainRelayFeeRequest() : base()
         {
-            base.Method = "blockchain.estimatefee";
+            base.Method = "blockchain.relayfee";
             base.Parameters = null;
         }
     }

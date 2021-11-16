@@ -5,12 +5,12 @@ using System.Text;
 
 namespace ElectrumXClient.Response
 {
-    public class BlockchainEstimatefeeResponse : ResponseBase
+    public class BlockchainEstimateFeeResponse : ResponseBase
     {
         [JsonProperty("result")]
-        public decimal Result { get; set; }
+        public decimal? Result { get; set; }
 
-        public static BlockchainEstimatefeeResponse FromJson(string json) =>
-            JsonConvert.DeserializeObject<BlockchainEstimatefeeResponse>(json, Converter<ResponseResult>.Settings);
+        public static BlockchainEstimateFeeResponse FromJson(string json) =>
+            JsonConvert.DeserializeObject<BlockchainEstimateFeeResponse>(json, Converter<ResponseResult>.Settings);
     }
 }
