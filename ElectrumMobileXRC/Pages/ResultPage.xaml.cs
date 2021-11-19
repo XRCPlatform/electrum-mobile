@@ -17,7 +17,6 @@ namespace ElectrumMobileXRC.Pages
 
             SubTitleLabel.TranslateTo(1000, 0, 0, null);
             TitleLabel.TranslateTo(1000, 0, 0, null);
-            MoonBoy.TranslateTo(0, 1000, 0, null);
             Card.TranslateTo(1000, 0, 0, null);
         }
 
@@ -30,8 +29,7 @@ namespace ElectrumMobileXRC.Pages
                 await Task.WhenAll(
                     SubTitleLabel.TranslateTo(0, 0, 400, Easing.CubicInOut),
                     TitleLabel.TranslateTo(0, 0, 450, Easing.CubicInOut),
-                    Card.TranslateTo(0, 0, 500, Easing.CubicInOut),
-                    MoonBoy.TranslateTo(0, 0, 550, Easing.CubicInOut)
+                    Card.TranslateTo(0, 0, 500, Easing.CubicInOut)
                 );
 
                 _initialized = true;

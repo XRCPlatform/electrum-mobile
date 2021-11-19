@@ -30,6 +30,5 @@
                 </StackLayout>
             </controls:RoundedContentView>
         </StackLayout>
-        <ff:CachedImage x:Name="MoonBoy" Source="moon.png" VerticalOptions="EndAndExpand" />
     </Grid>
 </controls:GradientContentPage>

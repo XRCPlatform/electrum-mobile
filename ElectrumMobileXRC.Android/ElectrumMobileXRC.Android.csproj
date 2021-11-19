@@ -103,18 +103,6 @@
     <AndroidResource Include="Resources\mipmap-xxhdpi\launcher_foreground.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\Icon.png" />
     <AndroidResource Include="Resources\mipmap-xxxhdpi\launcher_foreground.png" />
-    <AndroidResource Include="Resources\drawable-xxxhdpi\star.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\star.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\star.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\star.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\star.png" />
-    <AndroidResource Include="Resources\drawable-ldpi\star.png" />
-    <AndroidResource Include="Resources\drawable-xxxhdpi\moon.png" />
-    <AndroidResource Include="Resources\drawable-xxhdpi\moon.png" />
-    <AndroidResource Include="Resources\drawable-xhdpi\moon.png" />
-    <AndroidResource Include="Resources\drawable-hdpi\moon.png" />
-    <AndroidResource Include="Resources\drawable-mdpi\moon.png" />
-    <AndroidResource Include="Resources\drawable-ldpi\moon.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\drawable\" />
