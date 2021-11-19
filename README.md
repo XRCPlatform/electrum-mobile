@@ -1,4 +1,4 @@
-# ElectrumMobile Alpha 0.8
+# ElectrumMobile Alpha 0.9
 **!!!USE AT YOUR OWN RISK!!!**
 
 New official C# Xamarin Electrum XRC Mobile Wallet.
@@ -29,6 +29,15 @@ You can support development with XRC - RbJM4GwMTnmSePASx1d43zi7Efs3M6og1S . Than
 ## How to compile and run it
 
 [How to install Xamarin on Visual Studio](https://www.dotnek.com/Blog/Apps/how-to-install-xamarin-on-visual-studio-and-s)
+
+Actual configuration is tested on these devices:
+- Pixel 2 Simulator - Android 10 API Level 29 - Q
+- iPhone 12 Simulator - IOS 14.4
+
+## Technology
+- Xamarin
+- NBitcoin Library from XRC Node source code
+- Application is using as endpoint ElectrumX XRC server
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
