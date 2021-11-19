@@ -62,7 +62,7 @@
                                                                 <DataTrigger TargetType="Label" Binding="{Binding Source={x:Reference checkBoxSelection}, Path=IsChecked}" Value="true" />
                                                             </Label.Triggers>
                                                         </Label>
-                                                        <Label Text="{Binding Balance, StringFormat='{0:0.########;-0.########;0.########} XRC'}" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_blue}">
+                                                        <Label Text="{Binding Balance, StringFormat='{0:+0.########;-0.########;0.########} XRC'}" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_blue}">
                                                             <Label.Triggers>
                                                                 <DataTrigger TargetType="Label" Binding="{Binding Source={x:Reference checkBoxSelection}, Path=IsChecked}" Value="true" />
                                                             </Label.Triggers>

@@ -165,7 +165,7 @@ namespace ElectrumMobileXRC.PageModels
                     var isSynced = await _networkManager.IsSynced(_networkDbHelper.NetworkLastSyncedBlock);
                     if (isSynced)
                     {
-                        foreach (var address in account.ExternalAddresses)
+                        foreach (var address in account.GetCombinedAddresses())
                         {
                             var addressBalance = address.GetSpendableAmount(_networkDbHelper.NetworkLastSyncedBlock, network);
 
@@ -180,7 +180,7 @@ namespace ElectrumMobileXRC.PageModels
                             }
                         }
 
-                        var tx = _walletManager.GetFakeTransactionForEstimation(FeeType.Low, new Money(1000), "TQXdPYbtmyvyeXnEsZXygBN75jyTDb8z1m", _networkDbHelper.NetworkLastSyncedBlock);
+                  //      var tx = _walletManager.GetFakeTransactionForEstimation(FeeType.Low, new Money(1000), "TQXdPYbtmyvyeXnEsZXygBN75jyTDb8z1m", _networkDbHelper.NetworkLastSyncedBlock);
                     } 
                     else
                     {

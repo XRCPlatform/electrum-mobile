@@ -120,11 +120,11 @@ namespace ElectrumMobileXRC.PageModels
                             break;
                     }
 
-                    if (walletManager.ValidateWalletMetadata(walletMetadata))
+                    if (walletManager.ValidateWalletMetadata())
                     {
                         SetValidUser(UserName);
                         
-                        var serializedWallet = walletManager.SerializeWalletMetadata(walletMetadata, UserName, Password, isMainNetwork);
+                        var serializedWallet = walletManager.SerializeWalletMetadata(UserName, Password, isMainNetwork);
 
                         await _walletDbHelper.UpdateWalletAsync(serializedWallet);
                         await CoreMethods.PushPageModel<MainPageModel>();

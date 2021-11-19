@@ -33,7 +33,7 @@
                                 </StackLayout>
                                 <StackLayout Orientation="Horizontal">
                                     <Label VerticalOptions="Center" Text="UNCONFIRMED" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
-                                    <Label VerticalOptions="Center" Text="{Binding BalanceUnconfirmed, StringFormat='{0:0.########;;0.########} XRC'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                    <Label VerticalOptions="Center" Text="{Binding BalanceUnconfirmed, StringFormat='{0:+0.########;;0.########} XRC'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
                                 </StackLayout>
                                 <BoxView Margin="0,16" HeightRequest="1" BackgroundColor="#DDDDDD" />
                                 <Label HorizontalOptions="Center" VerticalOptions="Center" Text="{Binding Balance, StringFormat='BALANCE: {0:0.########;;0.########} XRC'}" FontSize="16" FontFamily="{StaticResource font_heavy}" TextColor="{StaticResource dark_blue}" />
@@ -47,8 +47,8 @@
                                     <BindableLayout.ItemTemplate>
                                         <DataTemplate>
                                             <StackLayout Orientation="Horizontal" Padding="0,10">
-                                                <Label VerticalOptions="Center" Text="Unconfirmed" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
-                                                <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding Balance, StringFormat='{0:0.########;-0.########;+0.########}'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                                <Label VerticalOptions="Center" Text="{Binding CreationDate}" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
+                                                <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding Balance, StringFormat='{0:+0.########;-0.########;0.########}'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
                                             </StackLayout>
                                         </DataTemplate>
                                     </BindableLayout.ItemTemplate>
@@ -65,7 +65,7 @@
                                         <DataTemplate>
                                             <StackLayout Orientation="Horizontal" Padding="0,10">
                                                 <Label VerticalOptions="Center" Text="{Binding CreationDate}" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
-                                                <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding Balance, StringFormat='{0:0.########;-0.########;+0.########}'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                                <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding Balance, StringFormat='{0:+0.########;-0.########;0.########}'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
                                             </StackLayout>
                                         </DataTemplate>
                                     </BindableLayout.ItemTemplate>

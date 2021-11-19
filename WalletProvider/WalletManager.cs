@@ -181,23 +181,23 @@ namespace WalletProvider
             }
         }
 
-        public bool ValidateWalletMetadata(WalletMetadata walletMetadata)
+        public bool ValidateWalletMetadata()
         {
             var isValid = true;
 
-            if (string.IsNullOrEmpty(walletMetadata.Seed))
+            if (string.IsNullOrEmpty(WalletMetadata.Seed))
             {
                 isValid = false;
             }
 
-            if (walletMetadata.Wallet == null)
+            if (WalletMetadata.Wallet == null)
             {
                 isValid = false;
             } 
             else
             {
-                var coinType = walletMetadata.Wallet.Network.Consensus.CoinType;
-                var account = walletMetadata.Wallet.GetAccountByCoinType(DEFAULTACCOUNT, (CoinType)coinType);
+                var coinType = WalletMetadata.Wallet.Network.Consensus.CoinType;
+                var account = WalletMetadata.Wallet.GetAccountByCoinType(DEFAULTACCOUNT, (CoinType)coinType);
 
                 if ((account.InternalAddresses == null) || (account.InternalAddresses.Count == 0))
                 {
@@ -211,6 +211,30 @@ namespace WalletProvider
             }
 
             return isValid;
+        }
+
+        public long FindCoinsSatoshi(List<OutPoint> prevOuts)
+        {
+            var coinType = WalletMetadata.Wallet.Network.Consensus.CoinType;
+            var account = WalletMetadata.Wallet.GetAccountByCoinType(DEFAULTACCOUNT, (CoinType)coinType);
+            
+            long coins = 0;
+            var prevOutsHashes = prevOuts.Select(h => h.Hash).ToList();
+
+            foreach (var address in account.GetCombinedAddresses())
+            {
+                var sources = address.Transactions.Where(t => prevOutsHashes.Contains(t.Id));
+                if (sources.Any())
+                {
+                    foreach (var item in sources)
+                    {
+                        var prevOut = prevOuts.Where(o => o.Hash == item.Id).First();
+                        coins += item.Transaction.Outputs[prevOut.N].Value.Satoshi;
+                    }
+                }
+            }
+
+            return coins;
         }
 
         private byte[] SerializeObject(object value)
@@ -228,13 +252,13 @@ namespace WalletProvider
             return (T)bf.Deserialize(memorystream);
         }
 
-        public string SerializeWalletMetadata(WalletMetadata walletMetadata, string userName, string password, bool isMainNetwork)
+        public string SerializeWalletMetadata(string userName, string password, bool isMainNetwork)
         {
             var walletSerialized = new WalletMetadataSerialized();
             var cryptography = new InMemoryCryptography();
 
-            walletSerialized.Seed = cryptography.Encrypt(walletMetadata.Seed, password);
-            walletSerialized.Wallet = SerializeObject(walletMetadata.Wallet);
+            walletSerialized.Seed = cryptography.Encrypt(WalletMetadata.Seed, password);
+            walletSerialized.Wallet = SerializeObject(WalletMetadata.Wallet);
             walletSerialized.UserName = userName;
             walletSerialized.PasswordEncrypted = cryptography.Encrypt(password, password);
             walletSerialized.IsMainNetwork = isMainNetwork;
@@ -269,12 +293,12 @@ namespace WalletProvider
             return walletMetadata;
         }
 
-        public bool IsPasswordUserValid(WalletMetadata walletMetadata, string userName, string password)
+        public bool IsPasswordUserValid(string userName, string password)
         {
             var cryptography = new InMemoryCryptography();
 
-            if ((walletMetadata.UserName.ToLower() == userName.ToLower())
-                 && (walletMetadata.PasswordEncrypted == cryptography.Encrypt(password, password)))
+            if ((WalletMetadata.UserName.ToLower() == userName.ToLower())
+                 && (WalletMetadata.PasswordEncrypted == cryptography.Encrypt(password, password)))
             {
                 return true;
             }
@@ -290,6 +314,9 @@ namespace WalletProvider
 
             if ((blockchainTransactionData != null) && (blockchainTransactionData.Any()))
             {
+                //clear memory
+                if (ClearUnpropagated()) isWalletUpdated = true;
+
                 foreach (var itemTransactionData in blockchainTransactionData)
                 {
                     var transaction = Transaction.Load(itemTransactionData.BlockchainTransaction.Hex, network);
@@ -312,6 +339,28 @@ namespace WalletProvider
             }
 
             return isWalletUpdated;
+        }
+
+        private bool ClearUnpropagated()
+        {
+            var coinType = WalletMetadata.Wallet.Network.Consensus.CoinType;
+            var account = WalletMetadata.Wallet.GetAccountByCoinType(DEFAULTACCOUNT, (CoinType)coinType);
+            var isUpdated = false;
+
+            foreach (var address in account.GetCombinedAddresses())
+            {
+                var sources = address.Transactions.Where(t => !t.BlockHeight.HasValue);
+                if (sources.Any())
+                {
+                    foreach (var item in sources)
+                    {
+                        item.IsPropagated = false;
+                        isUpdated = true;
+                    }
+                }
+            }
+
+            return isUpdated;
         }
 
         private bool ProcessTransaction(

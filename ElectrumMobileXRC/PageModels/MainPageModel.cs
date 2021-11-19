@@ -8,6 +8,7 @@ using NetworkProvider;
 using NBitcoin;
 using System.Threading.Tasks;
 using System.Linq;
+using WalletProvider.Entities;
 
 namespace ElectrumMobileXRC.PageModels
 {
@@ -71,7 +72,7 @@ namespace ElectrumMobileXRC.PageModels
 
             MenuButtonCommand = new Command(async () =>
             {
-                var actionSheet = await CoreMethods.DisplayActionSheet("Electrum Mobile XRC", "Hide", null, "Addresses", "Network" );
+                var actionSheet = await CoreMethods.DisplayActionSheet("Electrum Mobile XRC", "Hide", null, "Addresses", "Network");
 
                 switch (actionSheet)
                 {
@@ -95,7 +96,7 @@ namespace ElectrumMobileXRC.PageModels
             if (!IsUserValid())
             {
                 await CoreMethods.PushPageModel<LoginPageModel>();
-            } 
+            }
             else
             {
                 await _walletDbHelper.LoadFromDbAsync();
@@ -146,7 +147,7 @@ namespace ElectrumMobileXRC.PageModels
         {
             LastDateUpdate = _networkDbHelper.NetworkDateLastUpdate;
             LastBlockUpdate = "N/A";
-            
+
             if (_networkDbHelper.NetworkLastSyncedBlock > -1) LastBlockUpdate = _networkDbHelper.NetworkLastSyncedBlock.ToString();
 
             var walletBalance = _walletManager.GetWalletBalance(_networkDbHelper.NetworkLastSyncedBlock, network);
@@ -165,17 +166,31 @@ namespace ElectrumMobileXRC.PageModels
                 foreach (var itemTransaction in walletTransactions)
                 {
                     var historyItem = new TransactionHistoryItemModel();
-                    historyItem.Balance = itemTransaction.Transaction.Amount.ToUnit(MoneyUnit.XRC);
-                    historyItem.CreationDate = string.Format("{0} {1}",
-                        itemTransaction.Transaction.CreationTime.ToLocalTime().DateTime.ToShortDateString(),
-                        itemTransaction.Transaction.CreationTime.ToLocalTime().DateTime.ToShortTimeString());
+
+                    if (itemTransaction.Address.IsChangeAddress())
+                    {
+                        historyItem.Balance = GetBalanceForOutputTransaction(itemTransaction).ToUnit(MoneyUnit.XRC) * -1;
+                    }
+                    else
+                    {
+                        historyItem.Balance = itemTransaction.Transaction.Amount.ToUnit(MoneyUnit.XRC);
+                    }
 
                     if (itemTransaction.Transaction.IsConfirmed())
                     {
+                        historyItem.CreationDate = string.Format("{0} {1}",
+                            itemTransaction.Transaction.CreationTime.ToLocalTime().DateTime.ToShortDateString(),
+                            itemTransaction.Transaction.CreationTime.ToLocalTime().DateTime.ToShortTimeString());
+
                         updatedConfirmedTransactions.Add(historyItem);
                     }
                     else
                     {
+                        historyItem.CreationDate = Resources.SharedResource.Main_Transaction_State_Unconfirmed.ToUpper();
+
+                        if (itemTransaction.Transaction.IsPropagated == false)
+                            historyItem.CreationDate = Resources.SharedResource.Main_Transaction_State_Local.ToUpper();
+
                         updatedUnconfirmedTransactions.Add(historyItem);
                     }
 
@@ -191,6 +206,19 @@ namespace ElectrumMobileXRC.PageModels
                     objUnconfirmedTransactions.IsVisible = true;
                 }
             }
+        }
+
+        private Money GetBalanceForOutputTransaction(WalletTransaction itemTransaction)
+        {
+            var transationData = itemTransaction.Transaction.Transaction;
+
+            var prevOutInputs = transationData.Inputs.Select(i => i.PrevOut).ToList();
+            var sourceCoins =_walletManager.FindCoinsSatoshi(prevOutInputs);
+
+            var feeCoins = sourceCoins - transationData.TotalOut.Satoshi;
+            var outCoins = transationData.Outputs[0].Value.Satoshi;
+
+            return new Money(feeCoins + outCoins);
         }
     }
 }

@@ -85,7 +85,7 @@ namespace ElectrumMobileXRC.PageModels
             if (_walletDbHelper.IsWalletInit) {
 
                 var walletManager = new WalletManager(_walletDbHelper.SerializedWallet);
-                if (walletManager.IsPasswordUserValid(walletManager.WalletMetadata, userName, password))
+                if (walletManager.IsPasswordUserValid(userName, password))
                 {
                     SetValidUser(UserName);
                     await CoreMethods.PushPageModel<MainPageModel>();

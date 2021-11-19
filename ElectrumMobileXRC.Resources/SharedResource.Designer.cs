@@ -97,6 +97,24 @@ namespace ElectrumMobileXRC.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Local.
+        /// </summary>
+        public static string Main_Transaction_State_Local {
+            get {
+                return ResourceManager.GetString("Main_Transaction_State_Local", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unconfirmed.
+        /// </summary>
+        public static string Main_Transaction_State_Unconfirmed {
+            get {
+                return ResourceManager.GetString("Main_Transaction_State_Unconfirmed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Auto Selection.
         /// </summary>
         public static string NetworkSelection_Auto {

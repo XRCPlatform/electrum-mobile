@@ -85,6 +85,35 @@ namespace NetworkProvider
                         }
                     }
                 }
+            } 
+            else
+            {
+                foreach (var itemAddress in addresses)
+                {
+                    var address = BitcoinAddress.Create(itemAddress.Address, _net);
+                    var addressBytes = address.ScriptPubKey.ToBytes();
+                    var P2PKHBytes = cnvHelper.ByteArrayToString(addressBytes);
+                    var P2PKH = cnvHelper.StringToByteArray(P2PKHBytes);
+                    var hashAddressReverse = cnvHelper.sha256_hash_reverse_bytes(P2PKH);
+
+                    var addressMemPool = await _electrumClient.GetBlockchainScripthashGetMempool(hashAddressReverse);
+                    if ((addressMemPool != null) && (addressMemPool.Result != null))
+                    {
+                        var transactionResult = addressMemPool.Result;
+                        foreach (var itemTransaction in transactionResult)
+                        {
+                            var itemTxDataResult = await _electrumClient.GetBlockchainTransactionGet(itemTransaction.TxHash);
+                            if ((itemTxDataResult != null) && (itemTxDataResult.Result != null))
+                            {
+                                itemTxDataResult.Result.Height = itemTransaction.Height;
+                                WalletTransaction newWalletTransation;
+                                newWalletTransation = new WalletTransaction(itemAddress, itemTxDataResult.Result);
+
+                                transactionList.Add(newWalletTransation);
+                            }
+                        }
+                    }
+                }
             }
 
             transactionList = transactionList

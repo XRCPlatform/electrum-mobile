@@ -141,4 +141,10 @@
   <data name="Main_Syncing" xml:space="preserve">
     <value>Syncing...</value>
   </data>
+  <data name="Main_Transaction_State_Local" xml:space="preserve">
+    <value>Local</value>
+  </data>
+  <data name="Main_Transaction_State_Unconfirmed" xml:space="preserve">
+    <value>Unconfirmed</value>
+  </data>
 </root>

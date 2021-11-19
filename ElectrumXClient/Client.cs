@@ -111,6 +111,17 @@ namespace ElectrumXClient
             return BlockchainScripthashGetHistoryResponse.FromJson(response);
         }
 
+        public async Task<BlockchainScripthashGetMempoolResponse> GetBlockchainScripthashGetMempool(string scripthash)
+        {
+            var request = new BlockchainScripthashGetMempoolRequest();
+            request.Parameters = new string[] { scripthash };
+            var requestData = request.GetRequestData<BlockchainScripthashGetMempoolRequest>();
+            await this.Connect();
+            string response = await SendMessage(requestData);
+            this.Disconnect();
+            return BlockchainScripthashGetMempoolResponse.FromJson(response);
+        }
+
         public async Task<BlockchainScripthashListunspentResponse> GetBlockchainListunspent(string scripthash)
         {
             var request = new BlockchainScripthashListunspentRequest();
