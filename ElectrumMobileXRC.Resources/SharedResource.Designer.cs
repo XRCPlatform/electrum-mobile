@@ -61,6 +61,15 @@ namespace ElectrumMobileXRC.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Address is not valid..
+        /// </summary>
+        public static string Error_AddressIsntValid {
+            get {
+                return ResourceManager.GetString("Error_AddressIsntValid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Seed contains unsupported values. Please to generate random seed with button..
         /// </summary>
         public static string Error_FieldContainsUnsupported {

@@ -40,8 +40,8 @@
                             </StackLayout>
                         </controls:RoundedContentView>
 
-                        <Label x:Name="UnconfirmedTransactionsLabel" Text="Unconfirmed Transactions" IsVisible="false" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
-                        <controls:RoundedContentView x:Name="UnconfirmedTransactions" IsVisible="false" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
+                        <Label x:Name="UnconfirmedTransactionsLabel" Text="Unconfirmed Transactions" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
+                        <controls:RoundedContentView x:Name="UnconfirmedTransactions" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
                             <StackLayout Padding="24" Spacing="2">
                                 <StackLayout x:Name="UnconfirmedTransactionsList" BindableLayout.ItemsSource="{Binding UnconfirmedTransactions}">
                                     <BindableLayout.ItemTemplate>

@@ -1,4 +1,5 @@
 ﻿using ElectrumMobileXRC.Models;
+using ElectrumMobileXRC.Resources;
 using ElectrumMobileXRC.Services;
 using FreshMvvm;
 using NBitcoin;
@@ -7,6 +8,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -112,23 +114,19 @@ namespace ElectrumMobileXRC.PageModels
 
             SendButtonCommand = new Command(async () =>
             {
-                //validate issync before send
-                var ss = Addresses;
+                HideErrorLabels();
 
-
-            });
-
-            TargetAddressChangedCommand = new Command<string>(async (_mobilenumber) =>
-            {
-                //address valid?
-                //AmountEntry show
-                //Send address enable
-
+                if (IsFormValid())
+                {
+                    //send tx
+                }
             });
 
             UnitTypes = new ObservableCollection<string>(Enum.GetNames(typeof(MoneyUnit)).Reverse().ToList());
             UnitTypeIndex = 0;
             FeeSliderValue = 1;
+
+            var s = Thread.CurrentThread.CurrentUICulture;
 
             LoadWalletAsync();
         }
@@ -179,8 +177,6 @@ namespace ElectrumMobileXRC.PageModels
                                 Addresses.Add(addItem);
                             }
                         }
-
-                  //      var tx = _walletManager.GetFakeTransactionForEstimation(FeeType.Low, new Money(1000), "TQXdPYbtmyvyeXnEsZXygBN75jyTDb8z1m", _networkDbHelper.NetworkLastSyncedBlock);
                     } 
                     else
                     {
@@ -222,9 +218,61 @@ namespace ElectrumMobileXRC.PageModels
             //    compare it
 
 
+            //      var tx = _walletManager.GetFakeTransactionForEstimation(FeeType.Low, new Money(1000), "TQXdPYbtmyvyeXnEsZXygBN75jyTDb8z1m", _networkDbHelper.NetworkLastSyncedBlock);
 
             //    _networkManager.GetEstimateFee();
             objFee.Text = minRelayFee.ToString();
         }
+
+
+        private void HideErrorLabels()
+        {
+            var objTargetAddressError = CurrentPage.FindByName<Label>("TargetAddressError");
+            objTargetAddressError.IsVisible = false;
+            var objAmountError = CurrentPage.FindByName<Label>("AmountError");
+            objAmountError.IsVisible = false;
+            var objFeeError = CurrentPage.FindByName<Label>("FeeError");
+            objFeeError.IsVisible = false;
+        }
+
+        private bool IsFormValid()
+        {
+            var isValid = true;
+
+            if (string.IsNullOrEmpty(TargetAddress))
+            {
+                var objTargetAddressError = CurrentPage.FindByName<Label>("TargetAddressError");
+                objTargetAddressError.Text = string.Format(SharedResource.Error_FieldRequired, "Pay To");
+                objTargetAddressError.IsVisible = true;
+                isValid = false;
+            }
+            else
+            {
+                var network = _walletManager.GetNetwork(_walletManager.WalletMetadata.IsMainNetwork);
+
+                try
+                {
+                    BitcoinAddress.Create(TargetAddress, network);
+                }
+                catch (Exception)
+                {
+                    var objTargetAddressError = CurrentPage.FindByName<Label>("TargetAddressError");
+                    objTargetAddressError.Text = string.Format(SharedResource.Error_AddressIsntValid, "Pay To");
+                    objTargetAddressError.IsVisible = true;
+                    isValid = false;
+                }
+            }
+
+            if (Amount <= 0)
+            {
+                var objAmount = CurrentPage.FindByName<Label>("AmountError");
+                objAmount.Text = string.Format(SharedResource.Error_FieldRequired, "Amount");
+                objAmount.IsVisible = true;
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
     }
 }

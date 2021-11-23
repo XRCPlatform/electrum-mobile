@@ -198,12 +198,12 @@ namespace ElectrumMobileXRC.PageModels
                     UnconfirmedTransactions = updatedUnconfirmedTransactions;
                 }
 
-                if (UnconfirmedTransactions.Any())
+                if (!UnconfirmedTransactions.Any())
                 {
                     var objUnconfirmedTransactionsLabel = CurrentPage.FindByName<Label>("UnconfirmedTransactionsLabel");
-                    objUnconfirmedTransactionsLabel.IsVisible = true;
+                    objUnconfirmedTransactionsLabel.IsVisible = false;
                     var objUnconfirmedTransactions = CurrentPage.FindByName<ContentView>("UnconfirmedTransactions");
-                    objUnconfirmedTransactions.IsVisible = true;
+                    objUnconfirmedTransactions.IsVisible = false;
                 }
             }
         }

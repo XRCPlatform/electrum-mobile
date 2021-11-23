@@ -147,4 +147,7 @@
   <data name="Main_Transaction_State_Unconfirmed" xml:space="preserve">
     <value>Unconfirmed</value>
   </data>
+  <data name="Error_AddressIsntValid" xml:space="preserve">
+    <value>Address is not valid.</value>
+  </data>
 </root>

@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <controls:GradientContentPage NavigationPage.HasNavigationBar="false" NavigationPage.BackButtonTitle="" StartColor="{StaticResource dark_purple}" EndColor="{StaticResource dark_blue}" xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:ElectrumMobileXRC" x:Class="ElectrumMobileXRC.Pages.SendPage" xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core" 
     ios:Page.UseSafeArea="true" xmlns:controls="clr-namespace:ElectrumMobileXRC.Controls" 
-                              xmlns:ff="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms">
+                              xmlns:ff="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms"
+                              xmlns:nubeh="clr-namespace:ElectrumMobileXRC.Extensions;assembly=ElectrumMobileXRC">
     <Grid x:Name="MainGrid">
         <Grid VerticalOptions="FillAndExpand" Padding="0">
             <Grid.ColumnDefinitions>
@@ -25,22 +26,23 @@
                             <StackLayout Padding="22" Spacing="2">
                                 <Label x:Name="TargetAddressLabel" Text="Pay To" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,0,0,0" />
                                 <Label x:Name="TargetAddressError" IsVisible="false" TextColor="#ff4242" />
-                                <Entry Text="{Binding TargetAddress}" IsTextPredictionEnabled="false" Keyboard="Plain" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="TargetAddressEntry" TextColor="{StaticResource dark_blue}">
-                                    <Entry.Behaviors>
-                               
-                                    </Entry.Behaviors>
-                                </Entry>
-                            
+                                <Entry Text="{Binding TargetAddress}" IsTextPredictionEnabled="false" Keyboard="Plain" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="TargetAddressEntry" TextColor="{StaticResource dark_blue}" />
+
+    
                                 <Label x:Name="AmountLabel" Text="Amount" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,20,0,0" />
                                 <Label x:Name="AmountError" IsVisible="False" TextColor="#ff4242" />
                                 <StackLayout Orientation="Horizontal" >
-                                    <Entry Text="{Binding Amount}" HorizontalOptions="FillAndExpand" IsTextPredictionEnabled="false" Keyboard="Numeric" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="AmountEntry" TextColor="{StaticResource dark_blue}" />
+                                    <Entry Text="{Binding Amount}" HorizontalOptions="FillAndExpand" IsTextPredictionEnabled="false" Keyboard="Numeric" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="AmountEntry" TextColor="{StaticResource dark_blue}" >
+                                        <Entry.Behaviors>
+                                            <nubeh:NumericValidationBehavior />
+                                        </Entry.Behaviors>
+                                    </Entry>
                                     <Picker x:Name="PickerAmountUnitType" HorizontalOptions="End" ItemsSource="{Binding UnitTypes}" SelectedIndex="{Binding UnitTypeIndex}" FontSize="16" TextColor="{StaticResource dark_blue}"></Picker>
                                 </StackLayout>
 
                                 <Label x:Name="FeeLabel" Text="Fee" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,20,0,0" />
                                 <Label x:Name="FeeError" IsVisible="False" TextColor="#ff4242" />
-                                <Slider x:Name="FeeSlider" Value="{Binding FeeSliderValue}" Maximum="4"  />
+                                <Slider x:Name="FeeSlider" Value="{Binding FeeSliderValue}" Maximum="4" MinimumTrackColor="Gray" MaximumTrackColor="LightGray" ThumbColor="Orange"  />
                                 <Label HorizontalTextAlignment="Center" x:Name="Fee" IsVisible="True" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
                             </StackLayout>
                         </controls:RoundedContentView>
