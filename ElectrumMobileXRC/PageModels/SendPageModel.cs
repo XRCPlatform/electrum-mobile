@@ -38,13 +38,16 @@ namespace ElectrumMobileXRC.PageModels
                 if (_feeSliderValue != value)
                 {
                     _feeSliderValue = value;
-                    // UpdateFeeEstimation();
+                    UpdateFeeEstimation();
                 }
             }
         }
 
         [Required]
         public string TargetAddress { get; set; }
+
+        [Required]
+        public string Password { get; set; }
 
         [Required]
         public decimal Amount { get; set; }
@@ -118,15 +121,37 @@ namespace ElectrumMobileXRC.PageModels
 
                 if (IsFormValid())
                 {
-                    //send tx
+                    bool answer = await CoreMethods.DisplayAlert(SharedResource.Send_DialogConfirmationTitle,
+                        SharedResource.Send_DialogConfirmation, SharedResource.Yes, SharedResource.No);
+
+                    if (answer)
+                    {
+                        var feeType = ConvertToFeeType(FeeSliderValue);
+                        var unitType = GetUnitFromIndex(UnitTypeIndex);
+                        var amount = new Money(Amount, unitType);
+
+                        try
+                        {
+                            var transaction = _walletManager.CreateTransaction(feeType, amount,
+                                TargetAddress, _networkDbHelper.NetworkLastSyncedBlock, Password);
+
+                            //apply selected inputs
+                            //show new tx
+                            //bradcast tx by electrum
+                            //button continue to main dialog
+
+                        }
+                        catch (Exception e)
+                        {
+                            await CoreMethods.DisplayAlert(e.Message, "", "Ok");
+                        }
+                    }
                 }
             });
 
             UnitTypes = new ObservableCollection<string>(Enum.GetNames(typeof(MoneyUnit)).Reverse().ToList());
             UnitTypeIndex = 0;
-            FeeSliderValue = 1;
-
-            var s = Thread.CurrentThread.CurrentUICulture;
+            FeeSliderValue = 0;
 
             LoadWalletAsync();
         }
@@ -154,7 +179,7 @@ namespace ElectrumMobileXRC.PageModels
                     var network = _walletManager.GetNetwork(_walletManager.WalletMetadata.IsMainNetwork);
                     _networkDbHelper = new DbNetworkHelper(_configDb, _walletManager.WalletMetadata.IsMainNetwork);
                     await _networkDbHelper.LoadFromDbAsync();
-                    
+
                     _networkManager = new NetworkManager(
                         _networkDbHelper.NetworkDefaultServer,
                         _networkDbHelper.NetworkDefaultPort,
@@ -177,7 +202,7 @@ namespace ElectrumMobileXRC.PageModels
                                 Addresses.Add(addItem);
                             }
                         }
-                    } 
+                    }
                     else
                     {
                         await CoreMethods.DisplayAlert("Your wallet is out of sync. Please, return to main screen and wait to full synchronization.", "", "Ok");
@@ -188,10 +213,67 @@ namespace ElectrumMobileXRC.PageModels
 
         private async void UpdateFeeEstimation()
         {
+            var feeType = ConvertToFeeType(FeeSliderValue);
+
+            var minRelayFee = await _networkManager.GetRelayFee();
+            var transactionMoneyFee = new Money(0);
+
+            try
+            {
+                var transaction = _walletManager.GetFakeTransactionForEstimation(new Money(1),
+                    "TQXdPYbtmyvyeXnEsZXygBN75jyTDb8z1m", _networkDbHelper.NetworkLastSyncedBlock);
+
+                var transactionSize = transaction.GetVirtualSize();
+                var estimateForBlockHeight = (uint)_networkDbHelper.NetworkLastSyncedBlock + FeeToBlocks(feeType);
+                var minFeePerKb = await _networkManager.GetEstimateFee((uint)_networkDbHelper.NetworkLastSyncedBlock);
+
+                var transactionFee = transactionSize * minFeePerKb;
+                if (transactionFee < minRelayFee)
+                {
+                    transactionFee = minRelayFee;
+                }
+
+                transactionMoneyFee = new Money(transactionFee, MoneyUnit.XRC);
+            }
+            catch (Exception e)
+            {
+                await CoreMethods.DisplayAlert(e.Message, "", "Ok");
+            }
+
             var objFee = CurrentPage.FindByName<Label>("Fee");
+            objFee.Text = string.Format(SharedResource.Send_EstimateFee, transactionMoneyFee.ToUnit(MoneyUnit.XRC), FeeToBlocks(feeType));
+        }
+
+        private int FeeToBlocks(FeeType feeType)
+        {
+            var blocks = 25;
+
+            switch (feeType)
+            {
+                case FeeType.VeryHigh:
+                    blocks = 1;
+                    break;
+                case FeeType.High:
+                    blocks = 2;
+                    break;
+                case FeeType.Medium:
+                    blocks = 5;
+                    break;
+                case FeeType.Low:
+                    blocks = 10;
+                    break;
+                default:
+                    break;
+            }
+
+            return blocks;
+        }
+
+        private FeeType ConvertToFeeType(int feeValue)
+        {
             var feeType = FeeType.Low;
 
-            switch (FeeSliderValue)
+            switch (feeValue)
             {
                 case 0:
                     feeType = FeeType.VeryLow;
@@ -209,21 +291,8 @@ namespace ElectrumMobileXRC.PageModels
                     break;
             }
 
-            var minRelayFee = await _networkManager.GetRelayFee();
-
-
-            //generate fake tx
-            //estimate size
-            //    calsulate fee based on fee date per kb
-            //    compare it
-
-
-            //      var tx = _walletManager.GetFakeTransactionForEstimation(FeeType.Low, new Money(1000), "TQXdPYbtmyvyeXnEsZXygBN75jyTDb8z1m", _networkDbHelper.NetworkLastSyncedBlock);
-
-            //    _networkManager.GetEstimateFee();
-            objFee.Text = minRelayFee.ToString();
+            return feeType;
         }
-
 
         private void HideErrorLabels()
         {
@@ -233,11 +302,21 @@ namespace ElectrumMobileXRC.PageModels
             objAmountError.IsVisible = false;
             var objFeeError = CurrentPage.FindByName<Label>("FeeError");
             objFeeError.IsVisible = false;
+            var objPasswordError = CurrentPage.FindByName<Label>("PasswordError");
+            objPasswordError.IsVisible = false;
         }
 
         private bool IsFormValid()
         {
             var isValid = true;
+
+            if (string.IsNullOrEmpty(Password))
+            {
+                var objPasswordError = CurrentPage.FindByName<Label>("PasswordError");
+                objPasswordError.Text = string.Format(SharedResource.Error_FieldRequired, "Pay To");
+                objPasswordError.IsVisible = true;
+                isValid = false;
+            }
 
             if (string.IsNullOrEmpty(TargetAddress))
             {
@@ -252,6 +331,15 @@ namespace ElectrumMobileXRC.PageModels
 
                 try
                 {
+                    if (BitcoinPubKeyAddress.IsValid(TargetAddress, ref network))
+                    {
+                        throw new Exception();
+                    }
+                    else if (BitcoinScriptAddress.IsValid(TargetAddress, ref network))
+                    {
+                        throw new Exception();
+                    }
+
                     BitcoinAddress.Create(TargetAddress, network);
                 }
                 catch (Exception)
@@ -269,10 +357,59 @@ namespace ElectrumMobileXRC.PageModels
                 objAmount.Text = string.Format(SharedResource.Error_FieldRequired, "Amount");
                 objAmount.IsVisible = true;
                 isValid = false;
+            } 
+            else
+            {
+                var isTooManyDecimals = false;
+                var unitType = GetUnitFromIndex(UnitTypeIndex);
+
+                switch (unitType)
+                {
+                    case MoneyUnit.MilliXRC:
+                        if (decimal.Round(Amount, 5) != Amount) isTooManyDecimals = true;
+                        break;
+
+                    case MoneyUnit.Bit:
+                        if (decimal.Round(Amount, 2) != Amount) isTooManyDecimals = true;
+                        break;
+
+                    case MoneyUnit.Satoshi:
+                        if (decimal.Round(Amount, 0) != Amount) isTooManyDecimals = true;
+                        break;
+
+                    default:
+                        if (decimal.Round(Amount, 8) != Amount) isTooManyDecimals = true;
+                        break;
+                }
+
+                if (isTooManyDecimals)
+                {
+                    var objAmount = CurrentPage.FindByName<Label>("AmountError");
+                    objAmount.Text = string.Format(SharedResource.Error_TooMuchDecimals, "Amount");
+                    objAmount.IsVisible = true;
+                    isValid = false;
+                }
             }
 
             return isValid;
         }
 
+        private MoneyUnit GetUnitFromIndex(int unitTypeIndex)
+        {
+            switch (UnitTypeIndex)
+            {
+                case 1:
+                    return MoneyUnit.MilliXRC;
+  
+                case 2:
+                    return MoneyUnit.Bit;
+
+                case 3:
+                    return MoneyUnit.Satoshi;
+
+                default:
+                    return MoneyUnit.XRC;
+            }
+        }
     }
 }

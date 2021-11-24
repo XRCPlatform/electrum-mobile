@@ -97,7 +97,6 @@
     <None Include="Info.plist" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Renderers\GradientContentPageRenderer.cs" />
-    <Compile Include="Renderers\NumericDecimalRenderer.cs" />
     <Compile Include="Renderers\RoundedContentViewRenderer.cs" />
   </ItemGroup>
   <ItemGroup>

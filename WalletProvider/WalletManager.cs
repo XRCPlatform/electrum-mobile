@@ -787,7 +787,7 @@ namespace WalletProvider
             return WalletMetadata.Wallet;
         }
 
-        public Transaction GetFakeTransactionForEstimation(FeeType feeType, Money amount, string targetAddress, int networkLastSyncedBlock)
+        public Transaction GetFakeTransactionForEstimation(Money amount, string targetAddress, int networkLastSyncedBlock)
         {
             var network = GetNetwork(WalletMetadata.IsMainNetwork);
             var feePolicy = new WalletFeePolicy(network);
@@ -815,6 +815,41 @@ namespace WalletProvider
             {
                 MinConfirmations = maturity
             };
+
+            return transaction.BuildTransaction(context);
+        }
+
+        public Transaction CreateTransaction(FeeType feeType, Money amount, string targetAddress, int networkLastSyncedBlock, string password)
+        {
+            var network = GetNetwork(WalletMetadata.IsMainNetwork);
+            var feePolicy = new WalletFeePolicy(network);
+            var transaction = new WalletTransactionHandler(this, feePolicy, network);
+
+            _networkLastSyncedBlock = networkLastSyncedBlock;
+
+                var walletReference = new WalletAccountReference()
+                {
+                    AccountName = DEFAULTACCOUNT,
+                    WalletName = WalletMetadata.Wallet.Name
+                };
+
+                var maturity = (int)network.Consensus.Option<PowConsensusOptions>().CoinbaseMaturity;
+
+                var context = new TransactionBuildContext(
+                    walletReference,
+                    new[]
+                    {
+                         new Recipient {
+                             Amount = amount,
+                             ScriptPubKey = BitcoinAddress.Create(targetAddress, network).ScriptPubKey
+                         }
+                    }.ToList(), password)
+                {
+                    MinConfirmations = maturity,
+                    FeeType = feeType,
+                    Sign = true
+                };
+
 
             return transaction.BuildTransaction(context);
         }

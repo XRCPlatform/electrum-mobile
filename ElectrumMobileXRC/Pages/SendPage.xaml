@@ -28,7 +28,6 @@
                                 <Label x:Name="TargetAddressError" IsVisible="false" TextColor="#ff4242" />
                                 <Entry Text="{Binding TargetAddress}" IsTextPredictionEnabled="false" Keyboard="Plain" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="TargetAddressEntry" TextColor="{StaticResource dark_blue}" />
 
-    
                                 <Label x:Name="AmountLabel" Text="Amount" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,20,0,0" />
                                 <Label x:Name="AmountError" IsVisible="False" TextColor="#ff4242" />
                                 <StackLayout Orientation="Horizontal" >
@@ -39,6 +38,10 @@
                                     </Entry>
                                     <Picker x:Name="PickerAmountUnitType" HorizontalOptions="End" ItemsSource="{Binding UnitTypes}" SelectedIndex="{Binding UnitTypeIndex}" FontSize="16" TextColor="{StaticResource dark_blue}"></Picker>
                                 </StackLayout>
+
+                                <Label x:Name="PasswordLabel" Text="Password" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,0,0,0" />
+                                <Label x:Name="PasswordError" IsVisible="false" TextColor="#ff4242" />
+                                <Entry Text="{Binding Password}" IsTextPredictionEnabled="false" Keyboard="Plain" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="PasswordEntry" TextColor="{StaticResource dark_blue}" />
 
                                 <Label x:Name="FeeLabel" Text="Fee" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,20,0,0" />
                                 <Label x:Name="FeeError" IsVisible="False" TextColor="#ff4242" />

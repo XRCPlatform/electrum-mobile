@@ -150,4 +150,22 @@
   <data name="Error_AddressIsntValid" xml:space="preserve">
     <value>Address is not valid.</value>
   </data>
+  <data name="Error_TooMuchDecimals" xml:space="preserve">
+    <value>Amount contains too many decimals. Maximum is 8.</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Send_DialogConfirmation" xml:space="preserve">
+    <value>Are you sure to send this transaction?</value>
+  </data>
+  <data name="Send_DialogConfirmationTitle" xml:space="preserve">
+    <value>Confirmation</value>
+  </data>
+  <data name="Send_EstimateFee" xml:space="preserve">
+    <value>Estimated fee {0} XRC. In {1} blocks.</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
 </root>

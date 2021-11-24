@@ -88,6 +88,15 @@ namespace ElectrumMobileXRC.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Amount contains too many decimals. Maximum is 8..
+        /// </summary>
+        public static string Error_TooMuchDecimals {
+            get {
+                return ResourceManager.GetString("Error_TooMuchDecimals", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Your login data are wrong. Please to try it again..
         /// </summary>
         public static string Error_WrongLogin {
@@ -156,6 +165,51 @@ namespace ElectrumMobileXRC.Resources {
         public static string NetworkType_Test {
             get {
                 return ResourceManager.GetString("NetworkType_Test", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No.
+        /// </summary>
+        public static string No {
+            get {
+                return ResourceManager.GetString("No", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Are you sure to send this transaction?.
+        /// </summary>
+        public static string Send_DialogConfirmation {
+            get {
+                return ResourceManager.GetString("Send_DialogConfirmation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirmation.
+        /// </summary>
+        public static string Send_DialogConfirmationTitle {
+            get {
+                return ResourceManager.GetString("Send_DialogConfirmationTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Estimated fee {0} XRC. In {1} blocks..
+        /// </summary>
+        public static string Send_EstimateFee {
+            get {
+                return ResourceManager.GetString("Send_EstimateFee", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Yes.
+        /// </summary>
+        public static string Yes {
+            get {
+                return ResourceManager.GetString("Yes", resourceCulture);
             }
         }
     }
