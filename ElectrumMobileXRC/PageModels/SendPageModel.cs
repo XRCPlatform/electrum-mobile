@@ -5,6 +5,7 @@ using FreshMvvm;
 using NBitcoin;
 using NetworkProvider;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -50,6 +51,12 @@ namespace ElectrumMobileXRC.PageModels
         public string Password { get; set; }
 
         [Required]
+        public string TransactionHex { get; set; }
+
+        [Required]
+        public string TransactionId { get; set; }
+
+        [Required]
         public decimal Amount { get; set; }
 
         [Required]
@@ -86,11 +93,13 @@ namespace ElectrumMobileXRC.PageModels
         private DbWalletHelper _walletDbHelper;
         private NetworkManager _networkManager;
         private WalletManager _walletManager;
+        private ConcurrentDictionary<FeeType, Money> _feeEstimationCalculationCache;
 
         public SendPageModel()
         {
             _configDb = new ConfigDbService();
             _walletDbHelper = new DbWalletHelper(_configDb);
+            _feeEstimationCalculationCache = new ConcurrentDictionary<FeeType, Money>();
 
             BackButtonCommand = new Command(async () =>
             {
@@ -126,25 +135,35 @@ namespace ElectrumMobileXRC.PageModels
 
                     if (answer)
                     {
+                        var objActivityLayout = CurrentPage.FindByName<StackLayout>("ActivityLayout");
+                        var objResultLayout = CurrentPage.FindByName<StackLayout>("ResultLayout");
+                        var objSendLayout = CurrentPage.FindByName<StackLayout>("SendLayout");
+                        var objSendButton = CurrentPage.FindByName<Button>("SendButton");
+                        objActivityLayout.IsVisible = true;
+                        objSendLayout.IsVisible = false;
+                        objSendButton.IsEnabled = false;
+
                         var feeType = ConvertToFeeType(FeeSliderValue);
                         var unitType = GetUnitFromIndex(UnitTypeIndex);
                         var amount = new Money(Amount, unitType);
 
                         try
                         {
-                            var transaction = _walletManager.CreateTransaction(feeType, amount,
+                            var transaction = await _walletManager.CreateTransaction(feeType, amount,
                                 TargetAddress, _networkDbHelper.NetworkLastSyncedBlock, Password);
 
+                            TransactionHex = transaction.ToHex();
+                            TransactionId = transaction.GetHash().ToString();
                             //apply selected inputs
-                            //show new tx
                             //bradcast tx by electrum
-                            //button continue to main dialog
-
                         }
                         catch (Exception e)
                         {
                             await CoreMethods.DisplayAlert(e.Message, "", "Ok");
                         }
+
+                        objActivityLayout.IsVisible = false;
+                        objResultLayout.IsVisible = true;
                     }
                 }
             });
@@ -214,31 +233,36 @@ namespace ElectrumMobileXRC.PageModels
         private async void UpdateFeeEstimation()
         {
             var feeType = ConvertToFeeType(FeeSliderValue);
-
-            var minRelayFee = await _networkManager.GetRelayFee();
             var transactionMoneyFee = new Money(0);
 
-            try
+            if (!_feeEstimationCalculationCache.TryGetValue(feeType, out transactionMoneyFee))
             {
-                var transaction = _walletManager.GetFakeTransactionForEstimation(new Money(1),
-                    "TQXdPYbtmyvyeXnEsZXygBN75jyTDb8z1m", _networkDbHelper.NetworkLastSyncedBlock);
-
-                var transactionSize = transaction.GetVirtualSize();
-                var estimateForBlockHeight = (uint)_networkDbHelper.NetworkLastSyncedBlock + FeeToBlocks(feeType);
-                var minFeePerKb = await _networkManager.GetEstimateFee((uint)_networkDbHelper.NetworkLastSyncedBlock);
-
-                var transactionFee = transactionSize * minFeePerKb;
-                if (transactionFee < minRelayFee)
+                try
                 {
-                    transactionFee = minRelayFee;
-                }
+                    var minRelayFee = await _networkManager.GetRelayFee();
 
-                transactionMoneyFee = new Money(transactionFee, MoneyUnit.XRC);
-            }
-            catch (Exception e)
-            {
-                await CoreMethods.DisplayAlert(e.Message, "", "Ok");
-            }
+                    var transaction = await _walletManager.GetFakeTransactionForEstimation(new Money(1),
+                        _walletManager.GetFirstAddresses().Address, _networkDbHelper.NetworkLastSyncedBlock);
+
+                    var transactionSize = transaction.GetVirtualSize();
+                    var estimateForBlockHeight = (uint)_networkDbHelper.NetworkLastSyncedBlock + FeeToBlocks(feeType);
+                    var minFeePerKb = await _networkManager.GetEstimateFee((uint)_networkDbHelper.NetworkLastSyncedBlock);
+
+                    var transactionFee = transactionSize * minFeePerKb;
+                    if (transactionFee < minRelayFee)
+                    {
+                        transactionFee = minRelayFee;
+                    }
+
+                    transactionMoneyFee = new Money(transactionFee, MoneyUnit.XRC);
+
+                    _feeEstimationCalculationCache.TryAdd(feeType, transactionMoneyFee);
+                }
+                catch (Exception e)
+                {
+                    await CoreMethods.DisplayAlert(e.Message, "", "Ok");
+                }
+            } 
 
             var objFee = CurrentPage.FindByName<Label>("Fee");
             objFee.Text = string.Format(SharedResource.Send_EstimateFee, transactionMoneyFee.ToUnit(MoneyUnit.XRC), FeeToBlocks(feeType));
@@ -313,7 +337,7 @@ namespace ElectrumMobileXRC.PageModels
             if (string.IsNullOrEmpty(Password))
             {
                 var objPasswordError = CurrentPage.FindByName<Label>("PasswordError");
-                objPasswordError.Text = string.Format(SharedResource.Error_FieldRequired, "Pay To");
+                objPasswordError.Text = string.Format(SharedResource.Error_FieldRequired, "Password");
                 objPasswordError.IsVisible = true;
                 isValid = false;
             }
@@ -331,15 +355,6 @@ namespace ElectrumMobileXRC.PageModels
 
                 try
                 {
-                    if (BitcoinPubKeyAddress.IsValid(TargetAddress, ref network))
-                    {
-                        throw new Exception();
-                    }
-                    else if (BitcoinScriptAddress.IsValid(TargetAddress, ref network))
-                    {
-                        throw new Exception();
-                    }
-
                     BitcoinAddress.Create(TargetAddress, network);
                 }
                 catch (Exception)

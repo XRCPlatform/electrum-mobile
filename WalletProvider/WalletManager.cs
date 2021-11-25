@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using WalletProvider.Utils;
 using WalletProvider.Interfaces;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 namespace WalletProvider
 {
@@ -656,6 +657,25 @@ namespace WalletProvider
             return addresses;
         }
 
+        public HdAddress GetFirstAddresses()
+        {
+            HdAddress address = null;
+
+            if (WalletMetadata != null)
+            {
+                var coinType = WalletMetadata.Wallet.Network.Consensus.CoinType;
+                var account = WalletMetadata.Wallet.GetAccountByCoinType(DEFAULTACCOUNT, (CoinType)coinType);
+
+                if (account.ExternalAddresses != null)
+                {
+                    address = account.ExternalAddresses.First();
+                }
+            }
+
+            return address;
+        }
+
+
         public WalletBalance GetWalletBalance(int lastBlockHeight, Network network)
         {
             var coinType = WalletMetadata.Wallet.Network.Consensus.CoinType;
@@ -787,45 +807,52 @@ namespace WalletProvider
             return WalletMetadata.Wallet;
         }
 
-        public Transaction GetFakeTransactionForEstimation(Money amount, string targetAddress, int networkLastSyncedBlock)
+        public async Task<Transaction> GetFakeTransactionForEstimation(Money amount, string targetAddress, int networkLastSyncedBlock)
         {
             var network = GetNetwork(WalletMetadata.IsMainNetwork);
             var feePolicy = new WalletFeePolicy(network);
-            var transaction = new WalletTransactionHandler(this, feePolicy, network);
+            var transactionHandler = new WalletTransactionHandler(this, feePolicy, network);
 
-            _networkLastSyncedBlock = networkLastSyncedBlock;
-
-            var walletReference = new WalletAccountReference()
+            var transaction = await Task.Run(() =>
             {
-                AccountName = DEFAULTACCOUNT,
-                WalletName = WalletMetadata.Wallet.Name
-            };
+                _networkLastSyncedBlock = networkLastSyncedBlock;
 
-            var maturity = (int)network.Consensus.Option<PowConsensusOptions>().CoinbaseMaturity;
-
-            var context = new TransactionBuildContext(
-                walletReference,
-                new[]
+                var walletReference = new WalletAccountReference()
                 {
+                    AccountName = DEFAULTACCOUNT,
+                    WalletName = WalletMetadata.Wallet.Name
+                };
+
+                var maturity = (int)network.Consensus.Option<PowConsensusOptions>().CoinbaseMaturity;
+
+                var context = new TransactionBuildContext(
+                    walletReference,
+                    new[]
+                    {
                          new Recipient {
                              Amount = amount,
                              ScriptPubKey = BitcoinAddress.Create(targetAddress, network).ScriptPubKey
                          }
-                }.ToList())
-            {
-                MinConfirmations = maturity
-            };
+                    }.ToList())
+                {
+                    MinConfirmations = maturity
+                };
 
-            return transaction.BuildTransaction(context);
+                return transactionHandler.BuildTransaction(context);
+            });
+
+            return transaction;
         }
 
-        public Transaction CreateTransaction(FeeType feeType, Money amount, string targetAddress, int networkLastSyncedBlock, string password)
+        public async Task<Transaction> CreateTransaction(FeeType feeType, Money amount, string targetAddress, int networkLastSyncedBlock, string password)
         {
             var network = GetNetwork(WalletMetadata.IsMainNetwork);
             var feePolicy = new WalletFeePolicy(network);
-            var transaction = new WalletTransactionHandler(this, feePolicy, network);
+            var transactionHandler = new WalletTransactionHandler(this, feePolicy, network);
 
-            _networkLastSyncedBlock = networkLastSyncedBlock;
+            var transaction = await Task.Run(() =>
+            {
+                _networkLastSyncedBlock = networkLastSyncedBlock;
 
                 var walletReference = new WalletAccountReference()
                 {
@@ -850,8 +877,10 @@ namespace WalletProvider
                     Sign = true
                 };
 
+                return transactionHandler.BuildTransaction(context);
+            });
 
-            return transaction.BuildTransaction(context);
+            return transaction;
         }
     }
 }
