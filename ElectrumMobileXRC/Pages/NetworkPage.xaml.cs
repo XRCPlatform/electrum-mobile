@@ -4,7 +4,6 @@ namespace ElectrumMobileXRC.Pages
 {
     public partial class NetworkPage : GradientContentPage
     {
-
         private bool _initialized = false;
 
         public NetworkPage()

@@ -9,12 +9,13 @@ using NBitcoin;
 using System.Threading.Tasks;
 using System.Linq;
 using WalletProvider.Entities;
+using System;
 
 namespace ElectrumMobileXRC.PageModels
 {
     public class MainPageModel : BasePageModel
     {
-        public string LastDateUpdate { get; set; }
+        public string LastDateUpdateFormatted { get; set; }
         public string LastBlockUpdate { get; set; }
         public decimal BalanceUnconfirmed { get; set; }
         public decimal Balance { get; set; }
@@ -72,7 +73,7 @@ namespace ElectrumMobileXRC.PageModels
 
             MenuButtonCommand = new Command(async () =>
             {
-                var actionSheet = await CoreMethods.DisplayActionSheet("Electrum Mobile XRC", "Hide", null, "Addresses", "Network");
+                var actionSheet = await CoreMethods.DisplayActionSheet("Electrum Mobile XRC", "Hide", null, "Addresses", "Network", "Force synchronization");
 
                 switch (actionSheet)
                 {
@@ -83,6 +84,20 @@ namespace ElectrumMobileXRC.PageModels
 
                     case "Network":
                         await CoreMethods.PushPageModel<NetworkPageModel>();
+
+                        break;
+
+                    case "Force synchronization":
+                        
+                        if (_networkDbHelper.NetworkDateLastUpdate < DateTime.UtcNow.AddSeconds(-5))
+                        {
+                            var network = _walletManager.GetNetwork(_walletManager.WalletMetadata.IsMainNetwork);
+                            await SyncWalletWithNetwork(network);
+                        } 
+                        else
+                        {
+                            await CoreMethods.DisplayAlert("You are too fast. Try it again in several seconds.", "", "Ok");
+                        }
 
                         break;
                 }
@@ -119,14 +134,17 @@ namespace ElectrumMobileXRC.PageModels
 
                     UpdateWalletUI(network);
 
-                    await SyncWalletWithNetwork(network);
+                    if (_networkDbHelper.NetworkDateLastUpdate < DateTime.UtcNow.AddSeconds(-60))
+                    {
+                        await SyncWalletWithNetwork(network);
+                    }
                 }
             }
         }
 
         private async Task SyncWalletWithNetwork(Network network)
         {
-            LastDateUpdate = Resources.SharedResource.Main_Syncing;
+            LastDateUpdateFormatted = Resources.SharedResource.Main_Syncing;
 
             var blockchainTransactionData = await _networkManager.StartSyncingAsync(
                 _walletManager.GetCombinedAddresses(),
@@ -145,7 +163,7 @@ namespace ElectrumMobileXRC.PageModels
 
         private void UpdateWalletUI(Network network)
         {
-            LastDateUpdate = _networkDbHelper.NetworkDateLastUpdate;
+            LastDateUpdateFormatted = _networkDbHelper.NetworkDateLastUpdateFormatted;
             LastBlockUpdate = "N/A";
 
             if (_networkDbHelper.NetworkLastSyncedBlock > -1) LastBlockUpdate = _networkDbHelper.NetworkLastSyncedBlock.ToString();
@@ -165,6 +183,11 @@ namespace ElectrumMobileXRC.PageModels
 
                 foreach (var itemTransaction in walletTransactions)
                 {
+                    if (itemTransaction.Transaction.Id.ToString() == "037c392aab3ed28340d896234e449e587dc33b906b2b7be8f1290f5f5b02754d")
+                    {
+                        var s = true;
+                    }
+
                     var historyItem = new TransactionHistoryItemModel();
 
                     if (itemTransaction.Address.IsChangeAddress())

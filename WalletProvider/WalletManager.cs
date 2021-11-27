@@ -850,6 +850,16 @@ namespace WalletProvider
             var feePolicy = new WalletFeePolicy(network);
             var transactionHandler = new WalletTransactionHandler(this, feePolicy, network);
 
+            var isValid = false;
+            if (BitcoinPubKeyAddress.IsValid(targetAddress, ref network))
+            {
+                isValid = true;
+            }
+            else if (BitcoinScriptAddress.IsValid(targetAddress, ref network))
+            {
+                isValid = true;
+            }
+
             var transaction = await Task.Run(() =>
             {
                 _networkLastSyncedBlock = networkLastSyncedBlock;

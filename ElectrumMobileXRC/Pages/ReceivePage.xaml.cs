@@ -7,7 +7,6 @@ namespace ElectrumMobileXRC.Pages
 {
     public partial class ReceivePage : GradientContentPage
     {
-
         private bool _initialized = false;
 
         public ReceivePage()

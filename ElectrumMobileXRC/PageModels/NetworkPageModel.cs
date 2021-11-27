@@ -15,7 +15,7 @@ namespace ElectrumMobileXRC.PageModels
         public ICommand BackButtonCommand { get; set; }
         public ICommand MenuButtonCommand { get; set; }
         public ICommand SaveButtonCommand { get; set; }
-        public string NetworkLastUpdate { get; set; }
+        public string NetworkLastUpdateFormatted { get; set; }
         public string NetworkType { get; set; }
         public int NetworkLastSyncedBlock { get; set; }
         public string NetworkDefaultServer { get; set; }
@@ -109,7 +109,7 @@ namespace ElectrumMobileXRC.PageModels
                     _networkDbHelper = new DbNetworkHelper(_configDb, walletManager.WalletMetadata.IsMainNetwork);
                     await _networkDbHelper.LoadFromDbAsync();
 
-                    NetworkLastUpdate = _networkDbHelper.NetworkDateLastUpdate;
+                    NetworkLastUpdateFormatted = _networkDbHelper.NetworkDateLastUpdateFormatted;
                     NetworkLastSyncedBlock = _networkDbHelper.NetworkLastSyncedBlock;
                     NetworkDefaultServer = _networkDbHelper.NetworkDefaultServer;
                     NetworkDefaultPort = _networkDbHelper.NetworkDefaultPort;

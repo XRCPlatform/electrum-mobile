@@ -10,7 +10,8 @@ namespace ElectrumMobileXRC.Services
 {
     public class DbNetworkHelper
     {
-        public string NetworkDateLastUpdate { get; set; }
+        public string NetworkDateLastUpdateFormatted { get; set; }
+        public DateTime NetworkDateLastUpdate { get; set; }
         public int NetworkLastSyncedBlock { get; set; }
         public string NetworkDefaultServer { get; set; }
         public int NetworkDefaultPort { get; set; }
@@ -36,7 +37,7 @@ namespace ElectrumMobileXRC.Services
             _configDb = configDb;
             _isMainNetwork = isMainNetwork;
 
-            NetworkDateLastUpdate = "N/A";
+            NetworkDateLastUpdateFormatted = "N/A";
             NetworkLastSyncedBlock = -1;
             NetworkDefaultPort = 51002;
 
@@ -65,8 +66,8 @@ namespace ElectrumMobileXRC.Services
             var networkLastUpdateUtc = await _configDb.Get(DbConfig.CFG_NETWORKLASTUPDATEUTC);
             if ((networkLastUpdateUtc != null) && (!string.IsNullOrEmpty(networkLastUpdateUtc.Value)))
             {
-                var lastUpdate = DateTime.Parse(networkLastUpdateUtc.Value).ToLocalTime();
-                NetworkDateLastUpdate = string.Format("{0} {1}", lastUpdate.ToShortDateString(), lastUpdate.ToShortTimeString());
+                NetworkDateLastUpdate = DateTime.Parse(networkLastUpdateUtc.Value).ToLocalTime();
+                NetworkDateLastUpdateFormatted = string.Format("{0} {1}", NetworkDateLastUpdate.ToShortDateString(), NetworkDateLastUpdate.ToShortTimeString());
             }
 
             var networkLastSyncedBlock = await _configDb.Get(DbConfig.CFG_NETWORKLASTSYNCEDBLOCK);
@@ -100,7 +101,8 @@ namespace ElectrumMobileXRC.Services
             await _configDb.Add(DbConfig.CFG_NETWORKLASTSYNCEDBLOCK, lastBlockHeight.ToString());
 
             var nowUtc = DateTime.UtcNow;
-            NetworkDateLastUpdate = string.Format("{0} {1}", nowUtc.ToShortDateString(), nowUtc.ToShortTimeString());
+            NetworkDateLastUpdateFormatted = string.Format("{0} {1}", nowUtc.ToShortDateString(), nowUtc.ToShortTimeString());
+            NetworkDateLastUpdate = nowUtc;
             await _configDb.Add(DbConfig.CFG_NETWORKLASTUPDATEUTC, nowUtc.ToString());
         }
     }
