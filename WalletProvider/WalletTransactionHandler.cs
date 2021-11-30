@@ -245,7 +245,6 @@ namespace WalletProvider
             }
 
             var seedExtKey = new ExtKey(privateKey, wallet.ChainCode);
-
             var signingKeys = new HashSet<ISecret>();
             var added = new HashSet<HdAddress>();
             foreach (var unspentOutputsItem in context.UnspentOutputs)
@@ -254,8 +253,16 @@ namespace WalletProvider
                     continue;
 
                 var address = unspentOutputsItem.Address;
+                
+                //Electrum derivation
+                var change = address.IsChangeAddress() ? 1 : 0;
+                ExtKey addressElectrumExtKey = seedExtKey.Derive(new KeyPath($"{change}/{address.Index}"));
+                BitcoinExtKey addressElectrumPrivateKey = addressElectrumExtKey.GetWif(wallet.Network); 
+                signingKeys.Add(addressElectrumPrivateKey);
+
                 ExtKey addressExtKey = seedExtKey.Derive(new KeyPath(address.HdPath));
                 BitcoinExtKey addressPrivateKey = addressExtKey.GetWif(wallet.Network);
+
                 signingKeys.Add(addressPrivateKey);
                 added.Add(unspentOutputsItem.Address);
             }
