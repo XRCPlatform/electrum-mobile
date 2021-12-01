@@ -148,6 +148,17 @@ namespace NetworkProvider
             return relayFeeEstimation;
         }
 
+        public async Task<string> TransactionBroadcast(string hex)
+        {
+            var broadcast = await _electrumClient.BlockchainTransactionBroadcast(hex);
+            if ((broadcast != null) && (broadcast.Result != null))
+            {
+                return broadcast.Result;
+            }
+
+            return null;
+        }
+
         public void Dispose()
         {
             _electrumClient.Dispose();

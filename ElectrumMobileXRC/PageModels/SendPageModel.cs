@@ -6,6 +6,7 @@ using NBitcoin;
 using NetworkProvider;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -149,13 +150,24 @@ namespace ElectrumMobileXRC.PageModels
 
                         try
                         {
+                            var outPoints = _walletManager.GetOutPoins(Addresses.Where(a => a.IsSelected)
+                                                          .Select(a => a.Address).ToList(), _networkDbHelper.NetworkLastSyncedBlock);
+
                             var transaction = await _walletManager.CreateTransaction(feeType, amount,
-                                TargetAddress, _networkDbHelper.NetworkLastSyncedBlock, Password);
+                                TargetAddress, _networkDbHelper.NetworkLastSyncedBlock, Password, outPoints);
 
                             TransactionHex = transaction.ToHex();
                             TransactionId = transaction.GetHash().ToString();
-                            //apply selected inputs
-                            //bradcast tx by electrum
+
+                            var result = await _networkManager.TransactionBroadcast(TransactionHex);
+                            if (result == TransactionId)
+                            {
+                                await CoreMethods.DisplayAlert(SharedResource.Send_DialogDone, "", "Ok");
+                            }
+                            else
+                            {
+                                throw new Exception(result);
+                            }
                         }
                         catch (Exception e)
                         {
@@ -218,6 +230,7 @@ namespace ElectrumMobileXRC.PageModels
                                 addItem.Address = address.Address;
                                 addItem.TxCount = address.Transactions.Count;
                                 addItem.IsSelected = true;
+
                                 Addresses.Add(addItem);
                             }
                         }
@@ -411,7 +424,7 @@ namespace ElectrumMobileXRC.PageModels
 
         private MoneyUnit GetUnitFromIndex(int unitTypeIndex)
         {
-            switch (UnitTypeIndex)
+            switch (unitTypeIndex)
             {
                 case 1:
                     return MoneyUnit.MilliXRC;

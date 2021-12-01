@@ -823,8 +823,6 @@ namespace WalletProvider
                     WalletName = WalletMetadata.Wallet.Name
                 };
 
-                var maturity = (int)network.Consensus.Option<PowConsensusOptions>().CoinbaseMaturity;
-
                 var context = new TransactionBuildContext(
                     walletReference,
                     new[]
@@ -835,7 +833,7 @@ namespace WalletProvider
                          }
                     }.ToList())
                 {
-                    MinConfirmations = maturity
+                    MinConfirmations = 1
                 };
 
                 return transactionHandler.BuildTransaction(context);
@@ -844,7 +842,35 @@ namespace WalletProvider
             return transaction;
         }
 
-        public async Task<Transaction> CreateTransaction(FeeType feeType, Money amount, string targetAddress, int networkLastSyncedBlock, string password)
+        public List<OutPoint> GetOutPoins(List<string> addressItemModels, int networkLastSyncedBlock)
+        {
+            var outputs = new List<OutPoint>();
+
+            var walletReference = new WalletAccountReference()
+            {
+                AccountName = DEFAULTACCOUNT,
+                WalletName = WalletMetadata.Wallet.Name
+            };
+
+            _networkLastSyncedBlock = networkLastSyncedBlock;
+
+            var unspentOutputs = GetSpendableTransactionsInAccount(walletReference, 1);
+            foreach (var itemAddress in addressItemModels)
+            {
+                foreach (var itemUnspent in unspentOutputs)
+                {
+                    if (itemUnspent.Address.Address == itemAddress)
+                    {
+                        outputs.Add(itemUnspent.ToOutPoint());
+                    }
+                }
+            }
+
+            return outputs;
+        }
+
+        public async Task<Transaction> CreateTransaction(FeeType feeType, Money amount, string targetAddress, int networkLastSyncedBlock, 
+            string password, List<OutPoint> outPoints = null)
         {
             var network = GetNetwork(WalletMetadata.IsMainNetwork);
             var feePolicy = new WalletFeePolicy(network);
@@ -860,6 +886,8 @@ namespace WalletProvider
                 isValid = true;
             }
 
+            if (outPoints == null) outPoints = new List<OutPoint>();
+
             var transaction = await Task.Run(() =>
             {
                 _networkLastSyncedBlock = networkLastSyncedBlock;
@@ -869,8 +897,6 @@ namespace WalletProvider
                     AccountName = DEFAULTACCOUNT,
                     WalletName = WalletMetadata.Wallet.Name
                 };
-
-                var maturity = (int)network.Consensus.Option<PowConsensusOptions>().CoinbaseMaturity;
 
                 var context = new TransactionBuildContext(
                     walletReference,
@@ -882,9 +908,10 @@ namespace WalletProvider
                          }
                     }.ToList(), password)
                 {
-                    MinConfirmations = maturity,
+                    MinConfirmations = 1,
                     FeeType = feeType,
-                    Sign = true
+                    Sign = true,
+                    SelectedInputs = outPoints
                 };
 
                 return transactionHandler.BuildTransaction(context);

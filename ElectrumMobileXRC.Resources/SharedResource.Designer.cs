@@ -196,6 +196,15 @@ namespace ElectrumMobileXRC.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Transaction has been broadcasted to network..
+        /// </summary>
+        public static string Send_DialogDone {
+            get {
+                return ResourceManager.GetString("Send_DialogDone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Estimated fee {0} XRC. In {1} blocks..
         /// </summary>
         public static string Send_EstimateFee {

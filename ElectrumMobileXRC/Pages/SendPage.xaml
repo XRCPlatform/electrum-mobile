@@ -26,10 +26,10 @@
                             <controls:RoundedContentView x:Name="Transaction" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
                                 <StackLayout Padding="22" Spacing="2">
                                     <Label x:Name="TransactionIdLabel" Text="Transaction Id" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,0,0,0" />
-                                    <Entry IsReadOnly="true" Text="{Binding TransactionId}" IsTextPredictionEnabled="false" Keyboard="Plain" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="TransactionIdEntry" TextColor="{StaticResource dark_blue}" />
+                                    <Entry FontSize="14" IsReadOnly="true" Text="{Binding TransactionId}" IsTextPredictionEnabled="false" Keyboard="Plain" ReturnType="Next" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="TransactionIdEntry" TextColor="{StaticResource dark_blue}" />
 
                                     <Label x:Name="TransactionHexLabel" Text="Transaction Hex" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" Margin="0,20,0,0" />
-                                    <Editor IsReadOnly="true" Keyboard="Plain" AutoSize="TextChanges" Text="{Binding TransactionHex}" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="TransactionHexEditor" TextColor="{StaticResource dark_blue}" />
+                                    <Editor FontSize="14" IsReadOnly="true" Keyboard="Plain" AutoSize="TextChanges" Text="{Binding TransactionHex}" BackgroundColor="{StaticResource white}" IsSpellCheckEnabled="false" x:Name="TransactionHexEditor" TextColor="{StaticResource dark_blue}" />
                                 </StackLayout>
                             </controls:RoundedContentView>
                         </StackLayout>
