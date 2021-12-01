@@ -1,4 +1,4 @@
-# ElectrumMobile Alpha 0.9
+# ElectrumMobile Beta 1.0
 **!!!USE AT YOUR OWN RISK!!!**
 
 New official C# Xamarin Electrum XRC Mobile Wallet.
@@ -18,10 +18,7 @@ You can support development with XRC - RbJM4GwMTnmSePASx1d43zi7Efs3M6og1S . Than
 - Synchronization with network on main page
 - Network configuration
 - Possibility to use own instance of [ElectrumX XRC server](https://gitlab.com/bitcoinrh/electrumx) for synchronization
-
-## Know issues
-- Send button is not working
-- Probably a lot of another issues
+- Send new transaction
 
 ## How to report issues
 [Issue tracker](https://gitlab.com/bitcoinrh/electrummobile/-/issues)
