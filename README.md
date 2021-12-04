@@ -8,6 +8,7 @@ You can support development with XRC - RbJM4GwMTnmSePASx1d43zi7Efs3M6og1S . Than
 ![Main page screenshot](https://gitlab.com/bitcoinrh/electrummobile/-/blob/master/wallet.jpg)
 
 ## Features
+- Support Android 10+, IOS 14+
 - Create a new Electrum Rhodium XRC wallet - MainNet, TestNet
 - Import Electrum Rhodium Wallet - MainNet, TestNet
 - Import WebWallet - MainNet
