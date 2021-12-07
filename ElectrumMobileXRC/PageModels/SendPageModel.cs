@@ -341,6 +341,8 @@ namespace ElectrumMobileXRC.PageModels
             objFeeError.IsVisible = false;
             var objPasswordError = CurrentPage.FindByName<Label>("PasswordError");
             objPasswordError.IsVisible = false;
+            var objAddressesError = CurrentPage.FindByName<Label>("AddressesError");
+            objAddressesError.IsVisible = false;
         }
 
         private bool IsFormValid()
@@ -352,6 +354,14 @@ namespace ElectrumMobileXRC.PageModels
                 var objPasswordError = CurrentPage.FindByName<Label>("PasswordError");
                 objPasswordError.Text = string.Format(SharedResource.Error_FieldRequired, "Password");
                 objPasswordError.IsVisible = true;
+                isValid = false;
+            }
+
+            if (!Addresses.Any())
+            {
+                var objAddressesError = CurrentPage.FindByName<Label>("AddressesError");
+                objAddressesError.Text = string.Format(SharedResource.Error_FieldRequired, "From");
+                objAddressesError.IsVisible = true;
                 isValid = false;
             }
 

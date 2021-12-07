@@ -73,9 +73,9 @@ namespace ElectrumMobileXRC.PageModels
 
                 if (IsFormValid())
                 {
-                    var walletMetadata = new WalletMetadata();
                     var walletManager = new WalletManager();
 
+                    var isAllInputValid = false;
                     var isMainNetwork = true;
                     if (((WalletImportType)Type).ToString().Contains("Test")) isMainNetwork = false;
 
@@ -86,7 +86,8 @@ namespace ElectrumMobileXRC.PageModels
 
                             if (IsFormElectrumSeedValid())
                             {
-                                walletMetadata = walletManager.ImportElectrumWallet(Password, UserName, Seed, Passphrase, isMainNetwork);
+                                await walletManager.ImportElectrumWallet(Password, UserName, Seed, Passphrase, isMainNetwork);
+                                isAllInputValid = true;
                             }
                             break;
 
@@ -94,7 +95,8 @@ namespace ElectrumMobileXRC.PageModels
 
                             if (IsFormSeedValid() &&
                                 IsFormPassphaseValid()) {
-                                walletMetadata = walletManager.ImportWallet(Password, UserName, Seed, Passphrase, isMainNetwork);
+                                await walletManager.ImportWallet(Password, UserName, Seed, Passphrase, isMainNetwork);
+                                isAllInputValid = true;
                             }
                             break;
 
@@ -103,7 +105,8 @@ namespace ElectrumMobileXRC.PageModels
                             if (IsFormSeedValid() &&
                                 IsFormPassphaseValid())
                             {
-                                walletMetadata = walletManager.ImportWebWalletBase64(Password, UserName, Seed, 1539810400, Passphrase, isMainNetwork);
+                                await walletManager.ImportWebWalletBase64(Password, UserName, Seed, 1539810400, Passphrase, isMainNetwork);
+                                isAllInputValid = true;
                             }
                             break;
 
@@ -112,15 +115,16 @@ namespace ElectrumMobileXRC.PageModels
                             if (IsFormSeedValid() &&
                                 IsFormPassphaseValid())
                             {
-                                walletMetadata = walletManager.CreateElectrumWallet(Password, UserName, Seed, Passphrase, isMainNetwork);
+                                await walletManager.CreateElectrumWallet(Password, UserName, Seed, Passphrase, isMainNetwork);
+                                isAllInputValid = true;
 
-                                await App.Current.MainPage.DisplayPromptAsync("Seed", "Please to save your new seed to some safe location.", initialValue: walletMetadata.Seed);
+                                await App.Current.MainPage.DisplayPromptAsync("Seed", "Please to save your new seed to some safe location.", initialValue: walletManager.WalletMetadata.Seed);
                             }
 
                             break;
                     }
 
-                    if (walletManager.ValidateWalletMetadata())
+                    if ((isAllInputValid) && (walletManager.ValidateWalletMetadata()))
                     {
                         SetValidUser(UserName);
                         

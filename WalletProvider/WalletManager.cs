@@ -61,31 +61,34 @@ namespace WalletProvider
             LoadKeysLookupLock();
         }
 
-        public WalletMetadata CreateElectrumWallet(string password, string name, string mnemonicList, string passphrase = null, bool isMainNetwork = true)
+        public async Task<WalletMetadata> CreateElectrumWallet(string password, string name, string mnemonicList, string passphrase = null, bool isMainNetwork = true)
         {
-            return ImportElectrumWallet(password, name, mnemonicList, passphrase, isMainNetwork);
+            return await ImportElectrumWallet(password, name, mnemonicList, passphrase, isMainNetwork);
         }
 
-        public WalletMetadata ImportElectrumWallet(string password, string name, string mnemonicList, string passphrase = null, bool isMainNetwork = true)
+        public async Task<WalletMetadata> ImportElectrumWallet(string password, string name, string mnemonicList, string passphrase = null, bool isMainNetwork = true)
         {
-            var walletMetadata = new WalletMetadata();
             var network = GetNetwork(isMainNetwork);
 
             // Generate the root seed used to generate keys from a mnemonic picked at random
             // and a passphrase optionally provided by the user.
             MnemonicElectrum mnemonic = new MnemonicElectrum(mnemonicList);
 
-            ExtKey extendedKey = HdOperations.GetHdPrivateKey(mnemonic, passphrase);
+            var extendedKey = await Task.Run(() =>
+            {
+                ExtKey extendedKey = HdOperations.GetHdPrivateKey(mnemonic, passphrase);
 
-            ////TESTONLY private key
-            BitcoinExtKey b58key = network.CreateBitcoinExtKey(extendedKey);
+                ////TESTONLY private key
+                BitcoinExtKey b58key = network.CreateBitcoinExtKey(extendedKey);
 
-            BitcoinExtPubKey b58pubkey = network.CreateBitcoinExtPubKey(extendedKey.Neuter());
+                BitcoinExtPubKey b58pubkey = network.CreateBitcoinExtPubKey(extendedKey.Neuter());
 
-            PubKey pubkey = HdOperations.GeneratePublicKey(extendedKey.Neuter().ToString(network), 0, false);
-            BitcoinPubKeyAddress address = pubkey.GetAddress(network);
+                PubKey pubkey = HdOperations.GeneratePublicKey(extendedKey.Neuter().ToString(network), 0, false);
+                BitcoinPubKeyAddress address = pubkey.GetAddress(network);
 
-            ////END-TESTONLY private key
+                ////END-TESTONLY private key
+                return extendedKey;
+            });
 
             // Create a wallet file.
             string encryptedSeed = extendedKey.PrivateKey.GetEncryptedBitcoinSecret(password, network).ToWif();
@@ -108,13 +111,14 @@ namespace WalletProvider
                 UpdateKeysLookupLock(account.GetCombinedAddresses());
             }
 
-            walletMetadata.Wallet = wallet;
-            walletMetadata.Seed = mnemonic.ToString();
+            WalletMetadata = new WalletMetadata();
+            WalletMetadata.Wallet = wallet;
+            WalletMetadata.Seed = mnemonic.ToString();
 
-            return walletMetadata;
+            return WalletMetadata;
         }
 
-        public WalletMetadata ImportWebWalletBase64(string password, string name, string mnemonicList, long creationTime, string passphrase = null, bool isMainNetwork = true)
+        public async Task<WalletMetadata> ImportWebWalletBase64(string password, string name, string mnemonicList, long creationTime, string passphrase = null, bool isMainNetwork = true)
         {
             // For now the passphrase is set to be the password by default.
             if (passphrase == null)
@@ -127,17 +131,21 @@ namespace WalletProvider
                 if (creationTimeDate > breakDate) passphrase = Convert.ToBase64String(Encoding.UTF8.GetBytes(passphrase));
             }
 
-            return ImportWallet(password, name, mnemonicList, passphrase);
+            return await ImportWallet(password, name, mnemonicList, passphrase);
         }
 
-        public WalletMetadata ImportWallet(string password, string name, string mnemonicList, string passphrase = null, bool isMainNetwork = true)
+        public async Task<WalletMetadata> ImportWallet(string password, string name, string mnemonicList, string passphrase = null, bool isMainNetwork = true)
         {
-            var walletMetadata = new WalletMetadata();
             var network = GetNetwork(isMainNetwork);
 
             Mnemonic mnemonic = new Mnemonic(mnemonicList);
 
-            ExtKey extendedKey = HdOperations.GetHdPrivateKey(mnemonic, passphrase);
+            var extendedKey = await Task.Run(() =>
+            {
+                ExtKey extendedKey = HdOperations.GetHdPrivateKey(mnemonic, passphrase);
+
+                return extendedKey;
+            });
 
             // Create a wallet file.
             string encryptedSeed = extendedKey.PrivateKey.GetEncryptedBitcoinSecret(password, network).ToWif();
@@ -160,10 +168,11 @@ namespace WalletProvider
                 UpdateKeysLookupLock(account.GetCombinedAddresses());
             }
 
-            walletMetadata.Wallet = wallet;
-            walletMetadata.Seed = mnemonic.ToString();
+            WalletMetadata = new WalletMetadata();
+            WalletMetadata.Wallet = wallet;
+            WalletMetadata.Seed = mnemonic.ToString();
 
-            return walletMetadata;
+            return WalletMetadata;
         }
 
         public Network GetNetwork(bool isMainNetwork)
