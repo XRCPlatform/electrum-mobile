@@ -221,11 +221,8 @@
     <BundleResource Include="Resources\Fonts\futura_extrablack.ttf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </BundleResource>
-    <BundleResource Include="Resources\star%403x.png" />
-    <BundleResource Include="Resources\star%402x.png" />
-    <BundleResource Include="Resources\star.png" />
-    <BundleResource Include="Resources\moon%403x.png" />
-    <BundleResource Include="Resources\moon%402x.png" />
-    <BundleResource Include="Resources\moon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BundleResource Include="Resources\copy.png" />
   </ItemGroup>
 </Project>

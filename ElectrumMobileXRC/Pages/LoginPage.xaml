@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<controls:GradientContentPage NavigationPage.HasNavigationBar="false" NavigationPage.BackButtonTitle="" StartColor="{StaticResource dark_purple}" EndColor="{StaticResource dark_blue}" xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:ElectrumMobileXRC" x:Class="ElectrumMobileXRC.Pages.LoginPage" xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core" 
+<controls:GradientContentPage NavigationPage.HasNavigationBar="false" NavigationPage.BackButtonTitle="" StartColor="{StaticResource bg_start}" EndColor="{StaticResource bg_end}" xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:ElectrumMobileXRC" x:Class="ElectrumMobileXRC.Pages.LoginPage" xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core" 
     ios:Page.UseSafeArea="true" xmlns:controls="clr-namespace:ElectrumMobileXRC.Controls" xmlns:ff="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms">
     <Grid x:Name="MainGrid">
         <Grid VerticalOptions="FillAndExpand" Padding="0">
@@ -13,7 +13,7 @@
             <ScrollView Grid.Row="0" VerticalOptions="FillAndExpand">
                 <StackLayout VerticalOptions="FillAndExpand" Padding="24,34,24,24" Spacing="0">
                     <StackLayout VerticalOptions="StartAndExpand">
-                        <Label x:Name="WalletNameLabel" Text="Electrum Mobile" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" />
+                        <Label x:Name="WalletNameLabel" Text="Electrum Mobile BETA" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource white}" />
                         <StackLayout Orientation="Horizontal" Margin="0,8,0,0">
                             <ff:CachedImage x:Name="Logo" Source="logo.png" VerticalOptions="CenterAndExpand" />
                             <Label x:Name="ElectrumMobileXRCLabel" Margin="10,0,0,0" Text="xRhodium" FontSize="41" FontFamily="{StaticResource font_heavy}" TextColor="#ffffff" />
@@ -22,7 +22,7 @@
                             <Label HorizontalOptions="Center" VerticalOptions="Center" Text="Now you are able to load or create a new wallet. Generate your new seed or write your old one." FontSize="16" FontFamily="{StaticResource font_heavy}" TextColor="#ffffff" />
                         </StackLayout>
 
-                        <Label x:Name="SendLabel" Text="Login" IsVisible="true" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
+                        <Label x:Name="SendLabel" Text="Login" IsVisible="true" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource white}" Margin="0,30,0,0" />
                         <controls:RoundedContentView x:Name="UserName" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
                             <StackLayout Padding="22" Spacing="2">
                                 <Label x:Name="LoginError" IsVisible="false" TextColor="#ff4242" Margin="0,0,0,20" />

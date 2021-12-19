@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<controls:GradientContentPage NavigationPage.HasNavigationBar="false" NavigationPage.BackButtonTitle="" StartColor="{StaticResource dark_purple}" EndColor="{StaticResource dark_blue}" xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:ElectrumMobileXRC" x:Class="ElectrumMobileXRC.Pages.MainPage" xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core" 
+<controls:GradientContentPage NavigationPage.HasNavigationBar="false" NavigationPage.BackButtonTitle="" StartColor="{StaticResource bg_start}" EndColor="{StaticResource bg_end}" xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:ElectrumMobileXRC" x:Class="ElectrumMobileXRC.Pages.MainPage" xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core" 
     ios:Page.UseSafeArea="true" xmlns:controls="clr-namespace:ElectrumMobileXRC.Controls" xmlns:ff="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms">
     <Grid x:Name="MainGrid">
         <Grid VerticalOptions="FillAndExpand" Padding="0">
@@ -13,7 +13,7 @@
             <ScrollView Grid.Row="0" VerticalOptions="FillAndExpand">
                 <StackLayout VerticalOptions="FillAndExpand" Padding="24,34,24,24" Spacing="0">
                     <StackLayout VerticalOptions="StartAndExpand">
-                        <Label x:Name="WalletNameLabel" Text="Electrum Mobile" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" />
+                        <Label x:Name="WalletNameLabel" Text="Electrum Mobile BETA" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource white}" />
                         <StackLayout Orientation="Horizontal" Margin="0,8,0,0">
                             <ff:CachedImage x:Name="Logo" Source="logo.png" VerticalOptions="CenterAndExpand" />
                             <Label x:Name="ElectrumMobileXRCLabel" Margin="10,0,0,0" Text="xRhodium" FontSize="41" FontFamily="{StaticResource font_heavy}" TextColor="#ffffff" />
@@ -34,11 +34,11 @@
                                     <Label VerticalOptions="Center" Text="{Binding BalanceUnconfirmed, StringFormat='{0:+0.########;;0.########} XRC'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
                                 </StackLayout>
                                 <BoxView Margin="0,16" HeightRequest="1" BackgroundColor="#DDDDDD" />
-                                <Label HorizontalOptions="Center" VerticalOptions="Center" Text="{Binding Balance, StringFormat='BALANCE: {0:0.########;;0.########} XRC'}" FontSize="16" FontFamily="{StaticResource font_heavy}" TextColor="{StaticResource dark_blue}" />
+                                <Label HorizontalOptions="Center" VerticalOptions="Center" Text="{Binding Balance, StringFormat='BALANCE: {0:0.########;;0.########} XRC'}" FontSize="16" FontFamily="{StaticResource font_heavy}" TextColor="{StaticResource dark_yellow}" />
                             </StackLayout>
                         </controls:RoundedContentView>
 
-                        <Label x:Name="UnconfirmedTransactionsLabel" Text="Unconfirmed Transactions" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
+                        <Label x:Name="UnconfirmedTransactionsLabel" Text="Unconfirmed Transactions" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource white}" Margin="0,30,0,0" />
                         <controls:RoundedContentView x:Name="UnconfirmedTransactions" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
                             <StackLayout Padding="24" Spacing="2">
                                 <StackLayout x:Name="UnconfirmedTransactionsList" BindableLayout.ItemsSource="{Binding UnconfirmedTransactions}">
@@ -55,7 +55,7 @@
                             </StackLayout>
                         </controls:RoundedContentView>
                         
-                        <Label x:Name="HistoryLabel" Text="Transactions History" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,30,0,0" />
+                        <Label x:Name="HistoryLabel" Text="Transactions History" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource white}" Margin="0,30,0,0" />
                         <controls:RoundedContentView x:Name="History" Margin="0,10,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
                             <StackLayout Padding="24" Spacing="2">
                                 <StackLayout  x:Name="HistoryList" BindableLayout.ItemsSource="{Binding ConfirmedTransactions}">

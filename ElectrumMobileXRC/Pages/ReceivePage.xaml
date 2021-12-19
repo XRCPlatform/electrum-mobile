@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<controls:GradientContentPage NavigationPage.HasNavigationBar="false" NavigationPage.BackButtonTitle="" StartColor="{StaticResource dark_purple}" EndColor="{StaticResource dark_blue}" xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:ElectrumMobileXRC" x:Class="ElectrumMobileXRC.Pages.ReceivePage" xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core" 
+<controls:GradientContentPage NavigationPage.HasNavigationBar="false" NavigationPage.BackButtonTitle="" StartColor="{StaticResource bg_start}" EndColor="{StaticResource bg_end}" xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:ElectrumMobileXRC" x:Class="ElectrumMobileXRC.Pages.ReceivePage" xmlns:ios="clr-namespace:Xamarin.Forms.PlatformConfiguration.iOSSpecific;assembly=Xamarin.Forms.Core" 
     ios:Page.UseSafeArea="true" xmlns:controls="clr-namespace:ElectrumMobileXRC.Controls" 
     xmlns:ff="clr-namespace:FFImageLoading.Forms;assembly=FFImageLoading.Forms">
     <Grid x:Name="MainGrid">
@@ -14,21 +14,21 @@
             <ScrollView Grid.Row="0" VerticalOptions="FillAndExpand">
                 <StackLayout VerticalOptions="FillAndExpand" Padding="24,34,24,24" Spacing="0">
                     <StackLayout VerticalOptions="StartAndExpand">
-                        <Label x:Name="WalletNameLabel" Text="Electrum Mobile" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" />
+                        <Label x:Name="WalletNameLabel" Text="Electrum Mobile BETA" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource white}" />
                         <StackLayout Orientation="Horizontal" Margin="0,8,0,0">
                             <ff:CachedImage x:Name="Logo" Source="logo.png" VerticalOptions="CenterAndExpand" />
                             <Label x:Name="ElectrumMobileXRCLabel" Margin="10,0,0,0" Text="xRhodium" FontSize="41" FontFamily="{StaticResource font_heavy}" TextColor="#ffffff" />
                         </StackLayout>
 
-                        <Label x:Name="ReceiveLabel" Text="Receiving Address" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource dark_yellow}" Margin="0,20,20,10" />
+                        <Label x:Name="ReceiveLabel" Text="Receiving Address" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource white}" Margin="0,20,20,10" />
                         <controls:RoundedContentView x:Name="QRCode" Margin="0,5,0,0" BackgroundColor="{StaticResource white}" CornerRadius="8">
                             <StackLayout Padding="10">
                                 <Image Source="{Binding QrCodeImage}" />
                                 <StackLayout HorizontalOptions="Center">
                                     <Label VerticalOptions="Center" Text="{Binding Address}" HorizontalOptions="StartAndExpand" FontSize="14" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
                                 </StackLayout>
-                                <StackLayout HorizontalOptions="Center" >
-                                   <Button x:Name="CopyButton" CommandParameter="{Binding Address}" Command="{Binding CopyButtonCommand}" Text="COPY" />
+                                <StackLayout HorizontalOptions="Center" Padding="0,15" >
+                                    <ImageButton x:Name="CopyButton" CommandParameter="{Binding Address}" Command="{Binding CopyButtonCommand}" Source="copy.png" BackgroundColor="Transparent" WidthRequest="24" HeightRequest="24" />
                                 </StackLayout>
                             </StackLayout>
                         </controls:RoundedContentView>
