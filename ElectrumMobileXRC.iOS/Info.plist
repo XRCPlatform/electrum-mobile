@@ -23,7 +23,7 @@
 	<key>CFBundleDisplayName</key>
 	<string>Electrum XRC</string>
 	<key>CFBundleIdentifier</key>
-	<string>nl.dotcontrol.ElectrumMobileXRC</string>
+	<string>io.xrhodium.ElectrumMobileXRC</string>
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
 	<key>UILaunchStoryboardName</key>
