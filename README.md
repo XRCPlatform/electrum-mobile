@@ -1,4 +1,4 @@
-# ElectrumMobile Beta 1.1
+# ElectrumMobile Beta 1.2
 **!!!USE AT YOUR OWN RISK!!!**
 
 New official C# Xamarin Electrum XRC Mobile Wallet.

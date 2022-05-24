@@ -14,7 +14,7 @@
             <ScrollView Grid.Row="0" VerticalOptions="FillAndExpand">
                 <StackLayout VerticalOptions="FillAndExpand" Padding="24,34,24,24" Spacing="0">
                     <StackLayout VerticalOptions="StartAndExpand">
-                        <Label x:Name="WalletNameLabel" Text="Electrum Mobile BETA" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource white}" />
+                        <Label x:Name="WalletNameLabel" Text="Electrum Mobile 1.2 BETA" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource white}" />
                         <StackLayout Orientation="Horizontal" Margin="0,8,0,0">
                             <ff:CachedImage x:Name="Logo" Source="logo.png" VerticalOptions="CenterAndExpand" />
                             <Label x:Name="ElectrumMobileXRCLabel" Margin="10,0,0,0" Text="xRhodium" FontSize="41" FontFamily="{StaticResource font_heavy}" TextColor="#ffffff" />

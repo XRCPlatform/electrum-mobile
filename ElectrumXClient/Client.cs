@@ -18,7 +18,7 @@ namespace ElectrumXClient
         SslStream _sslStream;
         NetworkStream _tcpStream;
         Stream _stream;
-        readonly int BUFFERSIZE = 32;
+        readonly int BUFFERSIZE = 1024;
 
         public Client(string host, int port, bool useSSL)
         {

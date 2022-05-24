@@ -19,7 +19,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\iPhoneSimulator\Debug</OutputPath>
     <DefineConstants>DEBUG</DefineConstants>
@@ -31,7 +31,7 @@
     <MtouchDebug>true</MtouchDebug>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
-    <DebugType>none</DebugType>
+    <DebugType>portable</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\iPhoneSimulator\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
@@ -39,6 +39,7 @@
     <MtouchLink>None</MtouchLink>
     <MtouchArch>x86_64</MtouchArch>
     <ConsolePause>false</ConsolePause>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhone' ">
     <DebugSymbols>true</DebugSymbols>
@@ -93,7 +94,9 @@
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\Contents.json">
+      <Visible>false</Visible>
+    </ImageAsset>
     <None Include="Entitlements.plist" />
     <None Include="Info.plist" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -227,67 +230,109 @@
     <BundleResource Include="Resources\copy.png" />
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo1024x1024.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo1024x1024.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo1024x10241.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo1024x10241.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo120x120.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo120x120.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo120x1201.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo120x1201.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo120x1202.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo120x1202.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo152x152.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo152x152.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo167.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo167.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo180x180.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo180x180.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo180x1801.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo180x1801.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo20x20.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo20x20.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo29x29.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo29x29.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo40x40.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo40x40.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo40x401.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo40x401.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo40x402.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo40x402.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo58x58.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo58x58.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo58x581.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo58x581.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo60x60.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo60x60.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo76x76.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo76x76.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo80x80.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo80x80.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo80x801.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo80x801.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
-    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo87x87.png" />
+    <ImageAsset Include="Assets.xcassets\AppIcon.appiconset\logo87x87.png">
+      <Visible>false</Visible>
+    </ImageAsset>
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\Default-568h%402x.png" />

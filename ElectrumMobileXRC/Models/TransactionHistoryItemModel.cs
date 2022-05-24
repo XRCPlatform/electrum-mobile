@@ -4,5 +4,6 @@
     {
         public string CreationDate { get; set; }
         public decimal Balance { get; set; }
+        public int? Height { get; set; }
     }
 }

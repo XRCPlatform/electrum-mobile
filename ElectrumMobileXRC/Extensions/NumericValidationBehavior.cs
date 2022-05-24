@@ -18,7 +18,7 @@ namespace ElectrumMobileXRC.Extensions
             entry.TextChanged -= OnEntryTextChanged;
         }
 
-        private static void OnEntryTextChanged(object sender, TextChangedEventArgs e)
+        private void OnEntryTextChanged(object sender, TextChangedEventArgs e)
         {
             if (e.OldTextValue == e.NewTextValue)
             {

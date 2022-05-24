@@ -41,23 +41,27 @@ namespace ElectrumMobileXRC.Services
             NetworkLastSyncedBlock = -1;
             NetworkDefaultPort = 51002;
 
+            var random = new Random();
+
             if (_isMainNetwork)
             {
-                NetworkDefaultServer = NetworkConfig.MainNet.First();
-
                 foreach (var item in NetworkConfig.MainNet)
                 {
                     NetworkServers.Add(item);
                 }
+
+                int index = random.Next(NetworkServers.Count);
+                NetworkDefaultServer = NetworkServers[index];
             }
             else
             {
-                NetworkDefaultServer = NetworkConfig.TestNet.First();
-
                 foreach (var item in NetworkConfig.TestNet)
                 {
                     NetworkServers.Add(item);
                 }
+
+                int index = random.Next(NetworkServers.Count);
+                NetworkDefaultServer = NetworkServers[index];
             }
         }
 

@@ -10,15 +10,56 @@ using System.Threading.Tasks;
 using System.Linq;
 using WalletProvider.Entities;
 using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace ElectrumMobileXRC.PageModels
 {
-    public class MainPageModel : BasePageModel
+    public class MainPageModel : BasePageModel, INotifyPropertyChanged
     {
-        public string LastDateUpdateFormatted { get; set; }
-        public string LastBlockUpdate { get; set; }
-        public decimal BalanceUnconfirmed { get; set; }
-        public decimal Balance { get; set; }
+        private string _lastDateUpdateFormatted;
+        public string LastDateUpdateFormatted
+        {
+            get { return _lastDateUpdateFormatted; }
+            set
+            {
+                SetProperty(ref _lastDateUpdateFormatted, value);
+            }
+        }
+        public void ChangeLastDateUpdateValue(string val)
+        {
+            LastDateUpdateFormatted = val;
+        }
+
+        private string _lastBlockUpdate;
+        public string LastBlockUpdate
+        {
+            get { return _lastBlockUpdate; }
+            set
+            {
+                SetProperty(ref _lastBlockUpdate, value);
+            }
+        }
+
+        private decimal _balanceUnconfirmed;
+        public decimal BalanceUnconfirmed
+        {
+            get { return _balanceUnconfirmed; }
+            set
+            {
+                SetProperty(ref _balanceUnconfirmed, value);
+            }
+        }
+
+        private decimal _balance;
+        public decimal Balance
+        {
+            get { return _balance; }
+            set
+            {
+                SetProperty(ref _balance, value);
+            }
+        }
 
         private ObservableCollection<TransactionHistoryItemModel> _unconfirmedTransactions = new ObservableCollection<TransactionHistoryItemModel>();
         public ObservableCollection<TransactionHistoryItemModel> UnconfirmedTransactions
@@ -29,7 +70,7 @@ namespace ElectrumMobileXRC.PageModels
             }
             set
             {
-                _unconfirmedTransactions = value;
+                SetProperty(ref _unconfirmedTransactions, value);
             }
         }
 
@@ -42,8 +83,25 @@ namespace ElectrumMobileXRC.PageModels
             }
             set
             {
-                _confirmedTransactions = value;
+                SetProperty(ref _confirmedTransactions, value);
             }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void RaisePropertyChange(string propertyname)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyname));
+            }
+        }
+
+        protected bool SetProperty<T>(ref T prop, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (object.Equals(prop, value)) return false;
+            prop = value;
+            this.RaisePropertyChange(propertyName);
+            return true;
         }
 
         public ICommand SendButtonCommand { get; set; }
@@ -144,11 +202,11 @@ namespace ElectrumMobileXRC.PageModels
 
         private async Task SyncWalletWithNetwork(Network network)
         {
-            LastDateUpdateFormatted = Resources.SharedResource.Main_Syncing;
-
             var blockchainTransactionData = await _networkManager.StartSyncingAsync(
                 _walletManager.GetCombinedAddresses(),
-                _networkDbHelper.NetworkLastSyncedBlock);
+                _networkDbHelper.NetworkLastSyncedBlock,
+                Resources.SharedResource.Main_Syncing,
+                (text) => ChangeLastDateUpdateValue(text));
 
             await _networkDbHelper.UpdateNetworkInfoAsync(_networkManager.ServerInfo.Result.BlockHeight);
 
@@ -163,7 +221,7 @@ namespace ElectrumMobileXRC.PageModels
 
         private void UpdateWalletUI(Network network)
         {
-            LastDateUpdateFormatted = _networkDbHelper.NetworkDateLastUpdateFormatted;
+            ChangeLastDateUpdateValue(_networkDbHelper.NetworkDateLastUpdateFormatted);
             LastBlockUpdate = "N/A";
 
             if (_networkDbHelper.NetworkLastSyncedBlock > -1) LastBlockUpdate = _networkDbHelper.NetworkLastSyncedBlock.ToString();
@@ -189,7 +247,6 @@ namespace ElectrumMobileXRC.PageModels
                     }
 
                     var historyItem = new TransactionHistoryItemModel();
-
                     if (itemTransaction.Address.IsChangeAddress())
                     {
                         historyItem.Balance = GetBalanceForOutputTransaction(itemTransaction).ToUnit(MoneyUnit.XRC) * -1;
@@ -201,6 +258,8 @@ namespace ElectrumMobileXRC.PageModels
 
                     if (itemTransaction.Transaction.IsConfirmed())
                     {
+                        historyItem.Height = itemTransaction.Transaction.BlockHeight;
+
                         historyItem.CreationDate = string.Format("{0} {1}",
                             itemTransaction.Transaction.CreationTime.ToLocalTime().DateTime.ToShortDateString(),
                             itemTransaction.Transaction.CreationTime.ToLocalTime().DateTime.ToShortTimeString());
@@ -216,6 +275,8 @@ namespace ElectrumMobileXRC.PageModels
 
                         updatedUnconfirmedTransactions.Add(historyItem);
                     }
+
+
 
                     ConfirmedTransactions = updatedConfirmedTransactions;
                     UnconfirmedTransactions = updatedUnconfirmedTransactions;

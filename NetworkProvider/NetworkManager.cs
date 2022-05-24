@@ -39,16 +39,23 @@ namespace NetworkProvider
             }
         }
 
-        public async Task<List<WalletTransaction>> StartSyncingAsync(IEnumerable<HdAddress> addresses, int lastSyncedHeight)
+        public async Task<List<WalletTransaction>> StartSyncingAsync(IEnumerable<HdAddress> addresses, int lastSyncedHeight,
+            string progressText, Action<string> UpdateProgress)
         {
             var cnvHelper = new ConversionHelper();
             var transactionList = new List<WalletTransaction>();
+            var i = 0;
+
+            UpdateProgress?.Invoke(string.Format("{0}{1}/{2}", progressText, i, addresses.Count()));
 
             ServerInfo = await _electrumClient.GetBlockchainHeadersSubscribe();
             if ((ServerInfo != null) && (ServerInfo.Result != null) && (lastSyncedHeight < ServerInfo.Result.BlockHeight))
             {
                 foreach (var itemAddress in addresses)
                 {
+                    i++;
+                    UpdateProgress?.Invoke(string.Format("{0}{1}/{2}", progressText, i, addresses.Count()));
+
                     var address = BitcoinAddress.Create(itemAddress.Address, _net);
                     var addressBytes = address.ScriptPubKey.ToBytes();
                     var P2PKHBytes = cnvHelper.ByteArrayToString(addressBytes);

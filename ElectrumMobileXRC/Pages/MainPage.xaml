@@ -13,7 +13,7 @@
             <ScrollView Grid.Row="0" VerticalOptions="FillAndExpand">
                 <StackLayout VerticalOptions="FillAndExpand" Padding="24,34,24,24" Spacing="0">
                     <StackLayout VerticalOptions="StartAndExpand">
-                        <Label x:Name="WalletNameLabel" Text="Electrum Mobile BETA" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource white}" />
+                        <Label x:Name="WalletNameLabel" Text="Electrum Mobile 1.2 BETA" FontSize="16" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource white}" />
                         <StackLayout Orientation="Horizontal" Margin="0,8,0,0">
                             <ff:CachedImage x:Name="Logo" Source="logo.png" VerticalOptions="CenterAndExpand" />
                             <Label x:Name="ElectrumMobileXRCLabel" Margin="10,0,0,0" Text="xRhodium" FontSize="41" FontFamily="{StaticResource font_heavy}" TextColor="#ffffff" />
@@ -61,9 +61,14 @@
                                 <StackLayout  x:Name="HistoryList" BindableLayout.ItemsSource="{Binding ConfirmedTransactions}">
                                     <BindableLayout.ItemTemplate>
                                         <DataTemplate>
-                                            <StackLayout Orientation="Horizontal" Padding="0,10">
-                                                <Label VerticalOptions="Center" Text="{Binding CreationDate}" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
-                                                <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding Balance, StringFormat='{0:+0.########;-0.########;0.########}'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                            <StackLayout Padding="0,6" Orientation="Horizontal">
+                                                <StackLayout VerticalOptions="Center" HorizontalOptions="FillAndExpand">
+                                                    <Label VerticalOptions="Center" Text="{Binding CreationDate}" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
+                                                    <Label VerticalOptions="Center" Text="{Binding Height}" HorizontalOptions="Start" FontSize="12" FontFamily="{StaticResource font_medium}" TextColor="{StaticResource light_purple}" />
+                                                </StackLayout>
+                                                <StackLayout VerticalOptions="Center" Margin="10,0,0,0">
+                                                    <Label VerticalOptions="Center" LineBreakMode="TailTruncation" Text="{Binding Balance, StringFormat='{0:+0.########;-0.########;0.########}'}" HorizontalOptions="EndAndExpand" FontSize="16" FontFamily="{StaticResource font_book}" TextColor="{StaticResource dark_blue}" />
+                                                </StackLayout>
                                             </StackLayout>
                                         </DataTemplate>
                                     </BindableLayout.ItemTemplate>
